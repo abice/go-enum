@@ -28,7 +28,7 @@ func main() {
 
 			ctx.String("go-enum started. file: %s\n", ctx.Color().Cyan(originalName))
 			fileName, _ = filepath.Abs(fileName)
-			outFilePath := fmt.Sprintf("%s_validators.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
+			outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
 
 			// Parse the file given in arguments
 			raw, err := g.GenerateFromFile(fileName)

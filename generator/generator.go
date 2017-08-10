@@ -40,8 +40,9 @@ type Enum struct {
 }
 
 type EnumValue struct {
-	Name  string
-	Value int
+	Name         string
+	PrefixedName string
+	Value        int
 }
 
 // NewGenerator is a constructor method for creating a new Generator with default
@@ -217,7 +218,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	for _, value := range values {
 		if value != "" {
 			name := strings.Title(strings.TrimSpace(value))
-			enum.Values = append(enum.Values, EnumValue{Name: enum.Prefix + strings.TrimSpace(name), Value: data})
+			enum.Values = append(enum.Values, EnumValue{Name: strings.TrimSpace(name), PrefixedName: enum.Prefix + strings.TrimSpace(name), Value: data})
 			data++
 		}
 	}
