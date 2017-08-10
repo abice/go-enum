@@ -21,12 +21,6 @@ type SingleLine int
 ```
 
 ```
-// MultiLine comma separated enumeration...
-// ENUM(One, two, three)
-type SingleLine int
-```
-
-```
 // Color is an enumeration of colors that are allowed.
 // ENUM(
 // Black, White, Red
