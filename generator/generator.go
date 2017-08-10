@@ -185,7 +185,6 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	enum.Prefix = ts.Name.Name
 
 	parts := []string{}
-	// vBuff := bytes.NewBuffer([]byte{})
 	store := false
 	for _, comment := range ts.Doc.List {
 		if store {
@@ -262,7 +261,6 @@ func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
 					if ts, ok := x.Obj.Decl.(*ast.TypeSpec); ok {
 						// fmt.Printf("Type: %+v\n", ts)
 						isEnum := false
-						// store := false
 						if ts.Doc != nil {
 							for _, comment := range ts.Doc.List {
 								if strings.Contains(comment.Text, `ENUM(`) {
@@ -271,19 +269,12 @@ func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
 								// fmt.Printf("Doc: %s\n", comment.Text)
 							}
 						}
-						// switch ts.Type.(type){
-						// 	case ast.Valu
-						// }
 						// Only store documented enums
 						if isEnum {
 							// fmt.Printf("EnumType: %T\n", ts.Type)
 							enums[x.Name] = ts
 						}
 					}
-					// } else if x.Obj.Kind == ast.Con {
-					// 	if vs, ok := x.Obj.Decl.(*ast.ValueSpec); ok {
-					// 		fmt.Printf("Constant: %+v\n", vs)
-					// 	}
 				}
 			}
 		}

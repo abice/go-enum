@@ -13,6 +13,7 @@ import (
 const (
 {{ $enumName := .enum.Name}}
 {{ range $rIndex, $value := .enum.Values }}
+	// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.Name}}
     {{$value.PrefixedName}} {{$enumName}} = iota
 {{- end}}
 )
