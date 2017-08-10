@@ -4,10 +4,15 @@ package generator
 type X struct {
 }
 
-// Color is awesome
-// ENUM(Black, Red, Blue
-// green)
-type Color int // Color is stupid
+// Color is an enumeration of colors that are allowed.
+// ENUM(
+// Black, White, Red
+// Green
+// Blue
+// grey
+// yellow
+// )
+type Color int
 
 // Animal x ENUM(
 // Cat,
