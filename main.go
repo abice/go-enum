@@ -14,6 +14,9 @@ import (
 type rootT struct {
 	cli.Helper
 	FileNames []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
+	NoPrefix  bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
+	Lowercase bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
+	Marshal   bool     `cli:"marshal" usage:"Adds text marshalling functions."`
 }
 
 func main() {
@@ -23,6 +26,16 @@ func main() {
 		for _, fileName := range argv.FileNames {
 
 			g := generator.NewGenerator()
+
+			if argv.NoPrefix {
+				g.WithNoPrefix()
+			}
+			if argv.Lowercase {
+				g.WithLowercaseVariant()
+			}
+			if argv.Marshal {
+				g.WithMarshal()
+			}
 
 			originalName := fileName
 

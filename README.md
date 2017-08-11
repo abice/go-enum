@@ -90,3 +90,17 @@ func ParseColor(name string) Color {
 2. Run go generate like so `go generate ./...`
 
 3. Enjoy your newly created Enumeration
+
+
+## Options
+
+``` shell
+go-enum --help
+Options:
+
+  -h, --help       display help information
+  -f, --file      *The file(s) to generate enums.  Use more than one flag for more files.
+      --noprefix   Prevents the constants generated from having the Enum as a prefix.
+      --lower      Adds lowercase variants of the enum strings for lookup.
+      --marshal    Adds text marshalling functions.
+```

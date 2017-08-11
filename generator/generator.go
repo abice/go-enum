@@ -19,17 +19,14 @@ import (
 	"github.com/Masterminds/sprig"
 )
 
-const (
-	validateTag  = `valid:`
-	failFastFlag = `ff`
-)
-
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
-	t                     *template.Template
-	knownTemplates        map[string]*template.Template
-	fileSet               *token.FileSet
-	generatePointerMethod bool
+	t               *template.Template
+	knownTemplates  map[string]*template.Template
+	fileSet         *token.FileSet
+	noPrefix        bool
+	lowercaseLookup bool
+	marshal         bool
 }
 
 type Enum struct {
@@ -49,10 +46,10 @@ type EnumValue struct {
 // templates loaded.
 func NewGenerator() *Generator {
 	g := &Generator{
-		knownTemplates:        make(map[string]*template.Template),
-		t:                     template.New("generator"),
-		fileSet:               token.NewFileSet(),
-		generatePointerMethod: false,
+		knownTemplates: make(map[string]*template.Template),
+		t:              template.New("generator"),
+		fileSet:        token.NewFileSet(),
+		noPrefix:       false,
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -71,9 +68,21 @@ func NewGenerator() *Generator {
 	return g
 }
 
-// WithPointerMethod is used to change the method generated for a struct to use a pointer receiver rather than a value receiver.
-func (g *Generator) WithPointerMethod() *Generator {
-	g.generatePointerMethod = true
+// WithNoPrefix is used to change the enum const values generated to not have the enum on them.
+func (g *Generator) WithNoPrefix() *Generator {
+	g.noPrefix = true
+	return g
+}
+
+// WithLowercaseVariant is used to change the enum const values generated to not have the enum on them.
+func (g *Generator) WithLowercaseVariant() *Generator {
+	g.lowercaseLookup = true
+	return g
+}
+
+// WithMarshal is used to add marshalling to the enum
+func (g *Generator) WithMarshal() *Generator {
+	g.marshal = true
 	return g
 }
 
@@ -124,8 +133,10 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		}
 
 		data := map[string]interface{}{
-			"enum": enum,
-			"name": name,
+			"enum":      enum,
+			"name":      name,
+			"lowercase": g.lowercaseLookup,
+			"marshal":   g.marshal,
 		}
 
 		err = g.t.ExecuteTemplate(vBuff, "enum", data)
@@ -182,7 +193,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	enum.Name = ts.Name.Name
 	enum.Type = fmt.Sprintf("%s", ts.Type)
-	enum.Prefix = ts.Name.Name
+	if !g.noPrefix {
+		enum.Prefix = ts.Name.Name
+	}
 
 	parts := []string{}
 	store := false

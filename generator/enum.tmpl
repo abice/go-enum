@@ -11,7 +11,7 @@ import (
 
 {{- define "enum"}}
 const (
-{{ $enumName := .enum.Name}}
+{{- $enumName := .enum.Name -}}
 {{ range $rIndex, $value := .enum.Values }}
 	// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.Name}}
     {{$value.PrefixedName}} {{$enumName}} = iota
@@ -33,6 +33,9 @@ var _{{.enum.Name}}Value = map[string]{{.enum.Type}}{
     {{ range $rIndex, $value := .enum.Values -}}
         "{{$value.Name}}": {{$value.Value}},
     {{end}}
+	{{- if .lowercase }}{{ range $rIndex, $value := .enum.Values -}}
+        "{{ lower $value.Name}}": {{$value.Value}},
+    {{end}}{{end}}
 }
 
 func Parse{{.enum.Name}}(name string) {{.enum.Name}} {
@@ -42,5 +45,20 @@ func Parse{{.enum.Name}}(name string) {{.enum.Name}} {
 	}
 	return val
 }
+
+{{ if .marshal }}
+func (x *{{.enum.Name}}) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
+	name := string(text)
+	if tmp, ok := _{{.enum.Name}}Value[name]; ok {
+		*x = {{.enum.Name}}(tmp)
+		return nil
+	}
+	return fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
+}
+{{end}}
 
 {{end}}
