@@ -12,13 +12,9 @@ I took the output of the [Stringer](golang.org/x/tools/cmd/stringer) command as 
 ### Syntax
 The parser looks for comments on your type defs and parse the enum declarations from it.  
 The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.
-Here are a few examples of decorated values that will be parsed into enums:
 
-``` go
-// SingleLine enumeration...
-// ENUM(One, two, three)
-type SingleLine int
-```
+There are a few examples in the `example` [directory](repo/blob/master/example).
+I've included one here for easy access, but can't guarantee it's up to date.
 
 ``` go
 // Color is an enumeration of colors that are allowed.
@@ -37,19 +33,19 @@ The generated code will look something like:
 ``` go
 const (
 	// ColorBlack is a Color of type Black
-	ColorBlack Color = iota
+	ColorBlackColor = iota
 	// ColorWhite is a Color of type White
-	ColorWhite Color = iota
+	ColorWhite
 	// ColorRed is a Color of type Red
-	ColorRed Color = iota
+	ColorRed
 	// ColorGreen is a Color of type Green
-	ColorGreen Color = iota
+	ColorGreen
 	// ColorBlue is a Color of type Blue
-	ColorBlue Color = iota
+	ColorBlue
 	// ColorGrey is a Color of type Grey
-	ColorGrey Color = iota
+	ColorGrey
 	// ColorYellow is a Color of type Yellow
-	ColorYellow Color = iota
+	ColorYellow
 )
 
 const _ColorName = "BlackWhiteRedGreenBlueGreyYellow"
@@ -64,6 +60,7 @@ func (i Color) String() string {
 }
 
 var _ColorValue = map[string]int{
+
 	"Black":  0,
 	"White":  1,
 	"Red":    2,
@@ -71,6 +68,13 @@ var _ColorValue = map[string]int{
 	"Blue":   4,
 	"Grey":   5,
 	"Yellow": 6,
+	"black":  0,
+	"white":  1,
+	"red":    2,
+	"green":  3,
+	"blue":   4,
+	"grey":   5,
+	"yellow": 6,
 }
 
 func ParseColor(name string) Color {
@@ -98,7 +102,7 @@ func (x *Color) UnmarshalText(text []byte) error {
 
 ## Adding it to your project
 
-1. Add a go:generate line to your file like so... `// go:generate go-enum -f=thisfile.go`
+1. Add a go:generate line to your file like so... `//go:generate go-enum -f=thisfile.go`
 
 2. Run go generate like so `go generate ./...`
 
