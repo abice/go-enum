@@ -53,12 +53,12 @@ var _ColorValue = map[string]int{
 	"yellow": 6,
 }
 
-func ParseColor(name string) Color {
-	val := Color(0)
+// ParseColor attempts to convert a string to a Color
+func ParseColor(name string) (Color, error) {
 	if x, ok := _ColorValue[name]; ok {
-		val = Color(x)
+		return Color(x), nil
 	}
-	return val
+	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
 func (x *Color) MarshalText() ([]byte, error) {
@@ -67,9 +67,10 @@ func (x *Color) MarshalText() ([]byte, error) {
 
 func (x *Color) UnmarshalText(text []byte) error {
 	name := string(text)
-	if tmp, ok := _ColorValue[name]; ok {
-		*x = Color(tmp)
-		return nil
+	tmp, err := ParseColor(name)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("%s is not a valid Color", name)
+	*x = tmp
+	return nil
 }

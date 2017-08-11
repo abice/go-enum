@@ -37,12 +37,12 @@ var _AnimalValue = map[string]int32{
 	"fish": 2,
 }
 
-func ParseAnimal(name string) Animal {
-	val := Animal(0)
+// ParseAnimal attempts to convert a string to a Animal
+func ParseAnimal(name string) (Animal, error) {
 	if x, ok := _AnimalValue[name]; ok {
-		val = Animal(x)
+		return Animal(x), nil
 	}
-	return val
+	return Animal(0), fmt.Errorf("%s is not a valid Animal", name)
 }
 
 func (x *Animal) MarshalText() ([]byte, error) {
@@ -51,11 +51,12 @@ func (x *Animal) MarshalText() ([]byte, error) {
 
 func (x *Animal) UnmarshalText(text []byte) error {
 	name := string(text)
-	if tmp, ok := _AnimalValue[name]; ok {
-		*x = Animal(tmp)
-		return nil
+	tmp, err := ParseAnimal(name)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("%s is not a valid Animal", name)
+	*x = tmp
+	return nil
 }
 
 const (
@@ -90,12 +91,12 @@ var _ModelValue = map[string]int32{
 	"ford":   3,
 }
 
-func ParseModel(name string) Model {
-	val := Model(0)
+// ParseModel attempts to convert a string to a Model
+func ParseModel(name string) (Model, error) {
 	if x, ok := _ModelValue[name]; ok {
-		val = Model(x)
+		return Model(x), nil
 	}
-	return val
+	return Model(0), fmt.Errorf("%s is not a valid Model", name)
 }
 
 func (x *Model) MarshalText() ([]byte, error) {
@@ -104,9 +105,10 @@ func (x *Model) MarshalText() ([]byte, error) {
 
 func (x *Model) UnmarshalText(text []byte) error {
 	name := string(text)
-	if tmp, ok := _ModelValue[name]; ok {
-		*x = Model(tmp)
-		return nil
+	tmp, err := ParseModel(name)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("%s is not a valid Model", name)
+	*x = tmp
+	return nil
 }

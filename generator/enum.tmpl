@@ -35,12 +35,12 @@ var _{{.enum.Name}}Value = map[string]{{.enum.Type}}{
 	"{{ lower $value.Name}}": {{$value.Value}},{{end}}{{end}}{{end}}
 }
 
-func Parse{{.enum.Name}}(name string) {{.enum.Name}} {
-	val := {{.enum.Name}}(0)
+// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}
+func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
-		val = {{.enum.Name}}(x)
+		return {{.enum.Name}}(x), nil
 	}
-	return val
+	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
 }
 
 {{ if .marshal }}
@@ -50,11 +50,12 @@ func (x *{{.enum.Name}}) MarshalText() ([]byte, error) {
 
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	name := string(text)
-	if tmp, ok := _{{.enum.Name}}Value[name]; ok {
-		*x = {{.enum.Name}}(tmp)
-		return nil
+	tmp, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
+	*x = tmp
+	return nil
 }
 {{end}}
 
