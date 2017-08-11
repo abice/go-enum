@@ -14,13 +14,13 @@ The parser looks for comments on your type defs and parse the enum declarations 
 The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.
 Here are a few examples of decorated values that will be parsed into enums:
 
-```
+``` go
 // SingleLine enumeration...
 // ENUM(One, two, three)
 type SingleLine int
 ```
 
-```
+``` go
 // Color is an enumeration of colors that are allowed.
 // ENUM(
 // Black, White, Red
@@ -34,7 +34,7 @@ type Color int32
 
 The generated code will look something like:
 
-```
+``` go
 const (
 	// ColorBlack is a Color of type Black
 	ColorBlack Color = iota
