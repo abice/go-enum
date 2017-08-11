@@ -6,7 +6,7 @@ ifdef CIRCLE_ARTIFACTS
 endif
 
 .PHONY: all
-all: generate fmt build test cover install
+all: generate fmt build test example cover install 
 
 .PHONY: install-deps
 install-deps:
@@ -46,3 +46,7 @@ install:
 	go install
 
 phony: clean tc build
+
+.PHONY: example
+example:
+	go generate ./example

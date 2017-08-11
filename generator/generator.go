@@ -19,6 +19,10 @@ import (
 	"github.com/Masterminds/sprig"
 )
 
+const (
+	skipHolder = `_`
+)
+
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
 	t               *template.Template
@@ -230,7 +234,13 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	for _, value := range values {
 		if value != "" {
 			name := strings.Title(strings.TrimSpace(value))
-			enum.Values = append(enum.Values, EnumValue{Name: strings.TrimSpace(name), PrefixedName: enum.Prefix + strings.TrimSpace(name), Value: data})
+			prefixedName := name
+			if name != skipHolder {
+				prefixedName = enum.Prefix + name
+			}
+
+			ev := EnumValue{Name: name, PrefixedName: prefixedName, Value: data}
+			enum.Values = append(enum.Values, ev)
 			data++
 		}
 	}

@@ -80,6 +80,19 @@ func ParseColor(name string) Color {
 	}
 	return val
 }
+
+func (x *Color) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+func (x *Color) UnmarshalText(text []byte) error {
+	name := string(text)
+	if tmp, ok := _ColorValue[name]; ok {
+		*x = Color(tmp)
+		return nil
+	}
+	return fmt.Errorf("%s is not a valid Color", name)
+}
 ```
 
 

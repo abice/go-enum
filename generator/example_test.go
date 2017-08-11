@@ -21,5 +21,5 @@ type Color int
 // )
 type Animal int32
 
-// Model x ENUM(Toyota,Chevy,Ford)
+// Model x ENUM(Toyota,Chevy,_,Ford)
 type Model int32
