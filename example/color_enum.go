@@ -9,7 +9,7 @@ import (
 
 const (
 	// ColorBlack is a Color of type Black
-	ColorBlackColor = iota
+	ColorBlack Color = iota
 	// ColorWhite is a Color of type White
 	ColorWhite
 	// ColorRed is a Color of type Red

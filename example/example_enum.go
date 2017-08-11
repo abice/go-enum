@@ -9,7 +9,7 @@ import (
 
 const (
 	// AnimalCat is a Animal of type Cat
-	AnimalCatAnimal = iota
+	AnimalCat Animal = iota
 	// AnimalDog is a Animal of type Dog
 	AnimalDog
 	// AnimalFish is a Animal of type Fish
@@ -60,7 +60,7 @@ func (x *Animal) UnmarshalText(text []byte) error {
 
 const (
 	// ModelToyota is a Model of type Toyota
-	ModelToyotaModel = iota
+	ModelToyota Model = iota
 	// ModelChevy is a Model of type Chevy
 	ModelChevy
 	// Skipped value
