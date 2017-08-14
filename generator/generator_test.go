@@ -51,3 +51,17 @@ func TestExampleFile(t *testing.T) {
 		fmt.Println(string(imported))
 	}
 }
+
+// TestExampleFile
+func TestNoPrefixExampleFile(t *testing.T) {
+	g := NewGenerator()
+	g.WithMarshal()
+	g.WithLowercaseVariant()
+	g.WithNoPrefix()
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	assert.Nil(t, err, "Error generating formatted code")
+	if false {
+		fmt.Println(string(imported))
+	}
+}

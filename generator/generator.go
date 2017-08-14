@@ -1,4 +1,4 @@
-//go:generate go-bindata -o assets.go -pkg=generator enum.tmpl
+//go:generate go-bindata -o assets/assets.go -pkg=assets enum.tmpl
 
 package generator
 
@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
-	"go/printer"
 	"go/token"
 	"sort"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"golang.org/x/tools/imports"
 
 	"github.com/Masterminds/sprig"
+	"github.com/abice/go-enum/generator/assets"
 )
 
 const (
@@ -61,14 +61,13 @@ func NewGenerator() *Generator {
 	funcs := sprig.TxtFuncMap()
 
 	funcs["stringify"] = Stringify
-	funcs["indexify"] = Indexify
 	funcs["mapify"] = Mapify
 	funcs["unmapify"] = Unmapify
 
 	g.t.Funcs(funcs)
 
-	for _, assets := range AssetNames() {
-		g.t = template.Must(g.t.Parse(string(MustAsset(assets))))
+	for _, asset := range assets.AssetNames() {
+		g.t = template.Must(g.t.Parse(string(assets.MustAsset(asset))))
 	}
 
 	g.updateTemplates()
@@ -104,12 +103,6 @@ func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
 	return g.Generate(f)
 
 }
-
-type byPosition []*ast.Field
-
-func (a byPosition) Len() int           { return len(a) }
-func (a byPosition) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byPosition) Less(i, j int) bool { return a[i].Pos() < a[j].Pos() }
 
 // Generate does the heavy lifting for the code generation starting from the parsed AST file.
 func (g *Generator) Generate(f *ast.File) ([]byte, error) {
@@ -155,25 +148,6 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		err = fmt.Errorf("generate: error formatting code %s\n\n%s\n", err, string(vBuff.Bytes()))
 	}
 	return formatted, err
-}
-
-func (g *Generator) getStringForExpr(f ast.Expr) string {
-	typeBuff := bytes.NewBuffer([]byte{})
-	pErr := printer.Fprint(typeBuff, g.fileSet, f)
-	if pErr != nil {
-		fmt.Printf("Error getting Type: %s\n", pErr)
-	}
-	return typeBuff.String()
-}
-
-// AddTemplateFiles will be used during generation when the command line accepts
-// user templates to add to the generation.
-func (g *Generator) AddTemplateFiles(filenames ...string) (err error) {
-	g.t, err = g.t.ParseFiles(filenames...)
-	if err == nil {
-		g.updateTemplates()
-	}
-	return
 }
 
 // updateTemplates will update the lookup map for validation checks that are

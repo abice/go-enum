@@ -3,7 +3,7 @@
 // enum.tmpl
 // DO NOT EDIT!
 
-package generator
+package assets
 
 import (
 	"bytes"
@@ -83,7 +83,7 @@ func enumTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "enum.tmpl", size: 1419, mode: os.FileMode(420), modTime: time.Unix(1502730755, 0)}
+	info := bindataFileInfo{name: "enum.tmpl", size: 1419, mode: os.FileMode(420), modTime: time.Unix(1502733649, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

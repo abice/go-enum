@@ -30,9 +30,11 @@ fmt:
 test: generate gen-test
 	if [ ! -d coverage ]; then mkdir coverage; fi
 	go test -v ./generator -race -cover -coverprofile=$(COVERAGEDIR)/generator.coverprofile
+	go test -v ./example -race -cover -coverprofile=$(COVERAGEDIR)/example.coverprofile
 
 cover: gen-test test
 	go tool cover -html=$(COVERAGEDIR)/generator.coverprofile -o $(COVERAGEDIR)/generator.html
+	go tool cover -html=$(COVERAGEDIR)/example.coverprofile -o $(COVERAGEDIR)/example.html
 
 tc: test cover
 coveralls:
