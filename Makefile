@@ -1,7 +1,7 @@
 COVERAGEDIR = coverage
 SERVICE=local
-ifdef CIRCLE_ARTIFACTS
-  COVERAGEDIR = $(CIRCLE_ARTIFACTS)
+ifdef CIRCLE_WORKING_DIRECTORY
+  COVERAGEDIR = $(CIRCLE_WORKING_DIRECTORY)/coverage
 	SERVICE=circle-ci
 endif
 
@@ -36,6 +36,7 @@ cover: gen-test
 
 tc: test cover
 coveralls:
+	if [ ! -d $(COVERAGEDIR) ]; then mkdir $(COVERAGEDIR); fi
 	gover $(COVERAGEDIR) $(COVERAGEDIR)/coveralls.coverprofile
 	goveralls -coverprofile=$(COVERAGEDIR)/coveralls.coverprofile -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
