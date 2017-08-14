@@ -18,22 +18,7 @@ const (
 {{- end}}
 )
 
-const _{{.enum.Name}}Name = "{{stringify .enum }}"
-
-var _{{.enum.Name}}Index = {{indexify .enum }}
-
-func (i {{.enum.Name}}) String() string {
-	if i < 0 || i >= {{.enum.Name}}(len(_{{.enum.Name}}Index)-1) {
-		return fmt.Sprintf("{{.enum.Name}}(%d)", i)
-	}
-	return _{{.enum.Name}}Name[_{{.enum.Name}}Index[i]:_{{.enum.Name}}Index[i+1]]
-}
-
-var _{{.enum.Name}}Value = map[string]{{.enum.Type}}{
-    {{ range $rIndex, $value := .enum.Values -}}{{if ne $value.Name "_"}}
-	"{{$value.Name}}": {{$value.Value}},{{end}}{{end}}{{if .lowercase }}{{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
-	"{{ lower $value.Name}}": {{$value.Value}},{{end}}{{end}}{{end}}
-}
+{{ template "stringer" . }}
 
 // Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
@@ -58,5 +43,23 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	return nil
 }
 {{end}}
+
+{{end}}
+
+
+{{- define "stringer"}}
+const _{{.enum.Name}}Name = "{{ stringify .enum }}"
+
+var _{{.enum.Name}}Map = {{ mapify .enum }}
+
+
+func (i {{.enum.Name}}) String() string {
+	if str, ok := _{{.enum.Name}}Map[i]; ok {
+		return str
+	}
+	return fmt.Sprintf("{{.enum.Name}}(%d)", i)
+}
+
+var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
 {{end}}

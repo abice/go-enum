@@ -42,10 +42,12 @@ func TestNoFile(t *testing.T) {
 // TestExampleFile
 func TestExampleFile(t *testing.T) {
 	g := NewGenerator()
+	g.WithMarshal()
+	g.WithLowercaseVariant()
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	assert.Nil(t, err, "Error generating formatted code")
-	if false {
+	if true {
 		fmt.Println(string(imported))
 	}
 }

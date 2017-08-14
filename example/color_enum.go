@@ -5,6 +5,7 @@ package example
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -26,31 +27,38 @@ const (
 
 const _ColorName = "BlackWhiteRedGreenBlueGreyYellow"
 
-var _ColorIndex = [...]uint8{0, 5, 10, 13, 18, 22, 26, 32}
-
-func (i Color) String() string {
-	if i < 0 || i >= Color(len(_ColorIndex)-1) {
-		return fmt.Sprintf("Color(%d)", i)
-	}
-	return _ColorName[_ColorIndex[i]:_ColorIndex[i+1]]
+var _ColorMap = map[Color]string{
+	0: _ColorName[0:5],
+	1: _ColorName[5:10],
+	2: _ColorName[10:13],
+	3: _ColorName[13:18],
+	4: _ColorName[18:22],
+	5: _ColorName[22:26],
+	6: _ColorName[26:32],
 }
 
-var _ColorValue = map[string]int{
+func (i Color) String() string {
+	if str, ok := _ColorMap[i]; ok {
+		return str
+	}
+	return fmt.Sprintf("Color(%d)", i)
+}
 
-	"Black":  0,
-	"White":  1,
-	"Red":    2,
-	"Green":  3,
-	"Blue":   4,
-	"Grey":   5,
-	"Yellow": 6,
-	"black":  0,
-	"white":  1,
-	"red":    2,
-	"green":  3,
-	"blue":   4,
-	"grey":   5,
-	"yellow": 6,
+var _ColorValue = map[string]Color{
+	_ColorName[0:5]:                    0,
+	strings.ToLower(_ColorName[0:5]):   0,
+	_ColorName[5:10]:                   1,
+	strings.ToLower(_ColorName[5:10]):  1,
+	_ColorName[10:13]:                  2,
+	strings.ToLower(_ColorName[10:13]): 2,
+	_ColorName[13:18]:                  3,
+	strings.ToLower(_ColorName[13:18]): 3,
+	_ColorName[18:22]:                  4,
+	strings.ToLower(_ColorName[18:22]): 4,
+	_ColorName[22:26]:                  5,
+	strings.ToLower(_ColorName[22:26]): 5,
+	_ColorName[26:32]:                  6,
+	strings.ToLower(_ColorName[26:32]): 6,
 }
 
 // ParseColor attempts to convert a string to a Color

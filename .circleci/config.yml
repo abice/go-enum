@@ -24,12 +24,3 @@ jobs:
           command: |
             make cover
             make coveralls
-      - persist_to_workspace:
-          root: .
-          paths: .
-
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - build:
