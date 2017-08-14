@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/abice/go-enum
+    docker:
+      - image: circleci/golang:1.8.1
+    steps:
+      - checkout
+      - run:
+          name: Install Go Deps
+          command: |
+            go get github.com/golang/dep/cmd/dep
+            go get -v github.com/jteeuwen/go-bindata/...
+            go get -v golang.org/x/tools/cmd/cover
+            go get -v github.com/mattn/goveralls
+            go get -v github.com/modocache/gover
+            dep ensure
+      - run:
+          name: Build
+          command: |
+            make build
+      - run:
+          name: Test
+          command: |
+            make cover
+            make coveralls
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:

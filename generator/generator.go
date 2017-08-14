@@ -33,6 +33,7 @@ type Generator struct {
 	marshal         bool
 }
 
+// Enum holds data for a discovered enum in the parsed source
 type Enum struct {
 	Name   string
 	Prefix string
@@ -40,6 +41,7 @@ type Enum struct {
 	Values []EnumValue
 }
 
+// EnumValue holds the individual data for each enum value within the found enum.
 type EnumValue struct {
 	Name         string
 	PrefixedName string
@@ -143,7 +145,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"marshal":   g.marshal,
 		}
 
-		err = g.t.ExecuteTemplate(vBuff, "enum", data)
+		g.t.ExecuteTemplate(vBuff, "enum", data)
 	}
 
 	formatted, err := imports.Process(pkg, vBuff.Bytes(), nil)

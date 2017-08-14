@@ -5,14 +5,22 @@ ifdef CIRCLE_ARTIFACTS
 	SERVICE=circle-ci
 endif
 
+PACKAGES='./generator' './example'
+
 .PHONY: all
 all: generate fmt build test example cover install 
 
 .PHONY: install-deps
 install-deps:
-	glide install
+	go get github.com/golang/dep/cmd/dep
+	go get -v github.com/jteeuwen/go-bindata/...
+	go get -v golang.org/x/tools/cmd/cover
+	go get -v github.com/mattn/goveralls
+	go get -v github.com/modocache/gover
+	dep ensure
 
-build: generate
+build:
+	go generate ./generator
 	if [ ! -d bin ]; then mkdir bin; fi
 	go build -v -o bin/go-enum .
 
@@ -23,13 +31,14 @@ test: generate gen-test
 	if [ ! -d coverage ]; then mkdir coverage; fi
 	go test -v ./generator -race -cover -coverprofile=$(COVERAGEDIR)/generator.coverprofile
 
-cover:
+cover: gen-test
 	go tool cover -html=$(COVERAGEDIR)/generator.coverprofile -o $(COVERAGEDIR)/generator.html
 
 tc: test cover
 coveralls:
 	gover $(COVERAGEDIR) $(COVERAGEDIR)/coveralls.coverprofile
 	goveralls -coverprofile=$(COVERAGEDIR)/coveralls.coverprofile -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
+
 clean:
 	go clean
 	rm -f bin/go-enum
@@ -37,10 +46,10 @@ clean:
 
 .PHONY: generate
 generate:
-	go generate $$(glide nv)
+	go generate $(PACKAGES)
 
 gen-test: build install
-	go generate $$(glide nv)
+	go generate $(PACKAGES)
 
 install:
 	go install
