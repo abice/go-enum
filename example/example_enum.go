@@ -5,6 +5,7 @@ package example
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -18,23 +19,26 @@ const (
 
 const _AnimalName = "CatDogFish"
 
-var _AnimalIndex = [...]uint8{0, 3, 6, 10}
-
-func (i Animal) String() string {
-	if i < 0 || i >= Animal(len(_AnimalIndex)-1) {
-		return fmt.Sprintf("Animal(%d)", i)
-	}
-	return _AnimalName[_AnimalIndex[i]:_AnimalIndex[i+1]]
+var _AnimalMap = map[Animal]string{
+	0: _AnimalName[0:3],
+	1: _AnimalName[3:6],
+	2: _AnimalName[6:10],
 }
 
-var _AnimalValue = map[string]int32{
+func (i Animal) String() string {
+	if str, ok := _AnimalMap[i]; ok {
+		return str
+	}
+	return fmt.Sprintf("Animal(%d)", i)
+}
 
-	"Cat":  0,
-	"Dog":  1,
-	"Fish": 2,
-	"cat":  0,
-	"dog":  1,
-	"fish": 2,
+var _AnimalValue = map[string]Animal{
+	_AnimalName[0:3]:                   0,
+	strings.ToLower(_AnimalName[0:3]):  0,
+	_AnimalName[3:6]:                   1,
+	strings.ToLower(_AnimalName[3:6]):  1,
+	_AnimalName[6:10]:                  2,
+	strings.ToLower(_AnimalName[6:10]): 2,
 }
 
 // ParseAnimal attempts to convert a string to a Animal
@@ -62,33 +66,94 @@ func (x *Animal) UnmarshalText(text []byte) error {
 const (
 	// ModelToyota is a Model of type Toyota
 	ModelToyota Model = iota
+	// Skipped value
+	_
 	// ModelChevy is a Model of type Chevy
 	ModelChevy
 	// Skipped value
 	_
 	// ModelFord is a Model of type Ford
 	ModelFord
+	// Skipped value
+	_
+	// ModelTesla is a Model of type Tesla
+	ModelTesla
+	// Skipped value
+	_
+	// ModelHyundai is a Model of type Hyundai
+	ModelHyundai
+	// Skipped value
+	_
+	// ModelNissan is a Model of type Nissan
+	ModelNissan
+	// Skipped value
+	_
+	// ModelJaguar is a Model of type Jaguar
+	ModelJaguar
+	// Skipped value
+	_
+	// ModelAudi is a Model of type Audi
+	ModelAudi
+	// Skipped value
+	_
+	// ModelBMW is a Model of type BMW
+	ModelBMW
+	// Skipped value
+	_
+	// ModelMercedes is a Model of type Mercedes
+	ModelMercedes
+	// Skipped value
+	_
+	// ModelVolkswagon is a Model of type Volkswagon
+	ModelVolkswagon
 )
 
-const _ModelName = "ToyotaChevyFord"
+const _ModelName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedesVolkswagon"
 
-var _ModelIndex = [...]uint8{0, 6, 11, 15}
-
-func (i Model) String() string {
-	if i < 0 || i >= Model(len(_ModelIndex)-1) {
-		return fmt.Sprintf("Model(%d)", i)
-	}
-	return _ModelName[_ModelIndex[i]:_ModelIndex[i+1]]
+var _ModelMap = map[Model]string{
+	0:  _ModelName[0:6],
+	2:  _ModelName[6:11],
+	4:  _ModelName[11:15],
+	6:  _ModelName[15:20],
+	8:  _ModelName[20:27],
+	10: _ModelName[27:33],
+	12: _ModelName[33:39],
+	14: _ModelName[39:43],
+	16: _ModelName[43:46],
+	18: _ModelName[46:54],
+	20: _ModelName[54:64],
 }
 
-var _ModelValue = map[string]int32{
+func (i Model) String() string {
+	if str, ok := _ModelMap[i]; ok {
+		return str
+	}
+	return fmt.Sprintf("Model(%d)", i)
+}
 
-	"Toyota": 0,
-	"Chevy":  1,
-	"Ford":   3,
-	"toyota": 0,
-	"chevy":  1,
-	"ford":   3,
+var _ModelValue = map[string]Model{
+	_ModelName[0:6]:                    0,
+	strings.ToLower(_ModelName[0:6]):   0,
+	_ModelName[6:11]:                   2,
+	strings.ToLower(_ModelName[6:11]):  2,
+	_ModelName[11:15]:                  4,
+	strings.ToLower(_ModelName[11:15]): 4,
+	_ModelName[15:20]:                  6,
+	strings.ToLower(_ModelName[15:20]): 6,
+	_ModelName[20:27]:                  8,
+	strings.ToLower(_ModelName[20:27]): 8,
+	_ModelName[27:33]:                  10,
+	strings.ToLower(_ModelName[27:33]): 10,
+	_ModelName[33:39]:                  12,
+	strings.ToLower(_ModelName[33:39]): 12,
+	_ModelName[39:43]:                  14,
+	strings.ToLower(_ModelName[39:43]): 14,
+	_ModelName[43:46]:                  16,
+	strings.ToLower(_ModelName[43:46]): 16,
+	_ModelName[46:54]:                  18,
+	strings.ToLower(_ModelName[46:54]): 18,
+	_ModelName[54:64]:                  20,
+	strings.ToLower(_ModelName[54:64]): 20,
 }
 
 // ParseModel attempts to convert a string to a Model

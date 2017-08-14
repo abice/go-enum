@@ -62,6 +62,8 @@ func NewGenerator() *Generator {
 
 	funcs["stringify"] = Stringify
 	funcs["indexify"] = Indexify
+	funcs["mapify"] = Mapify
+	funcs["unmapify"] = Unmapify
 
 	g.t.Funcs(funcs)
 
