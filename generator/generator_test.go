@@ -47,7 +47,7 @@ func TestExampleFile(t *testing.T) {
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	assert.Nil(t, err, "Error generating formatted code")
-	if true {
+	if false {
 		fmt.Println(string(imported))
 	}
 }
