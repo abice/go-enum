@@ -8,8 +8,8 @@ type X struct {
 // ENUM(
 // Black, White, Red
 // Green
-// Blue
-// grey
+// Blue=33
+// grey=
 // yellow
 // )
 type Color int

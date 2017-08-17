@@ -4,12 +4,12 @@ package generator
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -17,6 +17,7 @@ import (
 
 	"github.com/Masterminds/sprig"
 	"github.com/abice/go-enum/generator/assets"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -179,9 +180,53 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 		enum.Prefix = ts.Name.Name
 	}
 
+	enumDecl := getEnumDeclFromComments(ts.Doc.List)
+
+	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
+	data := 0
+	for _, value := range values {
+		// Make sure to leave out any empty parts
+		if value != "" {
+			if strings.Contains(value, `=`) {
+				// Get the value specified and set the data to that value.
+				equalIndex := strings.Index(value, `=`)
+				dataVal := strings.TrimSpace(value[equalIndex+1:])
+				if dataVal != "" {
+					newData, err := strconv.ParseInt(dataVal, 10, 32)
+					if err != nil {
+						return nil, errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+					}
+					data = int(newData)
+					value = value[:equalIndex]
+				} else {
+					value = strings.TrimSuffix(value, `=`)
+					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", value)
+				}
+			}
+			name := strings.Title(strings.TrimSpace(value))
+			prefixedName := name
+			if name != skipHolder {
+				prefixedName = enum.Prefix + name
+			}
+
+			ev := EnumValue{Name: name, PrefixedName: prefixedName, Value: data}
+			enum.Values = append(enum.Values, ev)
+			data++
+		}
+	}
+
+	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
+
+	return enum, nil
+}
+
+// getEnumDeclFromComments parses the array of comment strings and creates a single Enum Declaration statement
+// that is easier to deal with for the remainder of parsing.  It turns multi line declarations and makes a single
+// string declaration.
+func getEnumDeclFromComments(comments []*ast.Comment) string {
 	parts := []string{}
 	store := false
-	for _, comment := range ts.Doc.List {
+	for _, comment := range comments {
 		if store {
 			trimmed := strings.TrimSuffix(strings.TrimSpace(strings.TrimPrefix(comment.Text, `//`)), `,`)
 			parts = append(parts, trimmed)
@@ -203,29 +248,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			}
 			trimmed := strings.TrimSuffix(strings.TrimSpace(strings.TrimPrefix(text, `//`)), `,`)
 			parts = append(parts, trimmed)
-
 		}
 	}
-	enumDecl := strings.Join(parts, `,`)
-	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
-	data := 0
-	for _, value := range values {
-		if value != "" {
-			name := strings.Title(strings.TrimSpace(value))
-			prefixedName := name
-			if name != skipHolder {
-				prefixedName = enum.Prefix + name
-			}
-
-			ev := EnumValue{Name: name, PrefixedName: prefixedName, Value: data}
-			enum.Values = append(enum.Values, ev)
-			data++
-		}
-	}
-
-	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
-
-	return enum, nil
+	return strings.Join(parts, `,`)
 }
 
 // inspect will walk the ast and fill a map of names and their struct information
