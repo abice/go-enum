@@ -3,8 +3,10 @@ package generator
 import (
 	"fmt"
 	"go/parser"
+	"strings"
 	"testing"
 
+	"github.com/bradleyjkemp/cupaloy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,6 +49,11 @@ func TestExampleFile(t *testing.T) {
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	assert.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	err = cupaloy.Snapshot(outputLines)
+	assert.NoError(t, err, "Output must match snapshot")
+
 	if false {
 		fmt.Println(string(imported))
 	}
@@ -61,6 +68,11 @@ func TestNoPrefixExampleFile(t *testing.T) {
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	assert.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	err = cupaloy.Snapshot(outputLines)
+	assert.NoError(t, err, "Output must match snapshot")
+
 	if false {
 		fmt.Println(string(imported))
 	}
