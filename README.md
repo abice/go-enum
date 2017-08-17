@@ -18,6 +18,7 @@ I took the output of the [Stringer](golang.org/x/tools/cmd/stringer) command as 
 ### Syntax
 The parser looks for comments on your type defs and parse the enum declarations from it.  
 The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.
+If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration.  Keep in mind, this resets the data for all following values.  So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
 
 There are a few examples in the `example` [directory](repo/blob/master/example).
 I've included one here for easy access, but can't guarantee it's up to date.

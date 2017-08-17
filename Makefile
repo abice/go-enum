@@ -8,7 +8,7 @@ endif
 PACKAGES='./generator' './example'
 
 .PHONY: all
-all: generate fmt build test example cover install 
+all: build fmt test example cover install 
 
 .PHONY: install-deps
 install-deps:
@@ -27,7 +27,7 @@ build:
 fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
-test: generate gen-test
+test: gen-test generate
 	if [ ! -d coverage ]; then mkdir coverage; fi
 	go test -v ./generator -race -cover -coverprofile=$(COVERAGEDIR)/generator.coverprofile
 	go test -v ./example -race -cover -coverprofile=$(COVERAGEDIR)/example.coverprofile

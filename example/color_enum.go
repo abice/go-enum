@@ -16,25 +16,25 @@ const (
 	// ColorRed is a Color of type Red
 	ColorRed
 	// ColorGreen is a Color of type Green
-	ColorGreen
+	ColorGreen Color = iota + 30
 	// ColorBlue is a Color of type Blue
-	ColorBlue
+	ColorBlue Color = iota + 30
 	// ColorGrey is a Color of type Grey
-	ColorGrey
+	ColorGrey Color = iota + 30
 	// ColorYellow is a Color of type Yellow
-	ColorYellow
+	ColorYellow Color = iota + 30
 )
 
 const _ColorName = "BlackWhiteRedGreenBlueGreyYellow"
 
 var _ColorMap = map[Color]string{
-	0: _ColorName[0:5],
-	1: _ColorName[5:10],
-	2: _ColorName[10:13],
-	3: _ColorName[13:18],
-	4: _ColorName[18:22],
-	5: _ColorName[22:26],
-	6: _ColorName[26:32],
+	0:  _ColorName[0:5],
+	1:  _ColorName[5:10],
+	2:  _ColorName[10:13],
+	33: _ColorName[13:18],
+	34: _ColorName[18:22],
+	35: _ColorName[22:26],
+	36: _ColorName[26:32],
 }
 
 func (i Color) String() string {
@@ -51,14 +51,14 @@ var _ColorValue = map[string]Color{
 	strings.ToLower(_ColorName[5:10]):  1,
 	_ColorName[10:13]:                  2,
 	strings.ToLower(_ColorName[10:13]): 2,
-	_ColorName[13:18]:                  3,
-	strings.ToLower(_ColorName[13:18]): 3,
-	_ColorName[18:22]:                  4,
-	strings.ToLower(_ColorName[18:22]): 4,
-	_ColorName[22:26]:                  5,
-	strings.ToLower(_ColorName[22:26]): 5,
-	_ColorName[26:32]:                  6,
-	strings.ToLower(_ColorName[26:32]): 6,
+	_ColorName[13:18]:                  33,
+	strings.ToLower(_ColorName[13:18]): 33,
+	_ColorName[18:22]:                  34,
+	strings.ToLower(_ColorName[18:22]): 34,
+	_ColorName[22:26]:                  35,
+	strings.ToLower(_ColorName[22:26]): 35,
+	_ColorName[26:32]:                  36,
+	strings.ToLower(_ColorName[26:32]): 36,
 }
 
 // ParseColor attempts to convert a string to a Color
