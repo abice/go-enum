@@ -227,30 +227,52 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 	parts := []string{}
 	store := false
 	for _, comment := range comments {
-		if store {
-			trimmed := strings.TrimSuffix(strings.TrimSpace(strings.TrimPrefix(comment.Text, `//`)), `,`)
-			parts = append(parts, trimmed)
-			if strings.Contains(comment.Text, `)`) {
-				// End ENUM Declaration
-				break
-			}
+		lines := []string{}
+		text := comment.Text
+		if strings.HasPrefix(text, `/*`) {
+			// deal with multi line comment
+			multiline := strings.TrimSuffix(strings.TrimPrefix(text, `/*`), `*/`)
+			lines = append(lines, strings.Split(multiline, "\n")...)
+		} else {
+			lines = append(lines, strings.TrimPrefix(text, `//`))
 		}
-		if strings.Contains(comment.Text, `ENUM(`) {
-			// Start ENUM Declaration
-			if !strings.Contains(comment.Text, `)`) {
-				// Don't store other lines
-				store = true
+
+		// Go over all the lines in this comment block
+		for _, line := range lines {
+			if store {
+				trimmed := trimAllTheThings(line)
+				if trimmed != "" {
+					parts = append(parts, trimmed)
+				}
+				if strings.Contains(line, `)`) {
+					// End ENUM Declaration
+					break
+				}
 			}
-			startIndex := strings.Index(comment.Text, `ENUM(`)
-			text := comment.Text
-			if startIndex >= 0 {
-				text = text[startIndex:]
+			if strings.Contains(line, `ENUM(`) {
+				// Start ENUM Declaration
+				if !strings.Contains(line, `)`) {
+					// Store other lines
+					store = true
+				}
+				startIndex := strings.Index(line, `ENUM(`)
+				if startIndex >= 0 {
+					line = line[startIndex+len(`ENUM(`):]
+				}
+				trimmed := trimAllTheThings(line)
+				if trimmed != "" {
+					parts = append(parts, trimmed)
+				}
 			}
-			trimmed := strings.TrimSuffix(strings.TrimSpace(strings.TrimPrefix(text, `//`)), `,`)
-			parts = append(parts, trimmed)
 		}
 	}
-	return strings.Join(parts, `,`)
+	joined := fmt.Sprintf("ENUM(%s)", strings.Join(parts, `,`))
+	return joined
+}
+
+// trimAllTheThings takes off all the cruft of a line that we don't need.
+func trimAllTheThings(thing string) string {
+	return strings.TrimSpace(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSpace(thing), `,`), `)`))
 }
 
 // inspect will walk the ast and fill a map of names and their struct information

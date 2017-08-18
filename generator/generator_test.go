@@ -8,6 +8,7 @@ import (
 
 	"github.com/bradleyjkemp/cupaloy"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -48,7 +49,7 @@ func TestExampleFile(t *testing.T) {
 	g.WithLowercaseVariant()
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
-	assert.Nil(t, err, "Error generating formatted code")
+	require.Nil(t, err, "Error generating formatted code")
 
 	outputLines := strings.Split(string(imported), "\n")
 	err = cupaloy.Snapshot(outputLines)
@@ -67,7 +68,7 @@ func TestNoPrefixExampleFile(t *testing.T) {
 	g.WithNoPrefix()
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
-	assert.Nil(t, err, "Error generating formatted code")
+	require.Nil(t, err, "Error generating formatted code")
 
 	outputLines := strings.Split(string(imported), "\n")
 	err = cupaloy.Snapshot(outputLines)
