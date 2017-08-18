@@ -23,3 +23,11 @@ type Animal int32
 
 // Model x ENUM(Toyota,_,Chevy,_,Ford)
 type Model int32
+
+/* ENUM(
+ Coke
+ Pepsi
+ MtnDew
+)
+*/
+type Soda int64
