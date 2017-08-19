@@ -227,15 +227,7 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 	parts := []string{}
 	store := false
 	for _, comment := range comments {
-		lines := []string{}
-		text := comment.Text
-		if strings.HasPrefix(text, `/*`) {
-			// deal with multi line comment
-			multiline := strings.TrimSuffix(strings.TrimPrefix(text, `/*`), `*/`)
-			lines = append(lines, strings.Split(multiline, "\n")...)
-		} else {
-			lines = append(lines, strings.TrimPrefix(text, `//`))
-		}
+		lines := breakCommentIntoLines(comment)
 
 		// Go over all the lines in this comment block
 		for _, line := range lines {
@@ -270,6 +262,21 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 	return joined
 }
 
+// breakCommentIntoLines takes the comment and since single line comments are already broken into lines
+// we break multiline comments into separate lines for processing.
+func breakCommentIntoLines(comment *ast.Comment) []string {
+	lines := []string{}
+	text := comment.Text
+	if strings.HasPrefix(text, `/*`) {
+		// deal with multi line comment
+		multiline := strings.TrimSuffix(strings.TrimPrefix(text, `/*`), `*/`)
+		lines = append(lines, strings.Split(multiline, "\n")...)
+	} else {
+		lines = append(lines, strings.TrimPrefix(text, `//`))
+	}
+	return lines
+}
+
 // trimAllTheThings takes off all the cruft of a line that we don't need.
 func trimAllTheThings(thing string) string {
 	return strings.TrimSpace(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSpace(thing), `,`), `)`))
@@ -284,22 +291,7 @@ func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.GenDecl:
-			// Copy the doc spec to the type or value spec
-			// cause they missed this... whoops
-			if x.Doc != nil {
-				for _, spec := range x.Specs {
-					switch s := spec.(type) {
-					case *ast.TypeSpec:
-						if s.Doc == nil {
-							s.Doc = x.Doc
-						}
-					case *ast.ValueSpec:
-						if s.Doc == nil {
-							s.Doc = x.Doc
-						}
-					}
-				}
-			}
+			copyGenDeclCommentsToSpecs(x)
 		case *ast.Ident:
 			if x.Obj != nil {
 				// fmt.Printf("Node: %#v\n", x.Obj)
@@ -308,15 +300,7 @@ func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
 					// Make sure it's a spec (Type Identifiers can be throughout the code)
 					if ts, ok := x.Obj.Decl.(*ast.TypeSpec); ok {
 						// fmt.Printf("Type: %+v\n", ts)
-						isEnum := false
-						if ts.Doc != nil {
-							for _, comment := range ts.Doc.List {
-								if strings.Contains(comment.Text, `ENUM(`) {
-									isEnum = true
-								}
-								// fmt.Printf("Doc: %s\n", comment.Text)
-							}
-						}
+						isEnum := isTypeSpecEnum(ts)
 						// Only store documented enums
 						if isEnum {
 							// fmt.Printf("EnumType: %T\n", ts.Type)
@@ -331,4 +315,42 @@ func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
 	})
 
 	return enums
+}
+
+// copyDocsToSpecs will take the GenDecl level documents and copy them
+// to the children Type and Value specs.  I think this is actually working
+// around a bug in the AST, but it works for now.
+func copyGenDeclCommentsToSpecs(x *ast.GenDecl) {
+	// Copy the doc spec to the type or value spec
+	// cause they missed this... whoops
+	if x.Doc != nil {
+		for _, spec := range x.Specs {
+			switch s := spec.(type) {
+			case *ast.TypeSpec:
+				if s.Doc == nil {
+					s.Doc = x.Doc
+				}
+			case *ast.ValueSpec:
+				if s.Doc == nil {
+					s.Doc = x.Doc
+				}
+			}
+		}
+	}
+
+}
+
+// isTypeSpecEnum checks the comments on the type spec to determine if there is an enum
+// declaration for the type.
+func isTypeSpecEnum(ts *ast.TypeSpec) bool {
+	isEnum := false
+	if ts.Doc != nil {
+		for _, comment := range ts.Doc.List {
+			if strings.Contains(comment.Text, `ENUM(`) {
+				isEnum = true
+			}
+		}
+	}
+
+	return isEnum
 }
