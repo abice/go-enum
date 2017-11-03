@@ -101,7 +101,7 @@ func TestColorUnmarshal(t *testing.T) {
 		},
 		{
 			name:          "grey",
-			input:         `{"color":"Grey"}`,
+			input:         `{"color":"grey"}`,
 			output:        &testData{ColorX: ColorGrey},
 			errorExpected: false,
 			err:           nil,
@@ -115,7 +115,7 @@ func TestColorUnmarshal(t *testing.T) {
 		},
 		{
 			name:          "yellow",
-			input:         `{"color":"Yellow"}`,
+			input:         `{"color":"yellow"}`,
 			output:        &testData{ColorX: ColorYellow},
 			errorExpected: false,
 			err:           nil,
@@ -196,14 +196,14 @@ func TestColorMarshal(t *testing.T) {
 		},
 		{
 			name:          "grey",
-			output:        `{"color":"Grey"}`,
+			output:        `{"color":"grey"}`,
 			input:         &testData{ColorX: ColorGrey},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "yellow",
-			output:        `{"color":"Yellow"}`,
+			output:        `{"color":"yellow"}`,
 			input:         &testData{ColorX: ColorYellow},
 			errorExpected: false,
 			err:           nil,

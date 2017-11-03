@@ -31,3 +31,11 @@ type Model int32
 )
 */
 type Soda int64
+
+/* ENUM(
+ test_lower
+ Test_capital
+ anotherLowerCaseStart
+)
+*/
+type Cases int64

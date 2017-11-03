@@ -25,7 +25,7 @@ const (
 	ColorYellow Color = iota + 30
 )
 
-const _ColorName = "BlackWhiteRedGreenBlueGreyYellow"
+const _ColorName = "BlackWhiteRedGreenBluegreyyellow"
 
 var _ColorMap = map[Color]string{
 	0:  _ColorName[0:5],
