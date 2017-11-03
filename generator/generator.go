@@ -44,6 +44,7 @@ type Enum struct {
 
 // EnumValue holds the individual data for each enum value within the found enum.
 type EnumValue struct {
+	RawName      string
 	Name         string
 	PrefixedName string
 	Value        int
@@ -203,13 +204,14 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", value)
 				}
 			}
-			name := strings.Title(strings.TrimSpace(value))
+			rawName := strings.TrimSpace(value)
+			name := strings.Title(rawName)
 			prefixedName := name
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
 			}
 
-			ev := EnumValue{Name: name, PrefixedName: prefixedName, Value: data}
+			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data}
 			enum.Values = append(enum.Values, ev)
 			data++
 		}

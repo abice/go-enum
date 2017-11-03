@@ -8,7 +8,7 @@ import (
 func Stringify(e Enum) (ret string, err error) {
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
-			ret = ret + val.Name
+			ret = ret + val.RawName
 		}
 	}
 	return
