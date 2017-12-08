@@ -5,6 +5,7 @@ package example
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -105,6 +106,12 @@ var _ModelValue = map[string]Model{
 func ParseModel(name string) (Model, error) {
 	if x, ok := _ModelValue[name]; ok {
 		return Model(x), nil
+	}
+	if strings.HasPrefix(name, `Model(`) {
+		// Do something cool here
+		xName := strings.TrimSuffix(strings.TrimPrefix(name, `Model(`), `)`)
+		x, err := strconv.Atoi(xName)
+		return Model(int32(x)), err
 	}
 	return Model(0), fmt.Errorf("%s is not a valid Model", name)
 }

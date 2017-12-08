@@ -110,6 +110,13 @@ func TestModelUnmarshal(t *testing.T) {
 			errorExpected: true,
 			err:           errors.New("Porsche is not a valid Model"),
 		},
+		{
+			name:          "Model(64)",
+			input:         `{"model":"Model(64)"}`,
+			output:        &modelTest{M: Model(64)},
+			errorExpected: false,
+			err:           nil,
+		},
 	}
 
 	for _, test := range tests {
@@ -209,6 +216,13 @@ func TestModelMarshal(t *testing.T) {
 			name:          "volkswagon",
 			output:        `{"model":"Volkswagon"}`,
 			input:         &modelTest{M: ModelVolkswagon},
+			errorExpected: false,
+			err:           nil,
+		},
+		{
+			name:          "Model(64)",
+			output:        `{"model":"Model(64)"}`,
+			input:         &modelTest{M: Model(64)},
 			errorExpected: false,
 			err:           nil,
 		},

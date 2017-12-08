@@ -32,6 +32,7 @@ type Generator struct {
 	noPrefix        bool
 	lowercaseLookup bool
 	marshal         bool
+	allowExtensions bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -95,6 +96,12 @@ func (g *Generator) WithMarshal() *Generator {
 	return g
 }
 
+// WithExtensions is used to add parsing of extended variable types to the enum
+func (g *Generator) WithExtensions() *Generator {
+	g.allowExtensions = true
+	return g
+}
+
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
 // that can be written to any file desired.  It has already had goimports run on the code before being returned.
 func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
@@ -136,10 +143,11 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		}
 
 		data := map[string]interface{}{
-			"enum":      enum,
-			"name":      name,
-			"lowercase": g.lowercaseLookup,
-			"marshal":   g.marshal,
+			"enum":            enum,
+			"name":            name,
+			"lowercase":       g.lowercaseLookup,
+			"marshal":         g.marshal,
+			"allowExtensions": g.allowExtensions,
 		}
 
 		g.t.ExecuteTemplate(vBuff, "enum", data)
@@ -147,7 +155,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 
 	formatted, err := imports.Process(pkg, vBuff.Bytes(), nil)
 	if err != nil {
-		err = fmt.Errorf("generate: error formatting code %s\n\n%s\n", err, string(vBuff.Bytes()))
+		err = fmt.Errorf("generate: error formatting code %s\n\n%s\n", err, vBuff.String())
 	}
 	return formatted, err
 }

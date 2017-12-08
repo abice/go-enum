@@ -24,7 +24,13 @@ const (
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return {{.enum.Name}}(x), nil
-	}
+	}{{ if .allowExtensions }}
+	if strings.HasPrefix(name, `{{.enum.Name}}(`){
+		// Do something cool here
+		xName := strings.TrimSuffix(strings.TrimPrefix(name, `{{.enum.Name}}(`), `)`)
+		x, err := strconv.Atoi(xName)
+		return {{.enum.Name}}({{.enum.Type}}(x)), err
+	}{{end}}
 	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
 }
 

@@ -13,11 +13,12 @@ import (
 
 type rootT struct {
 	cli.Helper
-	FileNames []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
-	NoPrefix  bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
-	Lowercase bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
-	Marshal   bool     `cli:"marshal" usage:"Adds text marshalling functions."`
-	Prefix    string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
+	FileNames  []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
+	NoPrefix   bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
+	Lowercase  bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
+	Marshal    bool     `cli:"marshal" usage:"Adds text marshalling functions."`
+	Extensions bool     `cli:"extensions" usage:"Adds extension value parsing."`
+	Prefix     string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
 }
 
 func main() {
@@ -36,6 +37,9 @@ func main() {
 			}
 			if argv.Marshal {
 				g.WithMarshal()
+			}
+			if argv.Extensions {
+				g.WithExtensions()
 			}
 
 			originalName := fileName
