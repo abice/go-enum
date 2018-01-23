@@ -50,7 +50,8 @@ func main() {
 				return fmt.Errorf("Error while generating enums\nInputFile=%s\nError=%s\n", ctx.Color().Cyan(fileName), ctx.Color().RedBg(err))
 			}
 
-			err = ioutil.WriteFile(outFilePath, raw, os.ModePerm)
+			mode := int(0644)
+			err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
 			if err != nil {
 				return fmt.Errorf("Error while writing to file %s: %s\n", ctx.Color().Cyan(outFilePath), ctx.Color().Red(err))
 			}
