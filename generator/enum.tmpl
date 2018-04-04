@@ -44,6 +44,25 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
+{{ if .flag }}
+// Set implements the Golang flag.Value interface func
+func (x *{{.enum.Name}}) Set(val string) error {
+	v, err := Parse{{.enum.Name}}(val)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func
+func (x *{{.enum.Name}}) Get() interface{} {
+	return *x
+}
+
+// Type implements the github.com/spf13/pFlag Value interface 
+func (x *{{.enum.Name}}) Type() string {
+	return "{{.enum.Name}}"
+}
+{{end}}
+
 {{end}}
 
 

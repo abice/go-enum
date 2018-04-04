@@ -66,6 +66,7 @@ func TestNoPrefixExampleFile(t *testing.T) {
 	g.WithMarshal()
 	g.WithLowercaseVariant()
 	g.WithNoPrefix()
+	g.WithFlag()
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	require.Nil(t, err, "Error generating formatted code")
