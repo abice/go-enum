@@ -14,10 +14,10 @@
   version = "v1.2.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/Masterminds/sprig"
   packages = ["."]
-  revision = "e039e20e500c2c025d9145be375e27cf42a94174"
+  revision = "6b2a58267f6a8b1dc8e2eb5519b984008fa85e8c"
+  version = "v2.15.0"
 
 [[projects]]
   name = "github.com/aokoli/goutils"
@@ -35,6 +35,12 @@
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "04cdfd42973bb9c8589fd6a731800cf222fde1a9"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
 
 [[projects]]
   branch = "master"
@@ -75,7 +81,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/mkideal/pkg"
-  packages = ["debug","expr"]
+  packages = [
+    "debug",
+    "expr"
+  ]
   revision = "3e188c9e7ecc83d0fe7040a9161ce3c67885470d"
 
 [[projects]]
@@ -90,21 +99,21 @@
   revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
-  version = "v1.1.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/stretchr/testify"
-  packages = ["assert","require"]
+  packages = [
+    "assert",
+    "require"
+  ]
   revision = "890a5c3458b43e6104ff5da8dfa139d013d77544"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["pbkdf2","scrypt"]
+  packages = [
+    "pbkdf2",
+    "scrypt"
+  ]
   revision = "b176d7def5d71bdd214203491f89843ed217f420"
 
 [[projects]]
@@ -116,12 +125,15 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
-  packages = ["go/ast/astutil","imports"]
+  packages = [
+    "go/ast/astutil",
+    "imports"
+  ]
   revision = "5831d16d18029819d39f99bdc2060b8eff410b6b"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1100718b3d988628f664c5b040050b4abc59c89acfcf403ffdbef163600f0e97"
+  inputs-digest = "4275b5b4a39c4ff3291ce372bf5adf6e937120fda206e34fde562336226a525c"
   solver-name = "gps-cdcl"
   solver-version = 1

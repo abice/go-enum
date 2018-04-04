@@ -20,9 +20,9 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
-
 [[constraint]]
   name = "github.com/Masterminds/sprig"
+  version = "v2.15.0"
 
 [[constraint]]
   name = "github.com/mkideal/cli"
