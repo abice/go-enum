@@ -122,3 +122,20 @@ func (x *Model) UnmarshalText(text []byte) error {
 	*x = tmp
 	return nil
 }
+
+// Set implements the Golang flag.Value interface func
+func (x *Model) Set(val string) error {
+	v, err := ParseModel(val)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func
+func (x *Model) Get() interface{} {
+	return *x
+}
+
+// Type implements the github.com/spf13/pFlag Value interface
+func (x *Model) Type() string {
+	return "Model"
+}

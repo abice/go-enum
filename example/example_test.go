@@ -3,8 +3,10 @@ package example
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"testing"
 
+	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,6 +18,10 @@ type modelTest struct {
 func TestModel(t *testing.T) {
 	assert.Equal(t, "Ford", ModelFord.String())
 	assert.Equal(t, "Model(99)", Model(99).String())
+	ford := ModelFord
+	assert.Implements(t, (*flag.Value)(nil), &ford)
+	assert.Implements(t, (*flag.Getter)(nil), &ford)
+	assert.Implements(t, (*pflag.Value)(nil), &ford)
 }
 
 func TestModelUnmarshal(t *testing.T) {

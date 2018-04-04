@@ -32,6 +32,7 @@ type Generator struct {
 	noPrefix        bool
 	lowercaseLookup bool
 	marshal         bool
+	flag            bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -95,6 +96,12 @@ func (g *Generator) WithMarshal() *Generator {
 	return g
 }
 
+// WithFlag is used to add flag methods to the enum
+func (g *Generator) WithFlag() *Generator {
+	g.flag = true
+	return g
+}
+
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
 // that can be written to any file desired.  It has already had goimports run on the code before being returned.
 func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
@@ -140,6 +147,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"name":      name,
 			"lowercase": g.lowercaseLookup,
 			"marshal":   g.marshal,
+			"flag":      g.flag,
 		}
 
 		g.t.ExecuteTemplate(vBuff, "enum", data)

@@ -17,6 +17,7 @@ type rootT struct {
 	NoPrefix  bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
 	Lowercase bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
 	Marshal   bool     `cli:"marshal" usage:"Adds text marshalling functions."`
+	Flag      bool     `cli:"flag" usage:"Adds golang flag functions."`
 	Prefix    string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
 }
 
@@ -36,6 +37,9 @@ func main() {
 			}
 			if argv.Marshal {
 				g.WithMarshal()
+			}
+			if argv.Flag {
+				g.WithFlag()
 			}
 
 			originalName := fileName
