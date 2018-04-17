@@ -10,5 +10,7 @@ Green = 33
 // Blue
 // grey=
 // yellow
+// blue-green
+// red-orange
 // )
 type Color int

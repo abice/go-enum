@@ -11,116 +11,116 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type modelTest struct {
-	M Model `json:"model"`
+type makeTest struct {
+	M Make `json:"make"`
 }
 
-func TestModel(t *testing.T) {
-	assert.Equal(t, "Ford", ModelFord.String())
-	assert.Equal(t, "Model(99)", Model(99).String())
-	ford := ModelFord
+func TestMake(t *testing.T) {
+	assert.Equal(t, "Ford", MakeFord.String())
+	assert.Equal(t, "Make(99)", Make(99).String())
+	ford := MakeFord
 	assert.Implements(t, (*flag.Value)(nil), &ford)
 	assert.Implements(t, (*flag.Getter)(nil), &ford)
 	assert.Implements(t, (*pflag.Value)(nil), &ford)
 }
 
-func TestModelUnmarshal(t *testing.T) {
+func TestMakeUnmarshal(t *testing.T) {
 	tests := []struct {
 		name          string
 		input         string
-		output        *modelTest
+		output        *makeTest
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "toyota",
-			input:         `{"model":"Toyota"}`,
-			output:        &modelTest{M: ModelToyota},
+			input:         `{"make":"Toyota"}`,
+			output:        &makeTest{M: MakeToyota},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "chevy",
-			input:         `{"model":"Chevy"}`,
-			output:        &modelTest{M: ModelChevy},
+			input:         `{"make":"Chevy"}`,
+			output:        &makeTest{M: MakeChevy},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "ford",
-			input:         `{"model":"Ford"}`,
-			output:        &modelTest{M: ModelFord},
+			input:         `{"make":"Ford"}`,
+			output:        &makeTest{M: MakeFord},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "tesla",
-			input:         `{"model":"Tesla"}`,
-			output:        &modelTest{M: ModelTesla},
+			input:         `{"make":"Tesla"}`,
+			output:        &makeTest{M: MakeTesla},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "hyundai",
-			input:         `{"model":"Hyundai"}`,
-			output:        &modelTest{M: ModelHyundai},
+			input:         `{"make":"Hyundai"}`,
+			output:        &makeTest{M: MakeHyundai},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "nissan",
-			input:         `{"model":"Nissan"}`,
-			output:        &modelTest{M: ModelNissan},
+			input:         `{"make":"Nissan"}`,
+			output:        &makeTest{M: MakeNissan},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "jaguar",
-			input:         `{"model":"Jaguar"}`,
-			output:        &modelTest{M: ModelJaguar},
+			input:         `{"make":"Jaguar"}`,
+			output:        &makeTest{M: MakeJaguar},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "audi",
-			input:         `{"model":"Audi"}`,
-			output:        &modelTest{M: ModelAudi},
+			input:         `{"make":"Audi"}`,
+			output:        &makeTest{M: MakeAudi},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "bmw",
-			input:         `{"model":"BMW"}`,
-			output:        &modelTest{M: ModelBMW},
+			input:         `{"make":"BMW"}`,
+			output:        &makeTest{M: MakeBMW},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "mercedes",
-			input:         `{"model":"Mercedes"}`,
-			output:        &modelTest{M: ModelMercedes},
+			input:         `{"make":"Mercedes-Benz"}`,
+			output:        &makeTest{M: MakeMercedesBenz},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "volkswagon",
-			input:         `{"model":"Volkswagon"}`,
-			output:        &modelTest{M: ModelVolkswagon},
+			input:         `{"make":"Volkswagon"}`,
+			output:        &makeTest{M: MakeVolkswagon},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "porsche",
-			input:         `{"model":"Porsche"}`,
-			output:        &modelTest{M: ModelVolkswagon},
+			input:         `{"make":"Porsche"}`,
+			output:        &makeTest{M: MakeVolkswagon},
 			errorExpected: true,
-			err:           errors.New("Porsche is not a valid Model"),
+			err:           errors.New("Porsche is not a valid Make"),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			x := &modelTest{}
+			x := &makeTest{}
 			err := json.Unmarshal([]byte(test.input), x)
 			if !test.errorExpected {
 				require.NoError(tt, err, "failed unmarshalling the json.")
@@ -133,88 +133,88 @@ func TestModelUnmarshal(t *testing.T) {
 	}
 }
 
-func TestModelMarshal(t *testing.T) {
+func TestMakeMarshal(t *testing.T) {
 	tests := []struct {
 		name          string
-		input         *modelTest
+		input         *makeTest
 		output        string
 		errorExpected bool
 		err           error
 	}{
 		{
 			name:          "toyota",
-			output:        `{"model":"Toyota"}`,
-			input:         &modelTest{M: ModelToyota},
+			output:        `{"make":"Toyota"}`,
+			input:         &makeTest{M: MakeToyota},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "chevy",
-			output:        `{"model":"Chevy"}`,
-			input:         &modelTest{M: ModelChevy},
+			output:        `{"make":"Chevy"}`,
+			input:         &makeTest{M: MakeChevy},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "ford",
-			output:        `{"model":"Ford"}`,
-			input:         &modelTest{M: ModelFord},
+			output:        `{"make":"Ford"}`,
+			input:         &makeTest{M: MakeFord},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "tesla",
-			output:        `{"model":"Tesla"}`,
-			input:         &modelTest{M: ModelTesla},
+			output:        `{"make":"Tesla"}`,
+			input:         &makeTest{M: MakeTesla},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "hyundai",
-			output:        `{"model":"Hyundai"}`,
-			input:         &modelTest{M: ModelHyundai},
+			output:        `{"make":"Hyundai"}`,
+			input:         &makeTest{M: MakeHyundai},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "nissan",
-			output:        `{"model":"Nissan"}`,
-			input:         &modelTest{M: ModelNissan},
+			output:        `{"make":"Nissan"}`,
+			input:         &makeTest{M: MakeNissan},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "jaguar",
-			output:        `{"model":"Jaguar"}`,
-			input:         &modelTest{M: ModelJaguar},
+			output:        `{"make":"Jaguar"}`,
+			input:         &makeTest{M: MakeJaguar},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "audi",
-			output:        `{"model":"Audi"}`,
-			input:         &modelTest{M: ModelAudi},
+			output:        `{"make":"Audi"}`,
+			input:         &makeTest{M: MakeAudi},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "bmw",
-			output:        `{"model":"BMW"}`,
-			input:         &modelTest{M: ModelBMW},
+			output:        `{"make":"BMW"}`,
+			input:         &makeTest{M: MakeBMW},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "mercedes",
-			output:        `{"model":"Mercedes"}`,
-			input:         &modelTest{M: ModelMercedes},
+			output:        `{"make":"Mercedes-Benz"}`,
+			input:         &makeTest{M: MakeMercedesBenz},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "volkswagon",
-			output:        `{"model":"Volkswagon"}`,
-			input:         &modelTest{M: ModelVolkswagon},
+			output:        `{"make":"Volkswagon"}`,
+			input:         &makeTest{M: MakeVolkswagon},
 			errorExpected: false,
 			err:           nil,
 		},

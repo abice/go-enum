@@ -9,113 +9,113 @@ import (
 )
 
 const (
-	// ModelToyota is a Model of type Toyota
-	ModelToyota Model = iota
+	// MakeToyota is a Make of type Toyota
+	MakeToyota Make = iota
 	// Skipped value
 	_
-	// ModelChevy is a Model of type Chevy
-	ModelChevy
+	// MakeChevy is a Make of type Chevy
+	MakeChevy
 	// Skipped value
 	_
-	// ModelFord is a Model of type Ford
-	ModelFord
+	// MakeFord is a Make of type Ford
+	MakeFord
 	// Skipped value
 	_
-	// ModelTesla is a Model of type Tesla
-	ModelTesla
+	// MakeTesla is a Make of type Tesla
+	MakeTesla
 	// Skipped value
 	_
-	// ModelHyundai is a Model of type Hyundai
-	ModelHyundai
+	// MakeHyundai is a Make of type Hyundai
+	MakeHyundai
 	// Skipped value
 	_
-	// ModelNissan is a Model of type Nissan
-	ModelNissan
+	// MakeNissan is a Make of type Nissan
+	MakeNissan
 	// Skipped value
 	_
-	// ModelJaguar is a Model of type Jaguar
-	ModelJaguar
+	// MakeJaguar is a Make of type Jaguar
+	MakeJaguar
 	// Skipped value
 	_
-	// ModelAudi is a Model of type Audi
-	ModelAudi
+	// MakeAudi is a Make of type Audi
+	MakeAudi
 	// Skipped value
 	_
-	// ModelBMW is a Model of type BMW
-	ModelBMW
+	// MakeBMW is a Make of type BMW
+	MakeBMW
 	// Skipped value
 	_
-	// ModelMercedes is a Model of type Mercedes
-	ModelMercedes
+	// MakeMercedesBenz is a Make of type Mercedes-Benz
+	MakeMercedesBenz
 	// Skipped value
 	_
-	// ModelVolkswagon is a Model of type Volkswagon
-	ModelVolkswagon
+	// MakeVolkswagon is a Make of type Volkswagon
+	MakeVolkswagon
 )
 
-const _ModelName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedesVolkswagon"
+const _MakeName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedes-BenzVolkswagon"
 
-var _ModelMap = map[Model]string{
-	0:  _ModelName[0:6],
-	2:  _ModelName[6:11],
-	4:  _ModelName[11:15],
-	6:  _ModelName[15:20],
-	8:  _ModelName[20:27],
-	10: _ModelName[27:33],
-	12: _ModelName[33:39],
-	14: _ModelName[39:43],
-	16: _ModelName[43:46],
-	18: _ModelName[46:54],
-	20: _ModelName[54:64],
+var _MakeMap = map[Make]string{
+	0:  _MakeName[0:6],
+	2:  _MakeName[6:11],
+	4:  _MakeName[11:15],
+	6:  _MakeName[15:20],
+	8:  _MakeName[20:27],
+	10: _MakeName[27:33],
+	12: _MakeName[33:39],
+	14: _MakeName[39:43],
+	16: _MakeName[43:46],
+	18: _MakeName[46:59],
+	20: _MakeName[59:69],
 }
 
-func (i Model) String() string {
-	if str, ok := _ModelMap[i]; ok {
+func (i Make) String() string {
+	if str, ok := _MakeMap[i]; ok {
 		return str
 	}
-	return fmt.Sprintf("Model(%d)", i)
+	return fmt.Sprintf("Make(%d)", i)
 }
 
-var _ModelValue = map[string]Model{
-	_ModelName[0:6]:                    0,
-	strings.ToLower(_ModelName[0:6]):   0,
-	_ModelName[6:11]:                   2,
-	strings.ToLower(_ModelName[6:11]):  2,
-	_ModelName[11:15]:                  4,
-	strings.ToLower(_ModelName[11:15]): 4,
-	_ModelName[15:20]:                  6,
-	strings.ToLower(_ModelName[15:20]): 6,
-	_ModelName[20:27]:                  8,
-	strings.ToLower(_ModelName[20:27]): 8,
-	_ModelName[27:33]:                  10,
-	strings.ToLower(_ModelName[27:33]): 10,
-	_ModelName[33:39]:                  12,
-	strings.ToLower(_ModelName[33:39]): 12,
-	_ModelName[39:43]:                  14,
-	strings.ToLower(_ModelName[39:43]): 14,
-	_ModelName[43:46]:                  16,
-	strings.ToLower(_ModelName[43:46]): 16,
-	_ModelName[46:54]:                  18,
-	strings.ToLower(_ModelName[46:54]): 18,
-	_ModelName[54:64]:                  20,
-	strings.ToLower(_ModelName[54:64]): 20,
+var _MakeValue = map[string]Make{
+	_MakeName[0:6]:                    0,
+	strings.ToLower(_MakeName[0:6]):   0,
+	_MakeName[6:11]:                   2,
+	strings.ToLower(_MakeName[6:11]):  2,
+	_MakeName[11:15]:                  4,
+	strings.ToLower(_MakeName[11:15]): 4,
+	_MakeName[15:20]:                  6,
+	strings.ToLower(_MakeName[15:20]): 6,
+	_MakeName[20:27]:                  8,
+	strings.ToLower(_MakeName[20:27]): 8,
+	_MakeName[27:33]:                  10,
+	strings.ToLower(_MakeName[27:33]): 10,
+	_MakeName[33:39]:                  12,
+	strings.ToLower(_MakeName[33:39]): 12,
+	_MakeName[39:43]:                  14,
+	strings.ToLower(_MakeName[39:43]): 14,
+	_MakeName[43:46]:                  16,
+	strings.ToLower(_MakeName[43:46]): 16,
+	_MakeName[46:59]:                  18,
+	strings.ToLower(_MakeName[46:59]): 18,
+	_MakeName[59:69]:                  20,
+	strings.ToLower(_MakeName[59:69]): 20,
 }
 
-// ParseModel attempts to convert a string to a Model
-func ParseModel(name string) (Model, error) {
-	if x, ok := _ModelValue[name]; ok {
-		return Model(x), nil
+// ParseMake attempts to convert a string to a Make
+func ParseMake(name string) (Make, error) {
+	if x, ok := _MakeValue[name]; ok {
+		return Make(x), nil
 	}
-	return Model(0), fmt.Errorf("%s is not a valid Model", name)
+	return Make(0), fmt.Errorf("%s is not a valid Make", name)
 }
 
-func (x *Model) MarshalText() ([]byte, error) {
+func (x *Make) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-func (x *Model) UnmarshalText(text []byte) error {
+func (x *Make) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := ParseModel(name)
+	tmp, err := ParseMake(name)
 	if err != nil {
 		return err
 	}
@@ -124,18 +124,18 @@ func (x *Model) UnmarshalText(text []byte) error {
 }
 
 // Set implements the Golang flag.Value interface func
-func (x *Model) Set(val string) error {
-	v, err := ParseModel(val)
+func (x *Make) Set(val string) error {
+	v, err := ParseMake(val)
 	*x = v
 	return err
 }
 
 // Get implements the Golang flag.Getter interface func
-func (x *Model) Get() interface{} {
+func (x *Make) Get() interface{} {
 	return *x
 }
 
 // Type implements the github.com/spf13/pFlag Value interface
-func (x *Model) Type() string {
-	return "Model"
+func (x *Make) Type() string {
+	return "Make"
 }
