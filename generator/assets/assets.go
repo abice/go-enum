@@ -83,7 +83,7 @@ func enumTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "enum.tmpl", size: 1944, mode: os.FileMode(420), modTime: time.Unix(1522866202, 0)}
+	info := bindataFileInfo{name: "enum.tmpl", size: 1944, mode: os.FileMode(420), modTime: time.Unix(1523312574, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

@@ -39,3 +39,15 @@ type Soda int64
 )
 */
 type Cases int64
+
+/* ENUM(
+ test-Hyphen
+ -hyphenStart
+ _underscoreFirst
+ 0numberFirst
+ 123456789a
+ 123123-asdf
+ ending-hyphen-
+)
+*/
+type Sanitizing int64

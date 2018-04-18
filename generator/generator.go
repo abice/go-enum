@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"unicode"
 
 	"golang.org/x/tools/imports"
 
@@ -217,6 +218,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			prefixedName := name
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
+				prefixedName = sanitizeValue(prefixedName)
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data}
@@ -228,6 +230,40 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
 
 	return enum, nil
+}
+
+// sanitizeValue will ensure the value name generated adheres to golang's
+// identifier syntax as described here: https://golang.org/ref/spec#Identifiers
+// identifier = letter { letter | unicode_digit }
+// where letter can be unicode_letter or '_'
+func sanitizeValue(value string) string {
+
+	// Keep skip value holders
+	if value == skipHolder {
+		return skipHolder
+	}
+
+	name := value
+
+	// If the start character is not a unicode letter (this check includes the case of '_')
+	// then we need to add an exported prefix, so tack on a 'X' at the beginning
+	if !(unicode.IsLetter(rune(name[0]))) {
+		name = `X` + name
+	}
+
+	// Loop through all the runes and remove any that aren't valid.
+	for i, r := range name {
+		if !(unicode.IsLetter(r) || unicode.IsNumber(r) || r == '_') {
+			if i < len(name) {
+				name = name[:i] + name[i+1:]
+			} else {
+				// At the end of the string, take off the last char
+				name = name[:i-1]
+			}
+		}
+	}
+
+	return name
 }
 
 // getEnumDeclFromComments parses the array of comment strings and creates a single Enum Declaration statement
