@@ -18,15 +18,15 @@ const (
 	// ColorGreen is a Color of type Green
 	ColorGreen Color = iota + 30
 	// ColorBlue is a Color of type Blue
-	ColorBlue Color = iota + 30
+	ColorBlue
 	// ColorGrey is a Color of type Grey
-	ColorGrey Color = iota + 30
+	ColorGrey
 	// ColorYellow is a Color of type Yellow
-	ColorYellow Color = iota + 30
+	ColorYellow
 	// ColorBlueGreen is a Color of type Blue-Green
-	ColorBlueGreen Color = iota + 30
+	ColorBlueGreen
 	// ColorRedOrange is a Color of type Red-Orange
-	ColorRedOrange Color = iota + 30
+	ColorRedOrange
 )
 
 const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orange"

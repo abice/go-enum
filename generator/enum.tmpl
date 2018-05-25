@@ -12,9 +12,11 @@ import (
 {{- define "enum"}}
 const (
 {{- $enumName := .enum.Name -}}
+{{- $vars := dict "lastoffset" 0 -}}
 {{ range $rIndex, $value := .enum.Values }}
+	{{- $lastOffset := pluck "lastoffset" $vars | first }}{{ $offset := sub $value.Value $rIndex }}
 	{{ if eq $value.Name "_"}}// Skipped value{{else}}// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.Name}}{{end}}
-    {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{end}} {{ if ne $rIndex $value.Value }}{{$enumName}} = iota + {{sub $value.Value $rIndex }}{{end}}
+    {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{ if ne 0 $offset }} + {{ $offset }}{{end}}{{else if ne $lastOffset $offset }}{{$enumName}} = iota + {{ $offset }}{{end}}{{$_ := set $vars "lastoffset" $offset}}
 {{- end}}
 )
 
