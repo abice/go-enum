@@ -51,3 +51,10 @@ type Cases int64
 )
 */
 type Sanitizing int64
+
+/* ENUM(
+ startWithNum=23
+ nextNum
+)
+*/
+type StartNotZero int64

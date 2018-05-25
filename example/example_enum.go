@@ -139,3 +139,90 @@ func (x *Make) Get() interface{} {
 func (x *Make) Type() string {
 	return "Make"
 }
+
+const (
+	// NoZerosStart is a NoZeros of type Start
+	NoZerosStart NoZeros = iota + 20
+	// NoZerosMiddle is a NoZeros of type Middle
+	NoZerosMiddle
+	// NoZerosEnd is a NoZeros of type End
+	NoZerosEnd
+	// NoZerosPs is a NoZeros of type Ps
+	NoZerosPs
+	// NoZerosPps is a NoZeros of type Pps
+	NoZerosPps
+	// NoZerosPpps is a NoZeros of type Ppps
+	NoZerosPpps
+)
+
+const _NoZerosName = "startmiddleendpsppsppps"
+
+var _NoZerosMap = map[NoZeros]string{
+	20: _NoZerosName[0:5],
+	21: _NoZerosName[5:11],
+	22: _NoZerosName[11:14],
+	23: _NoZerosName[14:16],
+	24: _NoZerosName[16:19],
+	25: _NoZerosName[19:23],
+}
+
+func (i NoZeros) String() string {
+	if str, ok := _NoZerosMap[i]; ok {
+		return str
+	}
+	return fmt.Sprintf("NoZeros(%d)", i)
+}
+
+var _NoZerosValue = map[string]NoZeros{
+	_NoZerosName[0:5]:                    20,
+	strings.ToLower(_NoZerosName[0:5]):   20,
+	_NoZerosName[5:11]:                   21,
+	strings.ToLower(_NoZerosName[5:11]):  21,
+	_NoZerosName[11:14]:                  22,
+	strings.ToLower(_NoZerosName[11:14]): 22,
+	_NoZerosName[14:16]:                  23,
+	strings.ToLower(_NoZerosName[14:16]): 23,
+	_NoZerosName[16:19]:                  24,
+	strings.ToLower(_NoZerosName[16:19]): 24,
+	_NoZerosName[19:23]:                  25,
+	strings.ToLower(_NoZerosName[19:23]): 25,
+}
+
+// ParseNoZeros attempts to convert a string to a NoZeros
+func ParseNoZeros(name string) (NoZeros, error) {
+	if x, ok := _NoZerosValue[name]; ok {
+		return NoZeros(x), nil
+	}
+	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros", name)
+}
+
+func (x *NoZeros) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+func (x *NoZeros) UnmarshalText(text []byte) error {
+	name := string(text)
+	tmp, err := ParseNoZeros(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+
+// Set implements the Golang flag.Value interface func
+func (x *NoZeros) Set(val string) error {
+	v, err := ParseNoZeros(val)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func
+func (x *NoZeros) Get() interface{} {
+	return *x
+}
+
+// Type implements the github.com/spf13/pFlag Value interface
+func (x *NoZeros) Type() string {
+	return "NoZeros"
+}

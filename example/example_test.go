@@ -228,3 +228,12 @@ func TestMakeMarshal(t *testing.T) {
 		})
 	}
 }
+
+func TestNoZeroValues(t *testing.T) {
+	assert.Equal(t, 20, int(NoZerosStart))
+	assert.Equal(t, 21, int(NoZerosMiddle))
+	assert.Equal(t, 22, int(NoZerosEnd))
+	assert.Equal(t, 23, int(NoZerosPs))
+	assert.Equal(t, 24, int(NoZerosPps))
+	assert.Equal(t, 25, int(NoZerosPpps))
+}
