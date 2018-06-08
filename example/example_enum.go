@@ -55,6 +55,26 @@ const (
 
 const _MakeName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedes-BenzVolkswagon"
 
+var _MakeNames = []string{
+	_MakeName[0:6],
+	_MakeName[6:11],
+	_MakeName[11:15],
+	_MakeName[15:20],
+	_MakeName[20:27],
+	_MakeName[27:33],
+	_MakeName[33:39],
+	_MakeName[39:43],
+	_MakeName[43:46],
+	_MakeName[46:59],
+	_MakeName[59:69],
+}
+
+func MakeNames() []string {
+	tmp := make([]string, len(_MakeNames))
+	copy(tmp, _MakeNames)
+	return tmp
+}
+
 var _MakeMap = map[Make]string{
 	0:  _MakeName[0:6],
 	2:  _MakeName[6:11],
@@ -106,7 +126,7 @@ func ParseMake(name string) (Make, error) {
 	if x, ok := _MakeValue[name]; ok {
 		return Make(x), nil
 	}
-	return Make(0), fmt.Errorf("%s is not a valid Make", name)
+	return Make(0), fmt.Errorf("%s is not a valid Make, try [%s]", name, strings.Join(_MakeNames, ", "))
 }
 
 func (x *Make) MarshalText() ([]byte, error) {
@@ -157,6 +177,21 @@ const (
 
 const _NoZerosName = "startmiddleendpsppsppps"
 
+var _NoZerosNames = []string{
+	_NoZerosName[0:5],
+	_NoZerosName[5:11],
+	_NoZerosName[11:14],
+	_NoZerosName[14:16],
+	_NoZerosName[16:19],
+	_NoZerosName[19:23],
+}
+
+func NoZerosNames() []string {
+	tmp := make([]string, len(_NoZerosNames))
+	copy(tmp, _NoZerosNames)
+	return tmp
+}
+
 var _NoZerosMap = map[NoZeros]string{
 	20: _NoZerosName[0:5],
 	21: _NoZerosName[5:11],
@@ -193,7 +228,7 @@ func ParseNoZeros(name string) (NoZeros, error) {
 	if x, ok := _NoZerosValue[name]; ok {
 		return NoZeros(x), nil
 	}
-	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros", name)
+	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros, try [%s]", name, strings.Join(_NoZerosNames, ", "))
 }
 
 func (x *NoZeros) MarshalText() ([]byte, error) {

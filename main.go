@@ -19,6 +19,7 @@ type rootT struct {
 	Marshal   bool     `cli:"marshal" usage:"Adds text marshalling functions."`
 	Flag      bool     `cli:"flag" usage:"Adds golang flag functions."`
 	Prefix    string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
+	Names     bool     `cli:"names" usage:"Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing"`
 }
 
 func main() {
@@ -40,6 +41,9 @@ func main() {
 			}
 			if argv.Flag {
 				g.WithFlag()
+			}
+			if argv.Names {
+				g.WithNames()
 			}
 
 			originalName := fileName

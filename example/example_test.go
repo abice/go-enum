@@ -22,6 +22,9 @@ func TestMake(t *testing.T) {
 	assert.Implements(t, (*flag.Value)(nil), &ford)
 	assert.Implements(t, (*flag.Getter)(nil), &ford)
 	assert.Implements(t, (*pflag.Value)(nil), &ford)
+
+	names := MakeNames()
+	assert.Len(t, names, 11)
 }
 
 func TestMakeUnmarshal(t *testing.T) {
@@ -114,7 +117,7 @@ func TestMakeUnmarshal(t *testing.T) {
 			input:         `{"make":"Porsche"}`,
 			output:        &makeTest{M: MakeVolkswagon},
 			errorExpected: true,
-			err:           errors.New("Porsche is not a valid Make"),
+			err:           errors.New("Porsche is not a valid Make, try [Toyota, Chevy, Ford, Tesla, Hyundai, Nissan, Jaguar, Audi, BMW, Mercedes-Benz, Volkswagon]"),
 		},
 	}
 
@@ -236,4 +239,14 @@ func TestNoZeroValues(t *testing.T) {
 	assert.Equal(t, 23, int(NoZerosPs))
 	assert.Equal(t, 24, int(NoZerosPps))
 	assert.Equal(t, 25, int(NoZerosPpps))
+	assert.Equal(t, "ppps", NoZerosPpps.String())
+	assert.Equal(t, "NoZeros(4)", NoZeros(4).String())
+
+	assert.Len(t, NoZerosNames(), 6)
+
+	_, err := ParseNoZeros("pppps")
+	assert.EqualError(t, err, "pppps is not a valid NoZeros, try [start, middle, end, ps, pps, ppps]")
+
+	tmp, _ := ParseNoZeros("ppps")
+	assert.Equal(t, NoZerosPpps, tmp)
 }

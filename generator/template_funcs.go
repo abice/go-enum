@@ -48,3 +48,19 @@ func Unmapify(e Enum, lowercase bool) (ret string, err error) {
 	ret = ret + `}`
 	return
 }
+
+// Namify returns a slice that is all of the possible names for an enum in a slice
+func Namify(e Enum) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sName`, e.Name)
+	ret = "[]string{\n"
+	index := 0
+	for _, val := range e.Values {
+		if val.Name != skipHolder {
+			nextIndex := index + len(val.Name)
+			ret = fmt.Sprintf("%s%s[%d:%d],\n", ret, strName, index, nextIndex)
+			index = nextIndex
+		}
+	}
+	ret = ret + "}"
+	return
+}
