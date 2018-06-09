@@ -27,7 +27,11 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return {{.enum.Name}}(x), nil
 	}
+	{{if .names -}}
+	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
+	{{- else -}}
 	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
+	{{- end}}
 }
 
 {{ if .marshal }}
@@ -70,6 +74,15 @@ func (x *{{.enum.Name}}) Type() string {
 
 {{- define "stringer"}}
 const _{{.enum.Name}}Name = "{{ stringify .enum }}"
+
+{{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
+
+func {{.enum.Name}}Names() []string {
+	tmp := make([]string, len(_{{.enum.Name}}Names))
+	copy(tmp, _{{.enum.Name}}Names)
+	return tmp
+}
+{{ end -}}
 
 var _{{.enum.Name}}Map = {{ mapify .enum }}
 

@@ -34,6 +34,7 @@ type Generator struct {
 	lowercaseLookup bool
 	marshal         bool
 	flag            bool
+	names           bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -67,6 +68,7 @@ func NewGenerator() *Generator {
 	funcs["stringify"] = Stringify
 	funcs["mapify"] = Mapify
 	funcs["unmapify"] = Unmapify
+	funcs["namify"] = Namify
 
 	g.t.Funcs(funcs)
 
@@ -100,6 +102,12 @@ func (g *Generator) WithMarshal() *Generator {
 // WithFlag is used to add flag methods to the enum
 func (g *Generator) WithFlag() *Generator {
 	g.flag = true
+	return g
+}
+
+// WithNames is used to add Names methods to the enum
+func (g *Generator) WithNames() *Generator {
+	g.names = true
 	return g
 }
 
@@ -149,6 +157,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"lowercase": g.lowercaseLookup,
 			"marshal":   g.marshal,
 			"flag":      g.flag,
+			"names":     g.names,
 		}
 
 		g.t.ExecuteTemplate(vBuff, "enum", data)
