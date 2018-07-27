@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/Bowery/prompt"
   packages = ["."]
-  revision = "eb8f7a6a197ce971ed0e9d4a739c628381d5f124"
+  revision = "94b504f42fdd503acc3b3c79ec2b517d90e0de8a"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
   packages = ["."]
-  revision = "59c29afe1a994eacb71c833025ca7acf874bb1da"
-  version = "v1.2.2"
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
 
 [[projects]]
   name = "github.com/Masterminds/sprig"
@@ -26,15 +26,16 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bradleyjkemp/cupaloy"
   packages = ["."]
-  revision = "14d5cb03540acb196a6900f8f7011b2f797ed19e"
+  revision = "6beff3cebcaae538bba80223de5cfbefd2baf035"
+  version = "v2.2.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "04cdfd42973bb9c8589fd6a731800cf222fde1a9"
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/google/uuid"
@@ -43,34 +44,34 @@
   version = "0.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/huandu/xstrings"
   packages = ["."]
-  revision = "3959339b333561bf62a38b424fd41517c2c90f40"
+  revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/imdario/mergo"
   packages = ["."]
-  revision = "3e95a51e0639b4cf372f2ccf74c86749d747fbdc"
-  version = "0.2.2"
+  revision = "9316a62528ac99aaecb4e47eadd6dc8aa6533d58"
+  version = "v0.3.5"
 
 [[projects]]
   name = "github.com/labstack/gommon"
   packages = ["color"]
-  revision = "779b8a8b9850a97acba6a3fe20feb628c39e17c1"
-  version = "0.2.2"
+  revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
+  version = "0.2.6"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
-  revision = "6df6d4d004b64986bbb0d1b25945f42b44787e90"
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
 
 [[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
-  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
-  version = "v0.0.2"
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
 
 [[projects]]
   name = "github.com/mkideal/cli"
@@ -95,7 +96,8 @@
 [[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
-  revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -104,13 +106,13 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require"
   ]
-  revision = "890a5c3458b43e6104ff5da8dfa139d013d77544"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
@@ -119,13 +121,13 @@
     "pbkdf2",
     "scrypt"
   ]
-  revision = "b176d7def5d71bdd214203491f89843ed217f420"
+  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "e42485b6e20ae7d2304ec72e535b103ed350cc02"
+  revision = "e072cadbbdc8dd3d3ffa82b8b4b9304c261d9311"
 
 [[projects]]
   name = "golang.org/x/tools"
