@@ -14,9 +14,25 @@ It's not perfect, but I think it's useful.
 
 I took the output of the [Stringer](golang.org/x/tools/cmd/stringer) command as the `String()` method, and added a way to parse a string value.
 
+## Command options
+
+``` shell
+go-enum --help
+Options:
+
+  -h, --help       display help information
+  -f, --file      *The file(s) to generate enums.  Use more than one flag for more files.
+      --noprefix   Prevents the constants generated from having the Enum as a prefix.
+      --lower      Adds lowercase variants of the enum strings for lookup.
+      --marshal    Adds text marshalling functions.
+      --flag       Adds golang flag functions.
+      --prefix     Replaces the prefix with a user one.
+      --names      Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing
+```
+
 
 ### Syntax
-The parser looks for comments on your type defs and parse the enum declarations from it.  
+The parser looks for comments on your type defs and parse the enum declarations from it.
 The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.
 If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration.  Keep in mind, this resets the data for all following values.  So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
 
@@ -25,12 +41,15 @@ I've included one here for easy access, but can't guarantee it's up to date.
 
 ``` go
 // Color is an enumeration of colors that are allowed.
-// ENUM(
-// Black, White, Red
-// Green 
+/* ENUM(
+Black, White, Red
+Green = 33
+*/
 // Blue
-// grey
+// grey=
 // yellow
+// blue-green
+// red-orange
 // )
 type Color int32
 ```
@@ -47,25 +66,31 @@ const (
 	// ColorRed is a Color of type Red
 	ColorRed
 	// ColorGreen is a Color of type Green
-	ColorGreen
+	ColorGreen Color = iota + 30
 	// ColorBlue is a Color of type Blue
 	ColorBlue
 	// ColorGrey is a Color of type Grey
 	ColorGrey
 	// ColorYellow is a Color of type Yellow
 	ColorYellow
+	// ColorBlueGreen is a Color of type Blue-Green
+	ColorBlueGreen
+	// ColorRedOrange is a Color of type Red-Orange
+	ColorRedOrange
 )
 
-const _ColorName = "BlackWhiteRedGreenBlueGreyYellow"
+const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orange"
 
 var _ColorMap = map[Color]string{
-	0: _ColorName[0:5],
-	1: _ColorName[5:10],
-	2: _ColorName[10:13],
-	3: _ColorName[13:18],
-	4: _ColorName[18:22],
-	5: _ColorName[22:26],
-	6: _ColorName[26:32],
+	0:  _ColorName[0:5],
+	1:  _ColorName[5:10],
+	2:  _ColorName[10:13],
+	33: _ColorName[13:18],
+	34: _ColorName[18:22],
+	35: _ColorName[22:26],
+	36: _ColorName[26:32],
+	37: _ColorName[32:42],
+	38: _ColorName[42:52],
 }
 
 func (i Color) String() string {
@@ -82,14 +107,18 @@ var _ColorValue = map[string]Color{
 	strings.ToLower(_ColorName[5:10]):  1,
 	_ColorName[10:13]:                  2,
 	strings.ToLower(_ColorName[10:13]): 2,
-	_ColorName[13:18]:                  3,
-	strings.ToLower(_ColorName[13:18]): 3,
-	_ColorName[18:22]:                  4,
-	strings.ToLower(_ColorName[18:22]): 4,
-	_ColorName[22:26]:                  5,
-	strings.ToLower(_ColorName[22:26]): 5,
-	_ColorName[26:32]:                  6,
-	strings.ToLower(_ColorName[26:32]): 6,
+	_ColorName[13:18]:                  33,
+	strings.ToLower(_ColorName[13:18]): 33,
+	_ColorName[18:22]:                  34,
+	strings.ToLower(_ColorName[18:22]): 34,
+	_ColorName[22:26]:                  35,
+	strings.ToLower(_ColorName[22:26]): 35,
+	_ColorName[26:32]:                  36,
+	strings.ToLower(_ColorName[26:32]): 36,
+	_ColorName[32:42]:                  37,
+	strings.ToLower(_ColorName[32:42]): 37,
+	_ColorName[42:52]:                  38,
+	strings.ToLower(_ColorName[42:52]): 38,
 }
 
 // ParseColor attempts to convert a string to a Color
@@ -113,6 +142,7 @@ func (x *Color) UnmarshalText(text []byte) error {
 	*x = tmp
 	return nil
 }
+
 ```
 
 
@@ -121,17 +151,3 @@ func (x *Color) UnmarshalText(text []byte) error {
 1. Add a go:generate line to your file like so... `//go:generate go-enum -f=thisfile.go`
 1. Run go generate like so `go generate ./...`
 1. Enjoy your newly created Enumeration
-
-
-## Options
-
-``` shell
-go-enum --help
-Options:
-
-  -h, --help       display help information
-  -f, --file      *The file(s) to generate enums.  Use more than one flag for more files.
-      --noprefix   Prevents the constants generated from having the Enum as a prefix.
-      --lower      Adds lowercase variants of the enum strings for lookup.
-      --marshal    Adds text marshalling functions.
-```

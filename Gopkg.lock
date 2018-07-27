@@ -73,7 +73,6 @@
   version = "v0.0.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mkideal/cli"
   packages = ["."]
   revision = "a9c1104566927924fdb041d198f05617492913f9"
@@ -97,6 +96,12 @@
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -123,17 +128,17 @@
   revision = "e42485b6e20ae7d2304ec72e535b103ed350cc02"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
-    "imports"
+    "imports",
+    "internal/fastwalk"
   ]
-  revision = "5831d16d18029819d39f99bdc2060b8eff410b6b"
+  revision = "bfb5194568d3c40db30de765edc44cae9fc94671"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4275b5b4a39c4ff3291ce372bf5adf6e937120fda206e34fde562336226a525c"
+  inputs-digest = "0953bf354d091ceb724c63564e0a769d6cd71bdb879bda54c3bb4feb81c21a63"
   solver-name = "gps-cdcl"
   solver-version = 1

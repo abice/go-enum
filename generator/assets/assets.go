@@ -84,7 +84,7 @@ func enumTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "enum.tmpl", size: 2522, mode: os.FileMode(420), modTime: time.Unix(1528487447, 0)}
+	info := bindataFileInfo{name: "enum.tmpl", size: 2522, mode: os.FileMode(420), modTime: time.Unix(1528557189, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xc3, 0xf6, 0x5, 0xc9, 0xb7, 0xf, 0xe3, 0x31, 0xba, 0xc, 0x33, 0x80, 0xed, 0x4, 0xbe, 0x7e, 0x7b, 0x73, 0x46, 0xcc, 0xb7, 0x7b, 0x4b, 0x1a, 0xe1, 0xd8, 0x18, 0x1d, 0x48, 0x31, 0x9e, 0x73}}
 	return a, nil
 }
@@ -224,7 +224,7 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"enum.tmpl": &bintree{enumTmpl, map[string]*bintree{}},
+	"enum.tmpl": {enumTmpl, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.
