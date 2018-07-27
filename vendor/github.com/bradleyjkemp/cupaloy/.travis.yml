@@ -1,0 +1,27 @@
+language: go
+
+go:
+  - 1.x
+  - master
+
+matrix:
+  allow_failures:
+    - go: master
+
+install:
+  - make install
+
+script:
+  - make test-ci
+
+after_success:
+  - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=coverage.out
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+env:
+  global:
+    - MAKEFLAGS=" -j 2"
