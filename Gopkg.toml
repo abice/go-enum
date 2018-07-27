@@ -20,15 +20,16 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+ignored = ["github.com/stretchr/testify"]
+
 [[constraint]]
   name = "github.com/Masterminds/sprig"
   version = "v2.15.0"
 
 [[constraint]]
   name = "github.com/mkideal/cli"
-
-[[constraint]]
-  name = "github.com/stretchr/testify"
+  revision = "a9c1104566927924fdb041d198f05617492913f9"
 
 [[constraint]]
   name = "golang.org/x/tools"
+  revision = "bfb5194568d3c40db30de765edc44cae9fc94671"

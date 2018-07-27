@@ -1,0 +1,5 @@
+(map[int]string) (len=3) {
+  (int) 1: (string) (len=5) "Hello",
+  (int) 2: (string) (len=5) "World",
+  (int) 3: (string) (len=1) "!"
+}
