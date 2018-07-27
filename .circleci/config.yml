@@ -16,6 +16,7 @@ jobs:
       - run:
           name: Build
           command: |
+            ls -la
             make build
       - run:
           name: Test
