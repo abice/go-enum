@@ -55,13 +55,13 @@ func main() {
 			// Parse the file given in arguments
 			raw, err := g.GenerateFromFile(fileName)
 			if err != nil {
-				return fmt.Errorf("Error while generating enums\nInputFile=%s\nError=%s\n", ctx.Color().Cyan(fileName), ctx.Color().RedBg(err))
+				return fmt.Errorf("failed generating enums\nInputFile=%s\nError=%s", ctx.Color().Cyan(fileName), ctx.Color().RedBg(err))
 			}
 
 			mode := int(0644)
 			err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
 			if err != nil {
-				return fmt.Errorf("Error while writing to file %s: %s\n", ctx.Color().Cyan(outFilePath), ctx.Color().Red(err))
+				return fmt.Errorf("failed writing to file %s: %s", ctx.Color().Cyan(outFilePath), ctx.Color().Red(err))
 			}
 			ctx.String("go-enum finished. file: %s\n", ctx.Color().Cyan(originalName))
 		}

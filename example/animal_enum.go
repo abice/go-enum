@@ -24,11 +24,12 @@ var _AnimalMap = map[Animal]string{
 	2: _AnimalName[6:10],
 }
 
-func (i Animal) String() string {
-	if str, ok := _AnimalMap[i]; ok {
+// String implements the Stringer interface.
+func (x Animal) String() string {
+	if str, ok := _AnimalMap[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("Animal(%d)", i)
+	return fmt.Sprintf("Animal(%d)", x)
 }
 
 var _AnimalValue = map[string]Animal{
@@ -40,7 +41,7 @@ var _AnimalValue = map[string]Animal{
 // ParseAnimal attempts to convert a string to a Animal
 func ParseAnimal(name string) (Animal, error) {
 	if x, ok := _AnimalValue[name]; ok {
-		return Animal(x), nil
+		return x, nil
 	}
 	return Animal(0), fmt.Errorf("%s is not a valid Animal", name)
 }

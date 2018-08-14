@@ -124,7 +124,6 @@ func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
 
 // Generate does the heavy lifting for the code generation starting from the parsed AST file.
 func (g *Generator) Generate(f *ast.File) ([]byte, error) {
-	var err error
 	enums := g.inspect(f)
 	if len(enums) <= 0 {
 		return nil, nil
@@ -133,7 +132,10 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 	pkg := f.Name.Name
 
 	vBuff := bytes.NewBuffer([]byte{})
-	g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg})
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg})
+	if err != nil {
+		return nil, errors.WithMessage(err, "Failed writing header")
+	}
 
 	// Make the output more consistent by iterating over sorted keys of map
 	var keys []string
@@ -146,8 +148,8 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		ts := enums[name]
 
 		// Parse the enum doc statement
-		enum, err := g.parseEnum(ts)
-		if err != nil {
+		enum, pErr := g.parseEnum(ts)
+		if pErr != nil {
 			continue
 		}
 
@@ -160,12 +162,15 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"names":     g.names,
 		}
 
-		g.t.ExecuteTemplate(vBuff, "enum", data)
+		err = g.t.ExecuteTemplate(vBuff, "enum", data)
+		if err != nil {
+			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+		}
 	}
 
 	formatted, err := imports.Process(pkg, vBuff.Bytes(), nil)
 	if err != nil {
-		err = fmt.Errorf("generate: error formatting code %s\n\n%s\n", err, string(vBuff.Bytes()))
+		err = fmt.Errorf("generate: error formatting code %s\n\n%s", err, vBuff.String())
 	}
 	return formatted, err
 }
@@ -339,8 +344,7 @@ func trimAllTheThings(thing string) string {
 
 // inspect will walk the ast and fill a map of names and their struct information
 // for use in the generation template.
-func (g *Generator) inspect(f *ast.File) map[string]*ast.TypeSpec {
-	// structs := make(map[string]*ast.StructType)
+func (g *Generator) inspect(f ast.Node) map[string]*ast.TypeSpec {
 	enums := make(map[string]*ast.TypeSpec)
 	// Inspect the AST and find all structs.
 	ast.Inspect(f, func(n ast.Node) bool {

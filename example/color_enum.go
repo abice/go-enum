@@ -43,11 +43,12 @@ var _ColorMap = map[Color]string{
 	38: _ColorName[42:52],
 }
 
-func (i Color) String() string {
-	if str, ok := _ColorMap[i]; ok {
+// String implements the Stringer interface.
+func (x Color) String() string {
+	if str, ok := _ColorMap[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("Color(%d)", i)
+	return fmt.Sprintf("Color(%d)", x)
 }
 
 var _ColorValue = map[string]Color{
@@ -74,15 +75,17 @@ var _ColorValue = map[string]Color{
 // ParseColor attempts to convert a string to a Color
 func ParseColor(name string) (Color, error) {
 	if x, ok := _ColorValue[name]; ok {
-		return Color(x), nil
+		return x, nil
 	}
 	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
+// MarshalText implements the text marshaller method
 func (x *Color) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
+// UnmarshalText implements the text unmarshaller method
 func (x *Color) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseColor(name)
