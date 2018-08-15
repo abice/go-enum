@@ -58,3 +58,36 @@ type Sanitizing int64
 )
 */
 type StartNotZero int64
+
+// ENUM(
+// Black, White, Red
+// Green
+// Blue=33 // Blue starts with 33
+// grey=
+// // yellow comment
+// yellow
+// )
+type ColorWithComment int64
+
+/*ENUM(
+Black, White, Red
+Green
+Blue=33 // Blue starts with 33
+grey=
+// yellow comment
+yellow
+)*/
+type WithComment2 int64
+
+/* ENUM(
+Black, White, Red
+Green = 33 // Green starts with 33
+*/
+// Blue
+// grey=
+// yellow
+// blue-green // blue-green comment
+// // red-orange comment
+// red-orange
+// )
+type WithComment3 int

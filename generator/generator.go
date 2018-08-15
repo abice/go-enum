@@ -209,6 +209,12 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
 	data := 0
 	for _, value := range values {
+		// Trim comments
+		if strings.Contains(value, "//") {
+			commentIndex := strings.Index(value, `//`)
+			value = value[:commentIndex]
+		}
+
 		// Make sure to leave out any empty parts
 		if value != "" {
 			if strings.Contains(value, `=`) {
