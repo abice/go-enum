@@ -33,8 +33,22 @@ Options:
 
 ### Syntax
 The parser looks for comments on your type defs and parse the enum declarations from it.
-The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.
+The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.\
 If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration.  Keep in mind, this resets the data for all following values.  So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
+
+
+You can use comments inside enum that start with `//`
+```go
+// Commented is an enumeration of commented values
+/*
+ENUM(
+value1 // Commented value 1
+value2
+value3 // Commented value 3
+)
+*/
+type Commented int
+```
 
 There are a few examples in the `example` [directory](repo/blob/master/example).
 I've included one here for easy access, but can't guarantee it's up to date.
@@ -43,7 +57,7 @@ I've included one here for easy access, but can't guarantee it's up to date.
 // Color is an enumeration of colors that are allowed.
 /* ENUM(
 Black, White, Red
-Green = 33
+Green = 33 // Green starts with 33
 */
 // Blue
 // grey=
@@ -66,6 +80,7 @@ const (
 	// ColorRed is a Color of type Red
 	ColorRed
 	// ColorGreen is a Color of type Green
+	// Green starts with 33
 	ColorGreen Color = iota + 30
 	// ColorBlue is a Color of type Blue
 	ColorBlue
