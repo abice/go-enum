@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	skipHolder = `_`
+	skipHolder         = `_`
+	parseCommentPrefix = `//`
 )
 
 // Generator is responsible for generating validation files for the given in a go source file.
@@ -51,6 +52,7 @@ type EnumValue struct {
 	Name         string
 	PrefixedName string
 	Value        int
+	Comment      string
 }
 
 // NewGenerator is a constructor method for creating a new Generator with default
@@ -209,10 +211,15 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
 	data := 0
 	for _, value := range values {
-		// Trim comments
-		if strings.Contains(value, "//") {
-			commentIndex := strings.Index(value, `//`)
-			value = value[:commentIndex]
+		var comment string
+
+		// Trim and store comments
+		if strings.Contains(value, parseCommentPrefix) {
+			commentStartIndex := strings.Index(value, parseCommentPrefix)
+			comment = value[commentStartIndex+len(parseCommentPrefix):]
+			comment = strings.TrimSpace(comment)
+			// value without comment
+			value = value[:commentStartIndex]
 		}
 
 		// Make sure to leave out any empty parts
@@ -241,7 +248,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				prefixedName = sanitizeValue(prefixedName)
 			}
 
-			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data}
+			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
 			enum.Values = append(enum.Values, ev)
 			data++
 		}

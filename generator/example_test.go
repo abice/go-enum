@@ -64,20 +64,18 @@ type StartNotZero int64
 // Green
 // Blue=33 // Blue starts with 33
 // grey=
-// // yellow comment
 // yellow
 // )
-type ColorWithComment int64
+type ColorWithComment int
 
 /*ENUM(
 Black, White, Red
 Green
 Blue=33 // Blue starts with 33
 grey=
-// yellow comment
 yellow
 )*/
-type WithComment2 int64
+type ColorWithComment2 int
 
 /* ENUM(
 Black, White, Red
@@ -87,7 +85,6 @@ Green = 33 // Green starts with 33
 // grey=
 // yellow
 // blue-green // blue-green comment
-// // red-orange comment
 // red-orange
 // )
-type WithComment3 int
+type ColorWithComment3 int

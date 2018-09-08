@@ -67,6 +67,7 @@ const (
 	// ColorRed is a Color of type Red
 	ColorRed
 	// ColorGreen is a Color of type Green
+	// Green starts with 33
 	ColorGreen Color = iota + 30
 	// ColorBlue is a Color of type Blue
 	ColorBlue
