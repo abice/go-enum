@@ -52,6 +52,34 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
+{{ if .sql }}
+// Scan implements the Scanner interface.
+func (x *{{.enum.Name}}) Scan(value interface{}) error {
+	var name string
+
+	switch v := value.(type) {
+	case string:
+		name = v
+	case []byte:
+		name = string(v)
+	case nil:
+		return fmt.Errorf("destination pointer is nil")
+	}
+
+	tmp, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+
+// Value implements the driver Valuer interface.
+func (x *{{.enum.Name}}) Value() (driver.Value, error) {
+	return x.String(), nil
+}
+{{end}}
+
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
 func (x *{{.enum.Name}}) Set(val string) error {
