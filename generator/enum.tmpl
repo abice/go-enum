@@ -63,7 +63,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) error {
 	case []byte:
 		name = string(v)
 	case nil:
-		return fmt.Errorf("destination pointer is nil")
+		return nil
 	}
 
 	tmp, err := Parse{{.enum.Name}}(name)
@@ -75,7 +75,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (x *{{.enum.Name}}) Value() (driver.Value, error) {
+func (x {{.enum.Name}}) Value() (driver.Value, error) {
 	return x.String(), nil
 }
 {{end}}
