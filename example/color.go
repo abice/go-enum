@@ -1,4 +1,4 @@
-//go:generate go-enum -f=$GOFILE --marshal --lower
+//go:generate go-enum -f=color.go --marshal --lower
 
 package example
 
