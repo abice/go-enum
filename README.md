@@ -181,6 +181,6 @@ func (x *Color) UnmarshalText(text []byte) error {
 
 ## Adding it to your project
 1. `go get github.com/abice/go-enum`
-1. Add a go:generate line to your file like so... `//go:generate go-enum -f=thisfile.go`
+1. Add a go:generate line to your file like so... `//go:generate go-enum -f=$GOFILE`
 1. Run go generate like so `go generate ./...`
 1. Enjoy your newly created Enumeration

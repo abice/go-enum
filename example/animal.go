@@ -1,4 +1,4 @@
-//go:generate go-enum -f=animal.go
+//go:generate go-enum -f=$GOFILE
 
 package example
 
