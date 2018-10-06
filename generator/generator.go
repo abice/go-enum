@@ -34,6 +34,7 @@ type Generator struct {
 	noPrefix        bool
 	lowercaseLookup bool
 	marshal         bool
+	sql             bool
 	flag            bool
 	names           bool
 }
@@ -101,6 +102,12 @@ func (g *Generator) WithMarshal() *Generator {
 	return g
 }
 
+// WithSQLDriver is used to add marshalling to the enum
+func (g *Generator) WithSQLDriver() *Generator {
+	g.sql = true
+	return g
+}
+
 // WithFlag is used to add flag methods to the enum
 func (g *Generator) WithFlag() *Generator {
 	g.flag = true
@@ -160,6 +167,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"name":      name,
 			"lowercase": g.lowercaseLookup,
 			"marshal":   g.marshal,
+			"sql":       g.sql,
 			"flag":      g.flag,
 			"names":     g.names,
 		}

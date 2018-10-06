@@ -46,6 +46,7 @@ func TestNoFile(t *testing.T) {
 func TestExampleFile(t *testing.T) {
 	g := NewGenerator()
 	g.WithMarshal()
+	g.WithSQLDriver()
 	g.WithLowercaseVariant()
 	g.WithNames()
 	// Parse the file given in arguments

@@ -25,6 +25,7 @@ Options:
       --noprefix   Prevents the constants generated from having the Enum as a prefix.
       --lower      Adds lowercase variants of the enum strings for lookup.
       --marshal    Adds text marshalling functions.
+      --sql        Adds SQL database scan and value functions.
       --flag       Adds golang flag functions.
       --prefix     Replaces the prefix with a user one.
       --names      Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing
