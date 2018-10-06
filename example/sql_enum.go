@@ -61,6 +61,7 @@ func (x *ProjectStatus) Scan(value interface{}) error {
 	case []byte:
 		name = string(v)
 	case nil:
+		*x = ProjectStatus(0)
 		return nil
 	}
 
