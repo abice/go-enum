@@ -18,13 +18,11 @@ jobs:
       - run:
           name: Build
           command: |
-            ls -la
             make build
       - run:
           name: Test
           command: |
             make cover
-            make coveralls
   golang_1.10:
     working_directory: /go/src/github.com/abice/go-enum
     docker:
@@ -40,26 +38,16 @@ jobs:
           name: Test
           command: |
             make cover
-            make coveralls
   golang_1.11:
     working_directory: /go/src/github.com/abice/go-enum
     docker:
       - image: circleci/golang:1.11
     steps:
       - checkout
-      - run: &installgodeps
-          name: Install Go Deps
-          command: |
-            go get -v github.com/jteeuwen/go-bindata/...
-            go get -v golang.org/x/tools/cmd/cover
-            go get -v github.com/mattn/goveralls
-            go get -v github.com/modocache/gover
-            go get -v github.com/golang/mock/gomock
-            go install github.com/golang/mock/mockgen
+      - run: *installgodeps
       - run:
           name: Build
           command: |
-            ls -la
             make build
       - run:
           name: Test
