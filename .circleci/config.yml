@@ -28,7 +28,7 @@ jobs:
   golang_1.10:
     working_directory: /go/src/github.com/abice/go-enum
     docker:
-      - image: circleci/golang:1.10.1
+      - image: circleci/golang:1.10
     steps:
       - checkout
       - run: *installgodeps
@@ -72,4 +72,5 @@ workflows:
   build_and_test:
     jobs:
       - golang_1.9
-      - golang_1.10.1
+      - golang_1.10
+      - golang_1.11
