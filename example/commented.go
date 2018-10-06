@@ -1,4 +1,4 @@
-//go:generate go-enum -f=commented.go --marshal --lower
+//go:generate go-enum -f=$GOFILE --marshal --lower
 
 package example
 
