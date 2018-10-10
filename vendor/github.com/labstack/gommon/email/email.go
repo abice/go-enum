@@ -129,7 +129,7 @@ func (e *Email) Send(m *Message) (err error) {
 	if err != nil {
 		return
 	}
-	defer c.Close()
+	defer c.Quit()
 
 	// Check if TLS is required
 	if ok, _ := c.Extension("STARTTLS"); ok {

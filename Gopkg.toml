@@ -28,8 +28,8 @@ required = ["github.com/golang/mock/gomock"]
   version = "v2.15.0"
 
 [[constraint]]
-  name = "github.com/mkideal/cli"
-  revision = "a9c1104566927924fdb041d198f05617492913f9"
+  name = "github.com/go-easygen/cli"
+  version = "0.2.0"
 
 [[constraint]]
   name = "golang.org/x/tools"

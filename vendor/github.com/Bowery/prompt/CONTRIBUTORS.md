@@ -6,3 +6,4 @@
 - [Aaron Bieber](https://github.com/qbit)
 - [Ricky Medina](https://github.com/r-medina)
 - [sungo](https://github.com/sungo)
+- [Rohan Verma](https://github.com/rhnvrm)

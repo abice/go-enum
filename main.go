@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/abice/go-enum/generator"
-	"github.com/mkideal/cli"
+	"github.com/go-easygen/cli"
 )
 
 type rootT struct {
