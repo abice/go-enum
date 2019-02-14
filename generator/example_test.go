@@ -88,3 +88,16 @@ Green = 33 // Green starts with 33
 // red-orange
 // )
 type ColorWithComment3 int
+
+/* ENUM(
+	_, // Placeholder
+Black, White, Red
+Green = 33 // Green starts with 33
+*/
+// Blue
+// grey=
+// yellow // Where did all the (somewhat) bad fish go? (something else that goes in parentheses at the end of the line)
+// blue-green // blue-green comment
+// red-orange // has a , in it!?!
+// )
+type ColorWithComment4 int

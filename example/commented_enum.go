@@ -67,3 +67,66 @@ func (x *Commented) UnmarshalText(text []byte) error {
 	*x = tmp
 	return nil
 }
+
+const (
+	// Skipped value
+	// Placeholder with a ','  in it. (for harder testing)
+	_ ComplexCommented = iota
+	// ComplexCommentedValue1 is a ComplexCommented of type Value1
+	// Commented value 1
+	ComplexCommentedValue1
+	// ComplexCommentedValue2 is a ComplexCommented of type Value2
+	ComplexCommentedValue2
+	// ComplexCommentedValue3 is a ComplexCommented of type Value3
+	// Commented value 3
+	ComplexCommentedValue3
+)
+
+const _ComplexCommentedName = "value1value2value3"
+
+var _ComplexCommentedMap = map[ComplexCommented]string{
+	1: _ComplexCommentedName[0:6],
+	2: _ComplexCommentedName[6:12],
+	3: _ComplexCommentedName[12:18],
+}
+
+// String implements the Stringer interface.
+func (x ComplexCommented) String() string {
+	if str, ok := _ComplexCommentedMap[x]; ok {
+		return str
+	}
+	return fmt.Sprintf("ComplexCommented(%d)", x)
+}
+
+var _ComplexCommentedValue = map[string]ComplexCommented{
+	_ComplexCommentedName[0:6]:                    1,
+	strings.ToLower(_ComplexCommentedName[0:6]):   1,
+	_ComplexCommentedName[6:12]:                   2,
+	strings.ToLower(_ComplexCommentedName[6:12]):  2,
+	_ComplexCommentedName[12:18]:                  3,
+	strings.ToLower(_ComplexCommentedName[12:18]): 3,
+}
+
+// ParseComplexCommented attempts to convert a string to a ComplexCommented
+func ParseComplexCommented(name string) (ComplexCommented, error) {
+	if x, ok := _ComplexCommentedValue[name]; ok {
+		return x, nil
+	}
+	return ComplexCommented(0), fmt.Errorf("%s is not a valid ComplexCommented", name)
+}
+
+// MarshalText implements the text marshaller method
+func (x *ComplexCommented) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the text unmarshaller method
+func (x *ComplexCommented) UnmarshalText(text []byte) error {
+	name := string(text)
+	tmp, err := ParseComplexCommented(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}

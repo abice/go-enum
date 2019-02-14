@@ -20,7 +20,7 @@ import (
 func bindataRead(data []byte, name string) ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewBuffer(data))
 	if err != nil {
-		return nil, fmt.Errorf("Read %q: %v", name, err)
+		return nil, fmt.Errorf("read %q: %v", name, err)
 	}
 
 	var buf bytes.Buffer
@@ -28,7 +28,7 @@ func bindataRead(data []byte, name string) ([]byte, error) {
 	clErr := gz.Close()
 
 	if err != nil {
-		return nil, fmt.Errorf("Read %q: %v", name, err)
+		return nil, fmt.Errorf("read %q: %v", name, err)
 	}
 	if clErr != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func enumTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "enum.tmpl", size: 3312, mode: os.FileMode(420), modTime: time.Unix(1538864601, 0)}
+	info := bindataFileInfo{name: "enum.tmpl", size: 3312, mode: os.FileMode(0644), modTime: time.Unix(1538864601, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xbf, 0xdf, 0x90, 0x1d, 0xf6, 0x35, 0x9f, 0xc3, 0xd5, 0x21, 0x36, 0xbe, 0x9f, 0x17, 0xed, 0x39, 0xd2, 0x1b, 0xc, 0xde, 0xb2, 0xce, 0xd8, 0x91, 0x78, 0x5, 0x5c, 0xb3, 0xe8, 0xb5, 0x84, 0xec}}
 	return a, nil
 }
