@@ -37,4 +37,4 @@ required = ["github.com/golang/mock/gomock"]
 
 [[constraint]]
   name = "github.com/golang/mock"
-  version = "1.1.1"
+  version = "1.2.0"

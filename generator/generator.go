@@ -8,17 +8,17 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
 	"text/template"
 	"unicode"
 
-	"golang.org/x/tools/imports"
-
 	"github.com/Masterminds/sprig"
 	"github.com/abice/go-enum/generator/assets"
 	"github.com/pkg/errors"
+	"golang.org/x/tools/imports"
 )
 
 const (
@@ -225,7 +225,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 		if strings.Contains(value, parseCommentPrefix) {
 			commentStartIndex := strings.Index(value, parseCommentPrefix)
 			comment = value[commentStartIndex+len(parseCommentPrefix):]
-			comment = strings.TrimSpace(comment)
+			comment = strings.TrimSpace(unescapeComment(comment))
 			// value without comment
 			value = value[:commentStartIndex]
 		}
@@ -265,6 +265,14 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
 
 	return enum, nil
+}
+
+func unescapeComment(comment string) string {
+	val, err := url.QueryUnescape(comment)
+	if err != nil {
+		return comment
+	}
+	return val
 }
 
 // sanitizeValue will ensure the value name generated adheres to golang's
@@ -307,40 +315,72 @@ func sanitizeValue(value string) string {
 func getEnumDeclFromComments(comments []*ast.Comment) string {
 	parts := []string{}
 	store := false
-	for _, comment := range comments {
-		lines := breakCommentIntoLines(comment)
 
-		// Go over all the lines in this comment block
-		for _, line := range lines {
-			if store {
-				trimmed := trimAllTheThings(line)
-				if trimmed != "" {
-					parts = append(parts, trimmed)
-				}
-				if strings.Contains(line, `)`) {
-					// End ENUM Declaration
-					break
-				}
+	lines := []string{}
+
+	for _, comment := range comments {
+		lines = append(lines, breakCommentIntoLines(comment)...)
+	}
+
+	enumParamLevel := 0
+	// Go over all the lines in this comment block
+	for _, line := range lines {
+		if store {
+			paramLevel, trimmed := parseLinePart(line)
+			if trimmed != "" {
+				parts = append(parts, trimmed)
 			}
-			if strings.Contains(line, `ENUM(`) {
-				// Start ENUM Declaration
-				if !strings.Contains(line, `)`) {
-					// Store other lines
-					store = true
-				}
-				startIndex := strings.Index(line, `ENUM(`)
-				if startIndex >= 0 {
-					line = line[startIndex+len(`ENUM(`):]
-				}
-				trimmed := trimAllTheThings(line)
-				if trimmed != "" {
-					parts = append(parts, trimmed)
-				}
+			enumParamLevel += paramLevel
+			if enumParamLevel == 0 {
+				// End ENUM Declaration
+				break
+			}
+		}
+		if strings.Contains(line, `ENUM(`) {
+			enumParamLevel = 1
+			startIndex := strings.Index(line, `ENUM(`)
+			if startIndex >= 0 {
+				line = line[startIndex+len(`ENUM(`):]
+			}
+			paramLevel, trimmed := parseLinePart(line)
+			if trimmed != "" {
+				parts = append(parts, trimmed)
+			}
+			enumParamLevel += paramLevel
+
+			// Start ENUM Declaration
+			if enumParamLevel > 0 {
+				// Store other lines
+				store = true
 			}
 		}
 	}
+
+	if enumParamLevel > 0 {
+		fmt.Println("ENUM Parse error, there is a dangling '(' in your comment.")
+	}
 	joined := fmt.Sprintf("ENUM(%s)", strings.Join(parts, `,`))
 	return joined
+}
+
+func parseLinePart(line string) (paramLevel int, trimmed string) {
+	trimmed = line
+	comment := ""
+	if idx := strings.Index(line, parseCommentPrefix); idx >= 0 {
+		trimmed = line[:idx]
+		comment = "//" + url.QueryEscape(strings.TrimSpace(line[idx+2:]))
+	}
+	trimmed = trimAllTheThings(trimmed)
+	trimmed += comment
+	opens := strings.Count(line, `(`)
+	closes := strings.Count(line, `)`)
+	if opens > 0 {
+		paramLevel += opens
+	}
+	if closes > 0 {
+		paramLevel -= closes
+	}
+	return
 }
 
 // breakCommentIntoLines takes the comment and since single line comments are already broken into lines

@@ -1,59 +1,38 @@
 version: 2
+
+
+common_parts: &common_parts
+  working_directory: /go/src/github.com/abice/go-enum
+  steps:
+    - checkout
+    - run:
+        name: Install Go Deps
+        command: |
+          go get -v github.com/jteeuwen/go-bindata/... golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/modocache/gover github.com/golang/mock/gomock
+          go install github.com/golang/mock/mockgen
+    - run:
+        name: Build
+        command: |
+          make build
+    - run:
+        name: Test
+        command: |
+          make cover
+
+
 jobs:
   golang_1.9:
-    working_directory: /go/src/github.com/abice/go-enum
+    <<: *common_parts
     docker:
       - image: circleci/golang:1.9
-    steps:
-      - checkout
-      - run: &installgodeps
-          name: Install Go Deps
-          command: |
-            go get -v github.com/jteeuwen/go-bindata/...
-            go get -v golang.org/x/tools/cmd/cover
-            go get -v github.com/mattn/goveralls
-            go get -v github.com/modocache/gover
-            go get -v github.com/golang/mock/gomock
-            go install github.com/golang/mock/mockgen
-      - run:
-          name: Build
-          command: |
-            make build
-      - run:
-          name: Test
-          command: |
-            make cover
   golang_1.10:
-    working_directory: /go/src/github.com/abice/go-enum
     docker:
       - image: circleci/golang:1.10
-    steps:
-      - checkout
-      - run: *installgodeps
-      - run:
-          name: Build
-          command: |
-            make build
-      - run:
-          name: Test
-          command: |
-            make cover
+    <<: *common_parts
   golang_1.11:
-    working_directory: /go/src/github.com/abice/go-enum
     docker:
       - image: circleci/golang:1.11
-    steps:
-      - checkout
-      - run: *installgodeps
-      - run:
-          name: Build
-          command: |
-            make build
-      - run:
-          name: Test
-          command: |
-            make cover
-            make coveralls
+    <<: *common_parts
 
 workflows:
   version: 2

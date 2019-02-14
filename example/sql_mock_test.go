@@ -35,6 +35,7 @@ func (m *MockConn) EXPECT() *MockConnMockRecorder {
 
 // Begin mocks base method
 func (m *MockConn) Begin() (driver.Tx, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Begin")
 	ret0, _ := ret[0].(driver.Tx)
 	ret1, _ := ret[1].(error)
@@ -43,11 +44,13 @@ func (m *MockConn) Begin() (driver.Tx, error) {
 
 // Begin indicates an expected call of Begin
 func (mr *MockConnMockRecorder) Begin() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockConn)(nil).Begin))
 }
 
 // Close mocks base method
 func (m *MockConn) Close() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -55,11 +58,13 @@ func (m *MockConn) Close() error {
 
 // Close indicates an expected call of Close
 func (mr *MockConnMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockConn)(nil).Close))
 }
 
 // Prepare mocks base method
 func (m *MockConn) Prepare(arg0 string) (driver.Stmt, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Prepare", arg0)
 	ret0, _ := ret[0].(driver.Stmt)
 	ret1, _ := ret[1].(error)
@@ -68,6 +73,7 @@ func (m *MockConn) Prepare(arg0 string) (driver.Stmt, error) {
 
 // Prepare indicates an expected call of Prepare
 func (mr *MockConnMockRecorder) Prepare(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Prepare", reflect.TypeOf((*MockConn)(nil).Prepare), arg0)
 }
 
@@ -96,6 +102,7 @@ func (m *MockDriver) EXPECT() *MockDriverMockRecorder {
 
 // Open mocks base method
 func (m *MockDriver) Open(arg0 string) (driver.Conn, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Open", arg0)
 	ret0, _ := ret[0].(driver.Conn)
 	ret1, _ := ret[1].(error)
@@ -104,6 +111,7 @@ func (m *MockDriver) Open(arg0 string) (driver.Conn, error) {
 
 // Open indicates an expected call of Open
 func (mr *MockDriverMockRecorder) Open(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Open", reflect.TypeOf((*MockDriver)(nil).Open), arg0)
 }
 
@@ -132,6 +140,7 @@ func (m *MockStmt) EXPECT() *MockStmtMockRecorder {
 
 // Close mocks base method
 func (m *MockStmt) Close() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -139,11 +148,13 @@ func (m *MockStmt) Close() error {
 
 // Close indicates an expected call of Close
 func (mr *MockStmtMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStmt)(nil).Close))
 }
 
 // Exec mocks base method
 func (m *MockStmt) Exec(arg0 []driver.Value) (driver.Result, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Exec", arg0)
 	ret0, _ := ret[0].(driver.Result)
 	ret1, _ := ret[1].(error)
@@ -152,11 +163,13 @@ func (m *MockStmt) Exec(arg0 []driver.Value) (driver.Result, error) {
 
 // Exec indicates an expected call of Exec
 func (mr *MockStmtMockRecorder) Exec(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockStmt)(nil).Exec), arg0)
 }
 
 // NumInput mocks base method
 func (m *MockStmt) NumInput() int {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NumInput")
 	ret0, _ := ret[0].(int)
 	return ret0
@@ -164,11 +177,13 @@ func (m *MockStmt) NumInput() int {
 
 // NumInput indicates an expected call of NumInput
 func (mr *MockStmtMockRecorder) NumInput() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NumInput", reflect.TypeOf((*MockStmt)(nil).NumInput))
 }
 
 // Query mocks base method
 func (m *MockStmt) Query(arg0 []driver.Value) (driver.Rows, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Query", arg0)
 	ret0, _ := ret[0].(driver.Rows)
 	ret1, _ := ret[1].(error)
@@ -177,6 +192,7 @@ func (m *MockStmt) Query(arg0 []driver.Value) (driver.Rows, error) {
 
 // Query indicates an expected call of Query
 func (mr *MockStmtMockRecorder) Query(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockStmt)(nil).Query), arg0)
 }
 
@@ -205,6 +221,7 @@ func (m *MockResult) EXPECT() *MockResultMockRecorder {
 
 // LastInsertId mocks base method
 func (m *MockResult) LastInsertId() (int64, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LastInsertId")
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
@@ -213,11 +230,13 @@ func (m *MockResult) LastInsertId() (int64, error) {
 
 // LastInsertId indicates an expected call of LastInsertId
 func (mr *MockResultMockRecorder) LastInsertId() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LastInsertId", reflect.TypeOf((*MockResult)(nil).LastInsertId))
 }
 
 // RowsAffected mocks base method
 func (m *MockResult) RowsAffected() (int64, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RowsAffected")
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
@@ -226,6 +245,7 @@ func (m *MockResult) RowsAffected() (int64, error) {
 
 // RowsAffected indicates an expected call of RowsAffected
 func (mr *MockResultMockRecorder) RowsAffected() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RowsAffected", reflect.TypeOf((*MockResult)(nil).RowsAffected))
 }
 
@@ -254,6 +274,7 @@ func (m *MockRows) EXPECT() *MockRowsMockRecorder {
 
 // Close mocks base method
 func (m *MockRows) Close() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -261,11 +282,13 @@ func (m *MockRows) Close() error {
 
 // Close indicates an expected call of Close
 func (mr *MockRowsMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRows)(nil).Close))
 }
 
 // Columns mocks base method
 func (m *MockRows) Columns() []string {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Columns")
 	ret0, _ := ret[0].([]string)
 	return ret0
@@ -273,11 +296,13 @@ func (m *MockRows) Columns() []string {
 
 // Columns indicates an expected call of Columns
 func (mr *MockRowsMockRecorder) Columns() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Columns", reflect.TypeOf((*MockRows)(nil).Columns))
 }
 
 // Next mocks base method
 func (m *MockRows) Next(arg0 []driver.Value) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Next", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -285,5 +310,6 @@ func (m *MockRows) Next(arg0 []driver.Value) error {
 
 // Next indicates an expected call of Next
 func (mr *MockRowsMockRecorder) Next(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Next", reflect.TypeOf((*MockRows)(nil).Next), arg0)
 }
