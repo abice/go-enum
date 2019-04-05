@@ -2,13 +2,12 @@ version: 2
 
 
 common_parts: &common_parts
-  working_directory: /go/src/github.com/abice/go-enum
   steps:
     - checkout
     - run:
         name: Install Go Deps
         command: |
-          go get -v github.com/jteeuwen/go-bindata/... golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/modocache/gover github.com/golang/mock/gomock
+          go install -v github.com/kevinburke/go-bindata/go-bindata golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/golang/mock/gomock
           go install github.com/golang/mock/mockgen
     - run:
         name: Build
@@ -18,26 +17,22 @@ common_parts: &common_parts
         name: Test
         command: |
           make cover
+          make coveralls
 
 
 jobs:
-  golang_1.9:
-    <<: *common_parts
-    docker:
-      - image: circleci/golang:1.9
-  golang_1.10:
-    docker:
-      - image: circleci/golang:1.10
-    <<: *common_parts
   golang_1.11:
     docker:
       - image: circleci/golang:1.11
+    <<: *common_parts
+  golang_1.12:
+    docker:
+      - image: circleci/golang:1.12
     <<: *common_parts
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - golang_1.9
-      - golang_1.10
       - golang_1.11
+      - golang_1.12

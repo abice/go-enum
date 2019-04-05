@@ -8,16 +8,14 @@ endif
 PACKAGES='./generator' './example'
 
 .PHONY: all
-all: build fmt test example cover install 
+all: build fmt test example cover install
 
 .PHONY: install-deps
 install-deps:
-	go get github.com/golang/dep/cmd/dep
-	go get -v github.com/jteeuwen/go-bindata/...
-	go get -v golang.org/x/tools/cmd/cover
-	go get -v github.com/mattn/goveralls
-	go get -v github.com/modocache/gover
-	dep ensure
+	go install -v github.com/jteeuwen/go-bindata/go-bindata
+	go install -v golang.org/x/tools/cmd/cover
+	go install -v github.com/mattn/goveralls
+	go mod vendor
 
 build:
 	go generate ./generator
@@ -28,19 +26,14 @@ fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	if [ ! -d coverage ]; then mkdir coverage; fi
-	go test -v ./generator -race -cover -coverprofile=$(COVERAGEDIR)/generator.coverprofile
-	go test -v ./example -race -cover -coverprofile=$(COVERAGEDIR)/example.coverprofile
+	go test -v ./... -race -coverprofile=coverage.out
 
 cover: gen-test test
-	go tool cover -html=$(COVERAGEDIR)/generator.coverprofile -o $(COVERAGEDIR)/generator.html
-	go tool cover -html=$(COVERAGEDIR)/example.coverprofile -o $(COVERAGEDIR)/example.html
+	go tool cover -html=coverage.out -o coverage.html
 
 tc: test cover
 coveralls:
-	if [ ! -d $(COVERAGEDIR) ]; then mkdir $(COVERAGEDIR); fi
-	gover $(COVERAGEDIR) $(COVERAGEDIR)/coveralls.coverprofile
-	goveralls -coverprofile=$(COVERAGEDIR)/coveralls.coverprofile -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
+	goveralls -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
 clean:
 	go clean

@@ -15,3 +15,6 @@
 
 /bin
 /coverage
+vendor/
+coverage.out
+coverage.html
