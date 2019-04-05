@@ -17,6 +17,7 @@ common_parts: &common_parts
         name: Test
         command: |
           make cover
+          make coveralls
 
 
 jobs:
