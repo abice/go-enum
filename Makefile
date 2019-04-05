@@ -15,7 +15,6 @@ install-deps:
 	go install -v github.com/jteeuwen/go-bindata/go-bindata
 	go install -v golang.org/x/tools/cmd/cover
 	go install -v github.com/mattn/goveralls
-	go install -v github.com/modocache/gover
 	go mod vendor
 
 build:
@@ -27,17 +26,14 @@ fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	if [ ! -d $(COVERAGEDIR) ]; then mkdir $(COVERAGEDIR); fi
-	go test -v ./... -race -coverprofile=$(COVERAGEDIR)/all.coverprofile
+	go test -v ./... -race -coverprofile=coverage.out
 
 cover: gen-test test
-	go tool cover -html=$(COVERAGEDIR)/all.coverprofile -o $(COVERAGEDIR)/all.html
+	go tool cover -html=coverage.out -o coverage.html
 
 tc: test cover
 coveralls:
-	if [ ! -d $(COVERAGEDIR) ]; then mkdir $(COVERAGEDIR); fi
-	gover $(COVERAGEDIR) $(COVERAGEDIR)/coveralls.coverprofile
-	goveralls -coverprofile=$(COVERAGEDIR)/coveralls.coverprofile -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
+	goveralls -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
 clean:
 	go clean
