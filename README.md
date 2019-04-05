@@ -12,7 +12,7 @@ An enum generator for go
 The goal of go-enum is to create an easy to use enum generator that will take a decorated type declaration like `type EnumName int` and create the associated constant values and funcs that will make life a little easier for adding new values.
 It's not perfect, but I think it's useful.
 
-I took the output of the [Stringer](golang.org/x/tools/cmd/stringer) command as the `String()` method, and added a way to parse a string value.
+I took the output of the [Stringer](https://godoc.org/golang.org/x/tools/cmd/stringer) command as the `String()` method, and added a way to parse a string value.
 
 ## Command options
 
@@ -68,7 +68,7 @@ const (
 ```
 
 #### Example
-There are a few examples in the `example` [directory](repo/blob/master/example).
+There are a few examples in the `example` [directory](example).
 I've included one here for easy access, but can't guarantee it's up to date.
 
 ``` go
