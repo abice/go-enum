@@ -37,6 +37,7 @@ type Generator struct {
 	sql             bool
 	flag            bool
 	names           bool
+	leaveSnakeCase  bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -117,6 +118,12 @@ func (g *Generator) WithFlag() *Generator {
 // WithNames is used to add Names methods to the enum
 func (g *Generator) WithNames() *Generator {
 	g.names = true
+	return g
+}
+
+// WithoutSnakeToCamel is used to add flag methods to the enum
+func (g *Generator) WithoutSnakeToCamel() *Generator {
+	g.leaveSnakeCase = true
 	return g
 }
 
@@ -254,6 +261,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
 				prefixedName = sanitizeValue(prefixedName)
+				if !g.leaveSnakeCase {
+					prefixedName = snakeToCamelCase(prefixedName)
+				}
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
@@ -307,6 +317,16 @@ func sanitizeValue(value string) string {
 	}
 
 	return name
+}
+
+func snakeToCamelCase(value string) string {
+	parts := strings.Split(value, "_")
+	for i, part := range parts {
+		parts[i] = strings.Title(part)
+	}
+	value = strings.Join(parts, "")
+
+	return value
 }
 
 // getEnumDeclFromComments parses the array of comment strings and creates a single Enum Declaration statement

@@ -13,14 +13,15 @@ import (
 
 type rootT struct {
 	cli.Helper
-	FileNames []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
-	NoPrefix  bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
-	Lowercase bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
-	Marshal   bool     `cli:"marshal" usage:"Adds text marshalling functions."`
-	SQL       bool     `cli:"sql" usage:"Adds SQL database scan and value functions."`
-	Flag      bool     `cli:"flag" usage:"Adds golang flag functions."`
-	Prefix    string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
-	Names     bool     `cli:"names" usage:"Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing"`
+	FileNames      []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
+	NoPrefix       bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
+	Lowercase      bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
+	Marshal        bool     `cli:"marshal" usage:"Adds text marshalling functions."`
+	SQL            bool     `cli:"sql" usage:"Adds SQL database scan and value functions."`
+	Flag           bool     `cli:"flag" usage:"Adds golang flag functions."`
+	Prefix         string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
+	Names          bool     `cli:"names" usage:"Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing"`
+	LeaveSnakeCase bool     `cli:"nocamel" usage:"Removes the snake_case to CamelCase name changing"`
 }
 
 func main() {
@@ -48,6 +49,9 @@ func main() {
 			}
 			if argv.Names {
 				g.WithNames()
+			}
+			if argv.LeaveSnakeCase {
+				g.WithoutSnakeToCamel()
 			}
 
 			originalName := fileName

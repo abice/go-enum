@@ -128,6 +128,13 @@ func TestColorUnmarshal(t *testing.T) {
 			err:           nil,
 		},
 		{
+			name:          "yellow_green",
+			input:         `{"color":"yellow_green"}`,
+			output:        &testData{ColorX: ColorYellowGreen},
+			errorExpected: false,
+			err:           nil,
+		},
+		{
 			name:          "magenta",
 			input:         `{"color":"Magenta"}`,
 			output:        &testData{ColorX: ColorYellow},
