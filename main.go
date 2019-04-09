@@ -50,6 +50,9 @@ func main() {
 			if argv.Names {
 				g.WithNames()
 			}
+			if argv.LeaveSnakeCase {
+				g.WithoutSnakeToCamel()
+			}
 
 			originalName := fileName
 
