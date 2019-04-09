@@ -26,7 +26,7 @@ fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	go test -v ./... -race -coverprofile=coverage.out
+	go test -v -race -coverprofile=coverage.out ./...
 
 cover: gen-test test
 	go tool cover -html=coverage.out -o coverage.html

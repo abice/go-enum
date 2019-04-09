@@ -29,6 +29,7 @@ Options:
       --flag       Adds golang flag functions.
       --prefix     Replaces the prefix with a user one.
       --names      Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing
+      --nocamel    Removes the snake_case to CamelCase name changing
 ```
 
 
@@ -82,6 +83,7 @@ Green = 33 // Green starts with 33
 // yellow
 // blue-green
 // red-orange
+// yellow_green
 // )
 type Color int32
 ```
@@ -110,9 +112,11 @@ const (
 	ColorBlueGreen
 	// ColorRedOrange is a Color of type Red-Orange
 	ColorRedOrange
+	// ColorYellowGreen is a Color of type Yellow_green
+	ColorYellowGreen
 )
 
-const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orange"
+const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_green"
 
 var _ColorMap = map[Color]string{
 	0:  _ColorName[0:5],
@@ -124,13 +128,15 @@ var _ColorMap = map[Color]string{
 	36: _ColorName[26:32],
 	37: _ColorName[32:42],
 	38: _ColorName[42:52],
+	39: _ColorName[52:64],
 }
 
-func (i Color) String() string {
-	if str, ok := _ColorMap[i]; ok {
+// String implements the Stringer interface.
+func (x Color) String() string {
+	if str, ok := _ColorMap[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("Color(%d)", i)
+	return fmt.Sprintf("Color(%d)", x)
 }
 
 var _ColorValue = map[string]Color{
@@ -152,20 +158,24 @@ var _ColorValue = map[string]Color{
 	strings.ToLower(_ColorName[32:42]): 37,
 	_ColorName[42:52]:                  38,
 	strings.ToLower(_ColorName[42:52]): 38,
+	_ColorName[52:64]:                  39,
+	strings.ToLower(_ColorName[52:64]): 39,
 }
 
 // ParseColor attempts to convert a string to a Color
 func ParseColor(name string) (Color, error) {
 	if x, ok := _ColorValue[name]; ok {
-		return Color(x), nil
+		return x, nil
 	}
 	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
+// MarshalText implements the text marshaller method
 func (x *Color) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
+// UnmarshalText implements the text unmarshaller method
 func (x *Color) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseColor(name)
@@ -181,6 +191,6 @@ func (x *Color) UnmarshalText(text []byte) error {
 
 ## Adding it to your project
 1. `go get github.com/abice/go-enum`
-1. Add a go:generate line to your file like so... `//go:generate go-enum -f=$GOFILE`
+1. Add a go:generate line to your file like so... `//go:generate go-enum -f=$GOFILE --marshal`
 1. Run go generate like so `go generate ./...`
 1. Enjoy your newly created Enumeration

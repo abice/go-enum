@@ -83,3 +83,78 @@ func TestCommentedUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+type complexCommentedData struct {
+	ComplexCommentedX ComplexCommented `json:"ComplexCommented,omitempty"`
+}
+
+func TestComplexCommentedEnumString(t *testing.T) {
+	x := ComplexCommented(109)
+	assert.Equal(t, "ComplexCommented(109)", x.String())
+	x = ComplexCommented(1)
+	assert.Equal(t, "value1", x.String())
+
+	y, err := ParseComplexCommented("value3")
+	require.NoError(t, err, "Failed parsing value3")
+	assert.Equal(t, ComplexCommentedValue3, y)
+
+	z, err := ParseComplexCommented("value4")
+	require.Error(t, err, "Shouldn't parse a value4")
+	assert.Equal(t, ComplexCommented(0), z)
+}
+
+func TestComplexCommentedUnmarshal(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         string
+		output        *complexCommentedData
+		errorExpected bool
+		err           error
+	}{
+		{
+			name:          "value1",
+			input:         `{"ComplexCommented":"value1"}`,
+			output:        &complexCommentedData{ComplexCommentedX: ComplexCommentedValue1},
+			errorExpected: false,
+			err:           nil,
+		},
+		{
+			name:          "value2",
+			input:         `{"ComplexCommented":"value2"}`,
+			output:        &complexCommentedData{ComplexCommentedX: ComplexCommentedValue2},
+			errorExpected: false,
+			err:           nil,
+		},
+		{
+			name:          "value3",
+			input:         `{"ComplexCommented":"value3"}`,
+			output:        &complexCommentedData{ComplexCommentedX: ComplexCommentedValue3},
+			errorExpected: false,
+			err:           nil,
+		},
+		{
+			name:          "notanCommented",
+			input:         `{"ComplexCommented":"value4"}`,
+			output:        nil,
+			errorExpected: true,
+			err:           errors.New("value4 is not a valid ComplexCommented"),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			x := &complexCommentedData{}
+			err := json.Unmarshal([]byte(test.input), x)
+			if !test.errorExpected {
+				require.NoError(tt, err, "failed unmarshalling the json.")
+				assert.Equal(tt, test.output.ComplexCommentedX, x.ComplexCommentedX)
+				raw, err := json.Marshal(test.output)
+				require.NoError(tt, err, "failed marshalling back to json")
+				require.JSONEq(tt, test.input, string(raw), "json didn't match")
+			} else {
+				require.Error(tt, err)
+				assert.EqualError(tt, err, test.err.Error())
+			}
+		})
+	}
+}

@@ -23,7 +23,8 @@ func TestNoStructFile(t *testing.T) {
 
 	}
 	`
-	g := NewGenerator()
+	g := NewGenerator().
+		WithoutSnakeToCamel()
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
@@ -36,7 +37,8 @@ func TestNoStructFile(t *testing.T) {
 
 // TestNoFile
 func TestNoFile(t *testing.T) {
-	g := NewGenerator()
+	g := NewGenerator().
+		WithoutSnakeToCamel()
 	// Parse the file given in arguments
 	_, err := g.GenerateFromFile("")
 	assert.NotNil(t, err, "Error generating formatted code")
@@ -44,11 +46,12 @@ func TestNoFile(t *testing.T) {
 
 // TestExampleFile
 func TestExampleFile(t *testing.T) {
-	g := NewGenerator()
-	g.WithMarshal()
-	g.WithSQLDriver()
-	g.WithLowercaseVariant()
-	g.WithNames()
+	g := NewGenerator().
+		WithMarshal().
+		WithSQLDriver().
+		WithLowercaseVariant().
+		WithNames().
+		WithoutSnakeToCamel()
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	require.Nil(t, err, "Error generating formatted code")
@@ -64,11 +67,33 @@ func TestExampleFile(t *testing.T) {
 
 // TestExampleFile
 func TestNoPrefixExampleFile(t *testing.T) {
-	g := NewGenerator()
-	g.WithMarshal()
-	g.WithLowercaseVariant()
-	g.WithNoPrefix()
-	g.WithFlag()
+	g := NewGenerator().
+		WithMarshal().
+		WithLowercaseVariant().
+		WithNoPrefix().
+		WithFlag().
+		WithoutSnakeToCamel()
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	err = cupaloy.Snapshot(outputLines)
+	assert.NoError(t, err, "Output must match snapshot")
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
+// TestExampleFile
+func TestNoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
+	g := NewGenerator().
+		WithMarshal().
+		WithLowercaseVariant().
+		WithNoPrefix().
+		WithFlag()
+
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	require.Nil(t, err, "Error generating formatted code")
