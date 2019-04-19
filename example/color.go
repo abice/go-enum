@@ -13,5 +13,6 @@ Green = 33 // Green starts with 33
 // blue-green
 // red-orange
 // yellow_green
+// red-orange-blue
 // )
 type Color int
