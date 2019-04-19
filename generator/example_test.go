@@ -86,6 +86,7 @@ Green = 33 // Green starts with 33
 // yellow
 // blue-green // blue-green comment
 // red-orange
+// red-orange-blue
 // )
 type ColorWithComment3 int
 

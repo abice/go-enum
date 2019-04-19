@@ -30,9 +30,11 @@ const (
 	ColorRedOrange
 	// ColorYellowGreen is a Color of type Yellow_green
 	ColorYellowGreen
+	// ColorRedOrangeBlue is a Color of type Red-Orange-Blue
+	ColorRedOrangeBlue
 )
 
-const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_green"
+const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_greenred-orange-blue"
 
 var _ColorMap = map[Color]string{
 	0:  _ColorName[0:5],
@@ -45,6 +47,7 @@ var _ColorMap = map[Color]string{
 	37: _ColorName[32:42],
 	38: _ColorName[42:52],
 	39: _ColorName[52:64],
+	40: _ColorName[64:79],
 }
 
 // String implements the Stringer interface.
@@ -76,6 +79,8 @@ var _ColorValue = map[string]Color{
 	strings.ToLower(_ColorName[42:52]): 38,
 	_ColorName[52:64]:                  39,
 	strings.ToLower(_ColorName[52:64]): 39,
+	_ColorName[64:79]:                  40,
+	strings.ToLower(_ColorName[64:79]): 40,
 }
 
 // ParseColor attempts to convert a string to a Color

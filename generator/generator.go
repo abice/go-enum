@@ -305,7 +305,8 @@ func sanitizeValue(value string) string {
 	}
 
 	// Loop through all the runes and remove any that aren't valid.
-	for i, r := range name {
+	for i := 0; i < len(name); i++ {
+		r := rune(name[i])
 		if !(unicode.IsLetter(r) || unicode.IsNumber(r) || r == '_') {
 			if i < len(name) {
 				name = name[:i] + name[i+1:]
@@ -313,6 +314,7 @@ func sanitizeValue(value string) string {
 				// At the end of the string, take off the last char
 				name = name[:i-1]
 			}
+			i--
 		}
 	}
 
