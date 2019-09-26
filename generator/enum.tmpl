@@ -84,6 +84,24 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 }
 {{end}}
 
+{{ if .json }}
+// MarshalJSON implements the json.Marshaler method
+func (x *{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the json.Unmarshaler method
+func (x *{{.enum.Name}}) UnmarshalJSON(text []byte) error {
+	name := string(text)
+	tmp, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+{{end}}
+
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
 func (x *{{.enum.Name}}) Set(val string) error {

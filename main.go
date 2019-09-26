@@ -18,6 +18,7 @@ type rootT struct {
 	Lowercase      bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
 	Marshal        bool     `cli:"marshal" usage:"Adds text marshalling functions."`
 	SQL            bool     `cli:"sql" usage:"Adds SQL database scan and value functions."`
+	JSON           bool     `cli:"json" usage:"Adds JSON marshalling and unmarshalling functions"`
 	Flag           bool     `cli:"flag" usage:"Adds golang flag functions."`
 	Prefix         string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
 	Names          bool     `cli:"names" usage:"Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing"`
@@ -43,6 +44,9 @@ func main() {
 			}
 			if argv.SQL {
 				g.WithSQLDriver()
+			}
+			if argv.JSON {
+				g.WithJSONDriver()
 			}
 			if argv.Flag {
 				g.WithFlag()

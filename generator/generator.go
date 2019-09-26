@@ -35,6 +35,7 @@ type Generator struct {
 	lowercaseLookup bool
 	marshal         bool
 	sql             bool
+	json            bool
 	flag            bool
 	names           bool
 	leaveSnakeCase  bool
@@ -77,7 +78,11 @@ func NewGenerator() *Generator {
 	g.t.Funcs(funcs)
 
 	for _, asset := range assets.AssetNames() {
-		g.t = template.Must(g.t.Parse(string(assets.MustAsset(asset))))
+		a, err := assets.Asset(asset)
+		if err != nil {
+			panic(err)
+		}
+		g.t = template.Must(g.t.Parse(string(a)))
 	}
 
 	g.updateTemplates()
@@ -106,6 +111,12 @@ func (g *Generator) WithMarshal() *Generator {
 // WithSQLDriver is used to add marshalling to the enum
 func (g *Generator) WithSQLDriver() *Generator {
 	g.sql = true
+	return g
+}
+
+// WithJSONDriver is used to add JSON marshalling and unmarshalling to the enum
+func (g *Generator) WithJSONDriver() *Generator {
+	g.json = true
 	return g
 }
 
@@ -175,6 +186,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"lowercase": g.lowercaseLookup,
 			"marshal":   g.marshal,
 			"sql":       g.sql,
+			"json":      g.json,
 			"flag":      g.flag,
 			"names":     g.names,
 		}

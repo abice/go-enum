@@ -49,6 +49,7 @@ func TestExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithSQLDriver().
+		WithJSONDriver().
 		WithLowercaseVariant().
 		WithNames().
 		WithoutSnakeToCamel()
