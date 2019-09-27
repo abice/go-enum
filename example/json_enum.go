@@ -71,7 +71,7 @@ func (x *Planet) MarshalJSON() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the json.Unmarshaler method
+// UnmarshalJSON implements the json.Unmarshaler method
 func (x *Planet) UnmarshalJSON(text []byte) error {
 	name := string(text)
 	tmp, err := ParsePlanet(name)
