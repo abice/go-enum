@@ -90,7 +90,7 @@ func (x *{{.enum.Name}}) MarshalJSON() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the json.Unmarshaler method
+// UnmarshalJSON implements the json.Unmarshaler method
 func (x *{{.enum.Name}}) UnmarshalJSON(text []byte) error {
 	name := string(text)
 	tmp, err := Parse{{.enum.Name}}(name)

@@ -1,4 +1,4 @@
-//go:generate go-enum -f=json.go --json
+//go:generate go-enum -f=$GOFILE --json
 
 package example
 
