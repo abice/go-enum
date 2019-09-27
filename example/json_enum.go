@@ -4,6 +4,7 @@
 package example
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -68,13 +69,16 @@ func ParsePlanet(name string) (Planet, error) {
 
 // MarshalJSON implements the json.Marshaler method
 func (x *Planet) MarshalJSON() ([]byte, error) {
-	return []byte(x.String()), nil
+	return json.Marshal(x.String())
 }
 
 // UnmarshalJSON implements the json.Unmarshaler method
 func (x *Planet) UnmarshalJSON(text []byte) error {
-	name := string(text)
-	tmp, err := ParsePlanet(name)
+	var s string
+	if err := json.Unmarshal(text, &s); err != nil {
+		return err
+	}
+	tmp, err := ParsePlanet(s)
 	if err != nil {
 		return err
 	}

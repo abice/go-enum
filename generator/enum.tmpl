@@ -5,6 +5,7 @@
 package {{.package}}
 
 import (
+    "encoding/json"
     "fmt"
 )
 {{end -}}
@@ -87,13 +88,16 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 {{ if .json }}
 // MarshalJSON implements the json.Marshaler method
 func (x *{{.enum.Name}}) MarshalJSON() ([]byte, error) {
-	return []byte(x.String()), nil
+	return json.Marshal(x.String())
 }
 
 // UnmarshalJSON implements the json.Unmarshaler method
 func (x *{{.enum.Name}}) UnmarshalJSON(text []byte) error {
-	name := string(text)
-	tmp, err := Parse{{.enum.Name}}(name)
+	var s string
+	if err := json.Unmarshal(text, &s); err != nil {
+		return err
+	}
+	tmp, err := Parse{{.enum.Name}}(s)
 	if err != nil {
 		return err
 	}
