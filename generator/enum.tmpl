@@ -5,7 +5,7 @@
 package {{.package}}
 
 import (
-    "encoding/json"
+    {{- if .json }}"encoding/json"{{ end -}}
     "fmt"
 )
 {{end -}}
