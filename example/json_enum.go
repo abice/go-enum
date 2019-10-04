@@ -68,7 +68,7 @@ func ParsePlanet(name string) (Planet, error) {
 }
 
 // MarshalJSON implements the json.Marshaler method
-func (x *Planet) MarshalJSON() ([]byte, error) {
+func (x Planet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(x.String())
 }
 

@@ -87,7 +87,7 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 
 {{ if .json }}
 // MarshalJSON implements the json.Marshaler method
-func (x *{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+func (x {{.enum.Name}}) MarshalJSON() ([]byte, error) {
 	return json.Marshal(x.String())
 }
 
