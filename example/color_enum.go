@@ -92,7 +92,7 @@ func ParseColor(name string) (Color, error) {
 }
 
 // MarshalText implements the text marshaller method
-func (x *Color) MarshalText() ([]byte, error) {
+func (x Color) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 

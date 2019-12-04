@@ -132,7 +132,7 @@ func ParseMake(name string) (Make, error) {
 }
 
 // MarshalText implements the text marshaller method
-func (x *Make) MarshalText() ([]byte, error) {
+func (x Make) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
@@ -238,7 +238,7 @@ func ParseNoZeros(name string) (NoZeros, error) {
 }
 
 // MarshalText implements the text marshaller method
-func (x *NoZeros) MarshalText() ([]byte, error) {
+func (x NoZeros) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 

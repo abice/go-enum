@@ -77,7 +77,12 @@ func NewGenerator() *Generator {
 	g.t.Funcs(funcs)
 
 	for _, asset := range assets.AssetNames() {
-		g.t = template.Must(g.t.Parse(string(assets.MustAsset(asset))))
+		a, err := assets.Asset(asset)
+		if err != nil {
+			panic(err)
+		}
+
+		g.t = template.Must(g.t.Parse(string(a)))
 	}
 
 	g.updateTemplates()

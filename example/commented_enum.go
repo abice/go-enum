@@ -53,7 +53,7 @@ func ParseCommented(name string) (Commented, error) {
 }
 
 // MarshalText implements the text marshaller method
-func (x *Commented) MarshalText() ([]byte, error) {
+func (x Commented) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
@@ -116,7 +116,7 @@ func ParseComplexCommented(name string) (ComplexCommented, error) {
 }
 
 // MarshalText implements the text marshaller method
-func (x *ComplexCommented) MarshalText() ([]byte, error) {
+func (x ComplexCommented) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
