@@ -39,7 +39,7 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 
 {{ if .marshal }}
 // MarshalText implements the text marshaller method
-func (x *{{.enum.Name}}) MarshalText() ([]byte, error) {
+func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
