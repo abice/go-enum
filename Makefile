@@ -12,7 +12,7 @@ all: build fmt test example cover install
 
 .PHONY: install-deps
 install-deps:
-	go install -v github.com/jteeuwen/go-bindata/go-bindata
+	go install -v github.com/kevinburke/go-bindata/go-bindata
 	go install -v golang.org/x/tools/cmd/cover
 	go install -v github.com/mattn/goveralls
 	go mod vendor

@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/abice/go-enum)](https://goreportcard.com/report/github.com/abice/go-enum)
 [![Coverage Status](https://coveralls.io/repos/github/abice/go-enum/badge.svg)](https://coveralls.io/github/abice/go-enum)
 [![GoDoc](https://godoc.org/github.com/abice/go-enum?status.svg)](https://godoc.org/github.com/abice/go-enum)
-[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)  
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
 An enum generator for go
 
@@ -25,7 +25,7 @@ Options:
   -f, --file      *The file(s) to generate enums.  Use more than one flag for more files.
       --noprefix   Prevents the constants generated from having the Enum as a prefix.
       --lower      Adds lowercase variants of the enum strings for lookup.
-      --marshal    Adds text marshalling functions.
+      --marshal    Adds text (and inherently json) marshalling functions.
       --sql        Adds SQL database scan and value functions.
       --flag       Adds golang flag functions.
       --prefix     Replaces the prefix with a user one.
