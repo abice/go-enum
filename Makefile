@@ -5,6 +5,8 @@ else
 .SILENT:
 endif
 
+GO ?= GO111MODULE=on go
+
 include $(wildcard *.mk)
 
 COVERAGEDIR = coverage
@@ -20,40 +22,40 @@ PACKAGES='./generator' './example'
 all: build fmt test example cover install
 
 build: deps
-	go generate ./generator
+	$(GO) generate ./generator
 	if [ ! -d bin ]; then mkdir bin; fi
-	go build -v -o bin/go-enum .
+	$(GO) build -v -o bin/go-enum .
 
 fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	go test -v -race -coverprofile=coverage.out ./...
+	$(GO) test -v -race -coverprofile=coverage.out ./...
 
 cover: gen-test test
-	go tool cover -html=coverage.out -o coverage.html
+	$(GO) tool cover -html=coverage.out -o coverage.html
 
 tc: test cover
-coveralls:
-	goveralls -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
+coveralls: $(GOVERALLS)
+	$(GOVERALLS) -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
 clean: cleandeps
-	go clean
+	$(GO) clean
 	rm -f bin/go-enum
 	rm -rf coverage/
 
 .PHONY: generate
 generate:
-	go generate $(PACKAGES)
+	$(GO) generate $(PACKAGES)
 
 gen-test: build
 	$(GO) generate $(PACKAGES)
 
 install:
-	go install
+	$(GO) install
 
 phony: clean tc build
 
 .PHONY: example
 example:
-	go generate ./example
+	$(GO) generate ./example

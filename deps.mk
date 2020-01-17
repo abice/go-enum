@@ -1,11 +1,11 @@
-GO ?= go
-
 GOBINDATA=bin/go/github.com/kevinburke/go-bindata/go-bindata
 GOIMPORTS=bin/go/golang.org/x/tools/cmd/goimports
+GOVERALLS=bin/go/github.com/mattn/goveralls
 MOCKGEN=bin/go/github.com/golang/mock/mockgen
 TOOLS = $(GOBINDATA) \
 	$(GOIMPORTS) \
-	$(MOCKGEN)
+	$(MOCKGEN) \
+	$(GOVERALLS)
 
 cleandeps:
 	if [ -d "./bin" ]; then rm -rf "./bin"; fi
