@@ -1,3 +1,14 @@
+.DEFAULT_GOAL:=all
+ifdef VERBOSE
+V = -v
+else
+.SILENT:
+endif
+
+GO ?= GO111MODULE=on go
+
+include $(wildcard *.mk)
+
 COVERAGEDIR = coverage
 SERVICE=local
 ifdef CIRCLE_WORKING_DIRECTORY
@@ -10,48 +21,41 @@ PACKAGES='./generator' './example'
 .PHONY: all
 all: build fmt test example cover install
 
-.PHONY: install-deps
-install-deps:
-	go install -v github.com/kevinburke/go-bindata/go-bindata
-	go install -v golang.org/x/tools/cmd/cover
-	go install -v github.com/mattn/goveralls
-	go mod vendor
-
-build:
-	go generate ./generator
+build: deps
+	$(GO) generate ./generator
 	if [ ! -d bin ]; then mkdir bin; fi
-	go build -v -o bin/go-enum .
+	$(GO) build -v -o bin/go-enum .
 
 fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	go test -v -race -coverprofile=coverage.out ./...
+	$(GO) test -v -race -coverprofile=coverage.out ./...
 
 cover: gen-test test
-	go tool cover -html=coverage.out -o coverage.html
+	$(GO) tool cover -html=coverage.out -o coverage.html
 
 tc: test cover
-coveralls:
-	goveralls -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
+coveralls: $(GOVERALLS)
+	$(GOVERALLS) -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
-clean:
-	go clean
+clean: cleandeps
+	$(GO) clean
 	rm -f bin/go-enum
 	rm -rf coverage/
 
 .PHONY: generate
 generate:
-	go generate $(PACKAGES)
+	$(GO) generate $(PACKAGES)
 
-gen-test: build install
-	go generate $(PACKAGES)
+gen-test: build
+	$(GO) generate $(PACKAGES)
 
 install:
-	go install
+	$(GO) install
 
 phony: clean tc build
 
 .PHONY: example
 example:
-	go generate ./example
+	$(GO) generate ./example

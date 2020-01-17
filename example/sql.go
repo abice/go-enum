@@ -1,4 +1,4 @@
-//go:generate go-enum -f=$GOFILE --sql
+//go:generate ../bin/go-enum -f=$GOFILE --sql
 
 package example
 
