@@ -106,3 +106,25 @@ func TestNoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
 		fmt.Println(string(imported))
 	}
 }
+
+// TestCustomPrefixExampleFile
+func TestCustomPrefixExampleFile(t *testing.T) {
+	g := NewGenerator().
+		WithMarshal().
+		WithLowercaseVariant().
+		WithNoPrefix().
+		WithFlag().
+		WithoutSnakeToCamel().
+		WithPrefix("Custom_prefix_")
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	err = cupaloy.Snapshot(outputLines)
+	assert.NoError(t, err, "Output must match snapshot")
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}

@@ -53,6 +53,9 @@ func main() {
 			if argv.LeaveSnakeCase {
 				g.WithoutSnakeToCamel()
 			}
+			if argv.Prefix != "" {
+				g.WithPrefix(argv.Prefix)
+			}
 
 			originalName := fileName
 

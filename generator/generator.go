@@ -1,4 +1,4 @@
-//go:generate go-bindata -o assets/assets.go -pkg=assets enum.tmpl
+//go:generate ../bin/go/github.com/kevinburke/go-bindata/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
 
 package generator
 
@@ -38,6 +38,7 @@ type Generator struct {
 	flag            bool
 	names           bool
 	leaveSnakeCase  bool
+	prefix          string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -124,6 +125,12 @@ func (g *Generator) WithNames() *Generator {
 // WithoutSnakeToCamel is used to add flag methods to the enum
 func (g *Generator) WithoutSnakeToCamel() *Generator {
 	g.leaveSnakeCase = true
+	return g
+}
+
+// WithPrefix is used to add a custom prefix to the enum constants
+func (g *Generator) WithPrefix(prefix string) *Generator {
+	g.prefix = prefix
 	return g
 }
 
@@ -219,6 +226,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	enum.Type = fmt.Sprintf("%s", ts.Type)
 	if !g.noPrefix {
 		enum.Prefix = ts.Name.Name
+	}
+	if g.prefix != "" {
+		enum.Prefix = g.prefix + enum.Prefix
 	}
 
 	enumDecl := getEnumDeclFromComments(ts.Doc.List)

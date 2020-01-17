@@ -1,3 +1,12 @@
+.DEFAULT_GOAL:=all
+ifdef VERBOSE
+V = -v
+else
+.SILENT:
+endif
+
+include $(wildcard *.mk)
+
 COVERAGEDIR = coverage
 SERVICE=local
 ifdef CIRCLE_WORKING_DIRECTORY
@@ -10,14 +19,7 @@ PACKAGES='./generator' './example'
 .PHONY: all
 all: build fmt test example cover install
 
-.PHONY: install-deps
-install-deps:
-	go install -v github.com/kevinburke/go-bindata/go-bindata
-	go install -v golang.org/x/tools/cmd/cover
-	go install -v github.com/mattn/goveralls
-	go mod vendor
-
-build:
+build: deps
 	go generate ./generator
 	if [ ! -d bin ]; then mkdir bin; fi
 	go build -v -o bin/go-enum .
@@ -35,7 +37,7 @@ tc: test cover
 coveralls:
 	goveralls -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
-clean:
+clean: cleandeps
 	go clean
 	rm -f bin/go-enum
 	rm -rf coverage/
@@ -44,8 +46,8 @@ clean:
 generate:
 	go generate $(PACKAGES)
 
-gen-test: build install
-	go generate $(PACKAGES)
+gen-test: build
+	$(GO) generate $(PACKAGES)
 
 install:
 	go install
