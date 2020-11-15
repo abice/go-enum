@@ -1,4 +1,3 @@
-// +build go1.11
 //go:generate ../bin/mockgen -destination sql_mock_test.go -package example database/sql/driver Conn,Driver,Stmt,Result,Rows
 
 /*
