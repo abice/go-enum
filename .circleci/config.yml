@@ -28,6 +28,14 @@ jobs:
     docker:
       - image: circleci/golang:1.13
     <<: *common_parts
+  golang_1.14:
+    docker:
+      - image: circleci/golang:1.14
+    <<: *common_parts
+  golang_1.15:
+    docker:
+      - image: circleci/golang:1.15
+    <<: *common_parts
 
 workflows:
   version: 2
@@ -36,3 +44,5 @@ workflows:
       - golang_1.11
       - golang_1.12
       - golang_1.13
+      - golang_1.14
+      - golang_1.15

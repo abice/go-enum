@@ -1,4 +1,4 @@
-//go:generate ../bin/go/github.com/kevinburke/go-bindata/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
+//go:generate ../bin/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
 
 package generator
 
