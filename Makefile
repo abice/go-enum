@@ -6,15 +6,27 @@ else
 endif
 
 GO ?= GO111MODULE=on go
-
-include $(wildcard *.mk)
-
 COVERAGEDIR = coverage
 SERVICE=local
 ifdef CIRCLE_WORKING_DIRECTORY
   COVERAGEDIR = $(CIRCLE_WORKING_DIRECTORY)/coverage
 	SERVICE=circle-ci
 endif
+
+define goinstall
+	mkdir -p $(shell pwd)/bin
+	echo "Installing $(1)"
+	GOBIN=$(shell pwd)/bin go install $(1)
+endef
+
+GOBINDATA=bin/go-bindata
+GOIMPORTS=bin/goimports
+GOVERALLS=bin/goveralls
+MOCKGEN=bin/mockgen
+deps: $(MOCKGEN)
+deps: $(GOBINDATA)
+deps: $(GOIMPORTS)
+deps: $(GOVERALLS)
 
 PACKAGES='./generator' './example'
 
@@ -39,10 +51,11 @@ tc: test cover
 coveralls: $(GOVERALLS)
 	$(GOVERALLS) -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
-clean: cleandeps
+clean:
 	$(GO) clean
 	rm -f bin/go-enum
 	rm -rf coverage/
+	rm -rf bin/
 
 .PHONY: generate
 generate:
@@ -59,3 +72,16 @@ phony: clean tc build
 .PHONY: example
 example:
 	$(GO) generate ./example
+
+
+bin/goimports: go.sum
+	$(call goinstall,golang.org/x/tools/cmd/goimports)
+
+bin/mockgen: go.sum
+	$(call goinstall,github.com/golang/mock/mockgen)
+
+bin/goveralls: go.sum
+	$(call goinstall,github.com/mattn/goveralls)
+
+bin/go-bindata: go.sum
+	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)

@@ -1,5 +1,4 @@
-// +build go1.11
-//go:generate ../bin/go/github.com/golang/mock/mockgen -destination sql_mock_test.go -package example database/sql/driver Conn,Driver,Stmt,Result,Rows
+//go:generate ../bin/mockgen -destination sql_mock_test.go -package example database/sql/driver Conn,Driver,Stmt,Result,Rows
 
 /*
 This example shows the conversion of enumerations between GO and SQL database.
