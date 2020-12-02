@@ -129,6 +129,6 @@ func (x {{.enum.Name}}) String() string {
 	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
 }
 
-var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
+var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase .uppercase }}
 
 {{end}}

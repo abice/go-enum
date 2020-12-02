@@ -50,6 +50,7 @@ func TestExampleFile(t *testing.T) {
 		WithMarshal().
 		WithSQLDriver().
 		WithLowercaseVariant().
+		WithUppercaseVariant().
 		WithNames().
 		WithoutSnakeToCamel()
 	// Parse the file given in arguments
@@ -70,6 +71,7 @@ func TestNoPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
+		WithUppercaseVariant().
 		WithNoPrefix().
 		WithFlag().
 		WithoutSnakeToCamel()
@@ -91,6 +93,7 @@ func TestNoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
+		WithUppercaseVariant().
 		WithNoPrefix().
 		WithFlag()
 
@@ -112,6 +115,7 @@ func TestCustomPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
+		WithUppercaseVariant().
 		WithNoPrefix().
 		WithFlag().
 		WithoutSnakeToCamel().

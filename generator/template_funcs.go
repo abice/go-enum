@@ -31,7 +31,7 @@ func Mapify(e Enum) (ret string, err error) {
 }
 
 // Unmapify returns a map that is all of the indexes for a string value lookup
-func Unmapify(e Enum, lowercase bool) (ret string, err error) {
+func Unmapify(e Enum, lowercase, uppercase bool) (ret string, err error) {
 	strName := fmt.Sprintf(`_%sName`, e.Name)
 	ret = fmt.Sprintf("map[string]%s{\n", e.Name)
 	index := 0
@@ -41,6 +41,9 @@ func Unmapify(e Enum, lowercase bool) (ret string, err error) {
 			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
 			if lowercase {
 				ret = fmt.Sprintf("%sstrings.ToLower(%s[%d:%d]): %d,\n", ret, strName, index, nextIndex, val.Value)
+			}
+			if uppercase {
+				ret = fmt.Sprintf("%sstrings.ToUpper(%s[%d:%d]): %d,\n", ret, strName, index, nextIndex, val.Value)
 			}
 			index = nextIndex
 		}
