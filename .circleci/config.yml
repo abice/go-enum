@@ -12,7 +12,11 @@ common_parts: &common_parts
         name: Test
         command: |
           make cover
-          make coveralls
+          if [[ -n "$COVERALLS_TOKEN" ]]; then
+            make coveralls
+          fi
+    - store_artifacts:
+          path: coverage.html
 
 
 jobs:
