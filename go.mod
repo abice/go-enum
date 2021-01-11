@@ -15,7 +15,8 @@ require (
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/kevinburke/go-bindata v3.22.0+incompatible
 	github.com/kr/pretty v0.2.1 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/labstack/gommon v0.3.0
+	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/goveralls v0.0.7
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
@@ -24,6 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.4.0
+	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
 	golang.org/x/sys v0.0.0-20201113233024-12cec1faf1ba // indirect
 	golang.org/x/tools v0.0.0-20201114224030-61ea331ec02b

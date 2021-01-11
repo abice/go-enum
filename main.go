@@ -3,80 +3,144 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/abice/go-enum/generator"
-	"github.com/go-easygen/cli"
+	"github.com/labstack/gommon/color"
+	"github.com/urfave/cli/v2"
 )
 
 type rootT struct {
-	cli.Helper
-	FileNames      []string `cli:"*f,file" usage:"The file(s) to generate enums.  Use more than one flag for more files."`
-	NoPrefix       bool     `cli:"noprefix" usage:"Prevents the constants generated from having the Enum as a prefix."`
-	Lowercase      bool     `cli:"lower" usage:"Adds lowercase variants of the enum strings for lookup."`
-	Marshal        bool     `cli:"marshal" usage:"Adds text (and inherently json) marshalling functions."`
-	SQL            bool     `cli:"sql" usage:"Adds SQL database scan and value functions."`
-	Flag           bool     `cli:"flag" usage:"Adds golang flag functions."`
-	Prefix         string   `cli:"prefix" usage:"Replaces the prefix with a user one."`
-	Names          bool     `cli:"names" usage:"Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing"`
-	LeaveSnakeCase bool     `cli:"nocamel" usage:"Removes the snake_case to CamelCase name changing"`
+	FileNames      cli.StringSlice
+	NoPrefix       bool
+	Lowercase      bool
+	Marshal        bool
+	SQL            bool
+	Flag           bool
+	Prefix         string
+	Names          bool
+	LeaveSnakeCase bool
 }
 
 func main() {
-	cli.Run(new(rootT), func(ctx *cli.Context) error {
-		argv := ctx.Argv().(*rootT)
+	var argv rootT
 
-		for _, fileName := range argv.FileNames {
+	clr := color.New()
+	out := func(format string, args ...interface{}) {
+		_, _ = fmt.Fprintf(clr.Output(), format, args...)
+	}
 
-			g := generator.NewGenerator()
+	app := &cli.App{
+		Name:            "go-enum",
+		Usage: "An enum generator for go",
+		HideHelpCommand: true,
+		Flags: []cli.Flag{
+			&cli.StringSliceFlag{
+				Name:        "file",
+				Aliases:     []string{"f"},
+				Usage:       "The file(s) to generate enums.  Use more than one flag for more files.",
+				Required:    true,
+				Destination: &argv.FileNames,
+			},
+			&cli.BoolFlag{
+				Name:        "noprefix",
+				Usage:       "Prevents the constants generated from having the Enum as a prefix.",
+				Destination: &argv.NoPrefix,
+			},
+			&cli.BoolFlag{
+				Name:        "lower",
+				Usage:       "Adds lowercase variants of the enum strings for lookup.",
+				Destination: &argv.Lowercase,
+			},
+			&cli.BoolFlag{
+				Name:        "marshal",
+				Usage:       "Adds text (and inherently json) marshalling functions.",
+				Destination: &argv.Marshal,
+			},
+			&cli.BoolFlag{
+				Name:        "sql",
+				Usage:       "Adds SQL database scan and value functions.",
+				Destination: &argv.SQL,
+			},
+			&cli.BoolFlag{
+				Name:        "flag",
+				Usage:       "Adds golang flag functions.",
+				Destination: &argv.Flag,
+			},
+			&cli.StringFlag{
+				Name:        "prefix",
+				Usage:       "Replaces the prefix with a user one.",
+				Destination: &argv.Prefix,
+			},
+			&cli.BoolFlag{
+				Name:        "names",
+				Usage:       "Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing",
+				Destination: &argv.Names,
+			},
+			&cli.BoolFlag{
+				Name:        "nocamel",
+				Usage:       "Removes the snake_case to CamelCase name changing",
+				Destination: &argv.LeaveSnakeCase,
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			for _, fileName := range argv.FileNames.Value() {
 
-			if argv.NoPrefix {
-				g.WithNoPrefix()
-			}
-			if argv.Lowercase {
-				g.WithLowercaseVariant()
-			}
-			if argv.Marshal {
-				g.WithMarshal()
-			}
-			if argv.SQL {
-				g.WithSQLDriver()
-			}
-			if argv.Flag {
-				g.WithFlag()
-			}
-			if argv.Names {
-				g.WithNames()
-			}
-			if argv.LeaveSnakeCase {
-				g.WithoutSnakeToCamel()
-			}
-			if argv.Prefix != "" {
-				g.WithPrefix(argv.Prefix)
+				g := generator.NewGenerator()
+
+				if argv.NoPrefix {
+					g.WithNoPrefix()
+				}
+				if argv.Lowercase {
+					g.WithLowercaseVariant()
+				}
+				if argv.Marshal {
+					g.WithMarshal()
+				}
+				if argv.SQL {
+					g.WithSQLDriver()
+				}
+				if argv.Flag {
+					g.WithFlag()
+				}
+				if argv.Names {
+					g.WithNames()
+				}
+				if argv.LeaveSnakeCase {
+					g.WithoutSnakeToCamel()
+				}
+				if argv.Prefix != "" {
+					g.WithPrefix(argv.Prefix)
+				}
+
+				originalName := fileName
+
+				out("go-enum started. file: %s\n", color.Cyan(originalName))
+				fileName, _ = filepath.Abs(fileName)
+				outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
+
+				// Parse the file given in arguments
+				raw, err := g.GenerateFromFile(fileName)
+				if err != nil {
+					return fmt.Errorf("failed generating enums\nInputFile=%s\nError=%s", color.Cyan(fileName), color.RedBg(err))
+				}
+
+				mode := int(0644)
+				err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
+				if err != nil {
+					return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))
+				}
+				out("go-enum finished. file: %s\n", color.Cyan(originalName))
 			}
 
-			originalName := fileName
+			return nil
+		},
+	}
 
-			ctx.String("go-enum started. file: %s\n", ctx.Color().Cyan(originalName))
-			fileName, _ = filepath.Abs(fileName)
-			outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
-
-			// Parse the file given in arguments
-			raw, err := g.GenerateFromFile(fileName)
-			if err != nil {
-				return fmt.Errorf("failed generating enums\nInputFile=%s\nError=%s", ctx.Color().Cyan(fileName), ctx.Color().RedBg(err))
-			}
-
-			mode := int(0644)
-			err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
-			if err != nil {
-				return fmt.Errorf("failed writing to file %s: %s", ctx.Color().Cyan(outFilePath), ctx.Color().Red(err))
-			}
-			ctx.String("go-enum finished. file: %s\n", ctx.Color().Cyan(originalName))
-		}
-
-		return nil
-	})
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
