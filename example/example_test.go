@@ -187,6 +187,9 @@ func TestNoZeroValues(t *testing.T) {
 		tmp, _ := ParseNoZeros("ppps")
 		assert.Equal(tt, NoZerosPpps, tmp)
 
+		tmp, _ = ParseNoZeros("PppS")
+		assert.Equal(tt, NoZerosPpps, tmp)
+
 		val := map[string]*NoZeros{}
 
 		err = json.Unmarshal([]byte(`{"nz":"pppps"}`), &val)
