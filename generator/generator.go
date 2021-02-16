@@ -33,6 +33,7 @@ type Generator struct {
 	fileSet         *token.FileSet
 	noPrefix        bool
 	lowercaseLookup bool
+	caseInsensitive bool
 	marshal         bool
 	sql             bool
 	flag            bool
@@ -95,6 +96,13 @@ func (g *Generator) WithNoPrefix() *Generator {
 // WithLowercaseVariant is used to change the enum const values generated to not have the enum on them.
 func (g *Generator) WithLowercaseVariant() *Generator {
 	g.lowercaseLookup = true
+	return g
+}
+
+// WithLowercaseVariant is used to change the enum const values generated to not have the enum on them.
+func (g *Generator) WithCaseInsensitiveParse() *Generator {
+	g.lowercaseLookup = true
+	g.caseInsensitive = true
 	return g
 }
 
@@ -180,6 +188,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"enum":      enum,
 			"name":      name,
 			"lowercase": g.lowercaseLookup,
+			"nocase":    g.caseInsensitive,
 			"marshal":   g.marshal,
 			"sql":       g.sql,
 			"flag":      g.flag,

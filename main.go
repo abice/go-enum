@@ -17,6 +17,7 @@ type rootT struct {
 	FileNames      cli.StringSlice
 	NoPrefix       bool
 	Lowercase      bool
+	NoCase         bool
 	Marshal        bool
 	SQL            bool
 	Flag           bool
@@ -35,7 +36,7 @@ func main() {
 
 	app := &cli.App{
 		Name:            "go-enum",
-		Usage: "An enum generator for go",
+		Usage:           "An enum generator for go",
 		HideHelpCommand: true,
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
@@ -54,6 +55,11 @@ func main() {
 				Name:        "lower",
 				Usage:       "Adds lowercase variants of the enum strings for lookup.",
 				Destination: &argv.Lowercase,
+			},
+			&cli.BoolFlag{
+				Name:        "nocase",
+				Usage:       "Adds case insensitive parsing to the enumeration (forces lower flag).",
+				Destination: &argv.NoCase,
 			},
 			&cli.BoolFlag{
 				Name:        "marshal",
@@ -96,6 +102,9 @@ func main() {
 				}
 				if argv.Lowercase {
 					g.WithLowercaseVariant()
+				}
+				if argv.NoCase {
+					g.WithCaseInsensitiveParse()
 				}
 				if argv.Marshal {
 					g.WithMarshal()

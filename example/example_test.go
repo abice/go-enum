@@ -34,6 +34,7 @@ var makeTests = []struct {
 	output        *makeTest
 	errorExpected bool
 	err           error
+	caseChanged   bool
 }{
 	{
 		name:          "toyota",
@@ -92,6 +93,14 @@ var makeTests = []struct {
 		err:           nil,
 	},
 	{
+		name:          "AUDI",
+		input:         `{"make":"AUDI"}`,
+		output:        &makeTest{M: MakeAudi},
+		errorExpected: false,
+		err:           nil,
+		caseChanged:   true,
+	},
+	{
 		name:          "bmw",
 		input:         `{"make":"BMW"}`,
 		output:        &makeTest{M: MakeBMW},
@@ -130,10 +139,13 @@ func TestMakeUnmarshal(t *testing.T) {
 				require.NoError(tt, err, "failed unmarshalling the json.")
 				assert.Equal(tt, test.output.M, x.M)
 
-				// Marshal back
-				raw, err := json.Marshal(test.output)
-				require.NoError(tt, err, "failed marshalling back to json")
-				require.JSONEq(tt, test.input, string(raw), "json didn't match")
+				// Values won't be exactly the same, so we just validate that it was unmarshalled correctly.
+				if !test.caseChanged {
+					// Marshal back
+					raw, err := json.Marshal(test.output)
+					require.NoError(tt, err, "failed marshalling back to json")
+					require.JSONEq(tt, test.input, string(raw), "json didn't match")
+				}
 			} else {
 				require.Error(tt, err)
 				assert.EqualError(tt, err, test.err.Error())
@@ -173,6 +185,9 @@ func TestNoZeroValues(t *testing.T) {
 		assert.EqualError(tt, err, "pppps is not a valid NoZeros, try [start, middle, end, ps, pps, ppps]")
 
 		tmp, _ := ParseNoZeros("ppps")
+		assert.Equal(tt, NoZerosPpps, tmp)
+
+		tmp, _ = ParseNoZeros("PppS")
 		assert.Equal(tt, NoZerosPpps, tmp)
 
 		val := map[string]*NoZeros{}

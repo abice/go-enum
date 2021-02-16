@@ -49,7 +49,7 @@ func TestExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithSQLDriver().
-		WithLowercaseVariant().
+		WithCaseInsensitiveParse().
 		WithNames().
 		WithoutSnakeToCamel()
 	// Parse the file given in arguments
