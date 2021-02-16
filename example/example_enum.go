@@ -128,8 +128,7 @@ func ParseMake(name string) (Make, error) {
 	if x, ok := _MakeValue[name]; ok {
 		return x, nil
 	}
-	// Case Invariant Parse enabled, do a separate lookup.
-	// This is a separate lookup to remove unnecessary cost of lowercasing a string if we don't need to.
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
 	if x, ok := _MakeValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
@@ -239,8 +238,7 @@ func ParseNoZeros(name string) (NoZeros, error) {
 	if x, ok := _NoZerosValue[name]; ok {
 		return x, nil
 	}
-	// Case Invariant Parse enabled, do a separate lookup.
-	// This is a separate lookup to remove unnecessary cost of lowercasing a string if we don't need to.
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
 	if x, ok := _NoZerosValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}

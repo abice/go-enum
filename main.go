@@ -104,7 +104,7 @@ func main() {
 					g.WithLowercaseVariant()
 				}
 				if argv.NoCase {
-					g.WithCaseInvariantParse()
+					g.WithCaseInsensitiveParse()
 				}
 				if argv.Marshal {
 					g.WithMarshal()
