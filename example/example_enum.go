@@ -128,6 +128,11 @@ func ParseMake(name string) (Make, error) {
 	if x, ok := _MakeValue[name]; ok {
 		return x, nil
 	}
+	// Case Invariant Parse enabled, do a separate lookup.
+	// This is a separate lookup to remove unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _MakeValue[strings.ToLower(name)]; ok {
+		return x, nil
+	}
 	return Make(0), fmt.Errorf("%s is not a valid Make, try [%s]", name, strings.Join(_MakeNames, ", "))
 }
 
@@ -232,6 +237,11 @@ var _NoZerosValue = map[string]NoZeros{
 // ParseNoZeros attempts to convert a string to a NoZeros
 func ParseNoZeros(name string) (NoZeros, error) {
 	if x, ok := _NoZerosValue[name]; ok {
+		return x, nil
+	}
+	// Case Invariant Parse enabled, do a separate lookup.
+	// This is a separate lookup to remove unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _NoZerosValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
 	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros, try [%s]", name, strings.Join(_NoZerosNames, ", "))

@@ -29,7 +29,12 @@ const (
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return x, nil
-	}
+	}{{if .nocase }}
+	// Case Invariant Parse enabled, do a separate lookup.
+	// This is a separate lookup to remove unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _{{.enum.Name}}Value[strings.ToLower(name)]; ok {
+		return x, nil
+	}{{- end}}
 	{{if .names -}}
 	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
 	{{- else -}}
