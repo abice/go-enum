@@ -1,5 +1,3 @@
-//go:generate ../bin/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
-
 package generator
 
 import (
@@ -16,7 +14,6 @@ import (
 	"unicode"
 
 	"github.com/Masterminds/sprig"
-	"github.com/abice/go-enum/generator/assets"
 	"github.com/pkg/errors"
 	"golang.org/x/tools/imports"
 )
@@ -81,9 +78,7 @@ func NewGenerator() *Generator {
 
 	g.t.Funcs(funcs)
 
-	for _, asset := range assets.AssetNames() {
-		g.t = template.Must(g.t.Parse(string(assets.MustAsset(asset))))
-	}
+	g.addEmbeddedTemplates()
 
 	g.updateTemplates()
 
