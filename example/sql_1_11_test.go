@@ -79,7 +79,7 @@ type MockSQL struct {
 	Rows   *MockRows
 }
 
-func WithMockSQL(t testing.TB) *MockSQL {
+func WithMockSQL(t testing.TB) (*MockSQL, func()) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
@@ -91,12 +91,9 @@ func WithMockSQL(t testing.TB) *MockSQL {
 		Rows:   NewMockRows(ctrl),
 	}
 
-	// Finalize the controllers
-	t.Cleanup(func() {
+	return mocks, func() {
 		ctrl.Finish()
-	})
-
-	return mocks
+	}
 }
 
 func TestExampleSQL(t *testing.T) {
@@ -419,9 +416,9 @@ func TestExampleSQL(t *testing.T) {
 
 	driverctrl := gomock.NewController(t)
 	driver := NewMockDriver(driverctrl)
-	t.Cleanup(func() {
+	defer func() {
 		driverctrl.Finish()
-	})
+	}()
 
 	sql.Register("mock", driver)
 	for name, tc := range tests {
@@ -430,7 +427,8 @@ func TestExampleSQL(t *testing.T) {
 			require.NotNil(t, tc.setupMock)
 			require.NotNil(t, tc.tester)
 
-			mocks := WithMockSQL(t)
+			mocks, validate := WithMockSQL(t)
+			defer validate()
 
 			driver.EXPECT().Open(dataSourceName).Return(mocks.Conn, nil)
 

@@ -278,9 +278,9 @@ func TestExampleSQLStrOnly(t *testing.T) {
 
 	driverctrl := gomock.NewController(t)
 	driver := NewMockDriver(driverctrl)
-	t.Cleanup(func() {
+	defer func() {
 		driverctrl.Finish()
-	})
+	}()
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -289,7 +289,8 @@ func TestExampleSQLStrOnly(t *testing.T) {
 			require.NotNil(t, tc.tester)
 
 			sql.Register(t.Name(), driver)
-			mocks := WithMockSQL(t)
+			mocks, finish := WithMockSQL(t)
+			defer finish()
 
 			driver.EXPECT().Open(dataSourceName).Return(mocks.Conn, nil)
 
