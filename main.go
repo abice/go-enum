@@ -24,6 +24,9 @@ type rootT struct {
 	Prefix         string
 	Names          bool
 	LeaveSnakeCase bool
+	SQLNullStr     bool
+	SQLNullInt     bool
+	Ptr            bool
 }
 
 func main() {
@@ -91,6 +94,21 @@ func main() {
 				Usage:       "Removes the snake_case to CamelCase name changing",
 				Destination: &argv.LeaveSnakeCase,
 			},
+			&cli.BoolFlag{
+				Name:        "ptr",
+				Usage:       "Adds a pointer method to get a pointer from const values",
+				Destination: &argv.Ptr,
+			},
+			&cli.BoolFlag{
+				Name:        "sqlnullint",
+				Usage:       "Adds a Null{{ENUM}} type for marshalling a nullable int value to sql",
+				Destination: &argv.SQLNullInt,
+			},
+			&cli.BoolFlag{
+				Name:        "sqlnullstr",
+				Usage:       "Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str",
+				Destination: &argv.SQLNullStr,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			for _, fileName := range argv.FileNames.Value() {
@@ -123,6 +141,15 @@ func main() {
 				}
 				if argv.Prefix != "" {
 					g.WithPrefix(argv.Prefix)
+				}
+				if argv.Ptr {
+					g.WithPtr()
+				}
+				if argv.SQLNullInt {
+					g.WithSQLNullInt()
+				}
+				if argv.SQLNullStr {
+					g.WithSQLNullStr()
 				}
 
 				originalName := fileName

@@ -41,6 +41,12 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	{{- end}}
 }
 
+{{ if .ptr }}
+func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
+	return &x
+}
+{{end}}
+
 {{ if .marshal }}
 // MarshalText implements the text marshaller method
 func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
@@ -61,25 +67,43 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 
 {{ if .sql }}
 // Scan implements the Scanner interface.
-func (x *{{.enum.Name}}) Scan(value interface{}) error {
-	var name string
-
-	switch v := value.(type) {
-	case string:
-		name = v
-	case []byte:
-		name = string(v)
-	case nil:
+func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
+	if value == nil {
 		*x = {{.enum.Name}}(0)
-		return nil
+		return
 	}
 
-	tmp, err := Parse{{.enum.Name}}(name)
-	if err != nil {
-		return err
+	// A wider range of scannable types.
+	switch v := value.(type) {
+	case *{{.enum.Name}}:
+		*x = *v
+	case {{.enum.Name}}:
+		*x = v
+	case int:
+		*x = {{.enum.Name}}(v)
+	case int64:
+		*x = {{.enum.Name}}(v)
+	case uint:
+		*x = {{.enum.Name}}(v)
+	case uint64:
+		*x = {{.enum.Name}}(v)
+	case *int:
+		*x = {{.enum.Name}}(*v)
+	case *int64:
+		*x = {{.enum.Name}}(*v)
+	case *uint:
+		*x = {{.enum.Name}}(*v)
+	case *uint64:
+		*x = {{.enum.Name}}(*v)
+	case string:
+		*x, err = Parse{{.enum.Name}}(v)
+	case *string:
+		*x, err = Parse{{.enum.Name}}(*v)
+	case []byte:
+		*x, err = Parse{{.enum.Name}}(string(v))
 	}
-	*x = tmp
-	return nil
+	
+	return 
 }
 
 // Value implements the driver Valuer interface.
@@ -106,6 +130,69 @@ func (x *{{.enum.Name}}) Type() string {
 	return "{{.enum.Name}}"
 }
 {{end}}
+
+{{ if or .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}} struct{
+	{{.enum.Name}} {{.enum.Name}}
+	Valid 					bool
+}
+
+func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
+	if value == nil {
+		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(0), false
+		return
+	}
+
+	err = x.{{.enum.Name}}.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+{{ if .sqlnullint }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	// driver.Value accepts int64 for int values.
+	return int64(x.{{.enum.Name}}), nil
+}
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ end }}
+
+{{ end }}
+
+{{ if and .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}}Str struct {
+	Null{{.enum.Name}}
+}
+
+func NewNull{{.enum.Name}}Str(val interface{}) (x Null{{.enum.Name}}Str) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}Str) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ end }}
 
 {{end}}
 

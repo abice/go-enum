@@ -19,6 +19,7 @@ func TestColorString(t *testing.T) {
 
 	assert.Equal(t, Color(33), ColorGreen)
 	assert.Equal(t, Color(34), ColorBlue)
+	assert.Equal(t, &x, Color(109).Ptr())
 }
 
 func TestColorUnmarshal(t *testing.T) {

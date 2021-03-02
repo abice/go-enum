@@ -40,6 +40,9 @@ type Generator struct {
 	names           bool
 	leaveSnakeCase  bool
 	prefix          string
+	sqlNullInt      bool
+	sqlNullStr      bool
+	ptr             bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -142,6 +145,24 @@ func (g *Generator) WithPrefix(prefix string) *Generator {
 	return g
 }
 
+// WithPtr adds a way to get a pointer value straight from the const value.
+func (g *Generator) WithPtr() *Generator {
+	g.ptr = true
+	return g
+}
+
+// WithSQLNullInt is used to add a null int option for SQL interactions.
+func (g *Generator) WithSQLNullInt() *Generator {
+	g.sqlNullInt = true
+	return g
+}
+
+// WithSQLNullStr is used to add a null string option for SQL interactions.
+func (g *Generator) WithSQLNullStr() *Generator {
+	g.sqlNullStr = true
+	return g
+}
+
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
 // that can be written to any file desired.  It has already had goimports run on the code before being returned.
 func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
@@ -185,14 +206,17 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		}
 
 		data := map[string]interface{}{
-			"enum":      enum,
-			"name":      name,
-			"lowercase": g.lowercaseLookup,
-			"nocase":    g.caseInsensitive,
-			"marshal":   g.marshal,
-			"sql":       g.sql,
-			"flag":      g.flag,
-			"names":     g.names,
+			"enum":       enum,
+			"name":       name,
+			"lowercase":  g.lowercaseLookup,
+			"nocase":     g.caseInsensitive,
+			"marshal":    g.marshal,
+			"sql":        g.sql,
+			"flag":       g.flag,
+			"names":      g.names,
+			"ptr":        g.ptr,
+			"sqlnullint": g.sqlNullInt,
+			"sqlnullstr": g.sqlNullStr,
 		}
 
 		err = g.t.ExecuteTemplate(vBuff, "enum", data)

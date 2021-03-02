@@ -115,6 +115,9 @@ func TestCustomPrefixExampleFile(t *testing.T) {
 		WithNoPrefix().
 		WithFlag().
 		WithoutSnakeToCamel().
+		WithPtr().
+		WithSQLNullInt().
+		WithSQLNullStr().
 		WithPrefix("Custom_prefix_")
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)

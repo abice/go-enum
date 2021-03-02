@@ -51,29 +51,99 @@ func ParseProjectStatus(name string) (ProjectStatus, error) {
 	return ProjectStatus(0), fmt.Errorf("%s is not a valid ProjectStatus", name)
 }
 
+func (x ProjectStatus) Ptr() *ProjectStatus {
+	return &x
+}
+
 // Scan implements the Scanner interface.
-func (x *ProjectStatus) Scan(value interface{}) error {
-	var name string
-
-	switch v := value.(type) {
-	case string:
-		name = v
-	case []byte:
-		name = string(v)
-	case nil:
+func (x *ProjectStatus) Scan(value interface{}) (err error) {
+	if value == nil {
 		*x = ProjectStatus(0)
-		return nil
+		return
 	}
 
-	tmp, err := ParseProjectStatus(name)
-	if err != nil {
-		return err
+	// A wider range of scannable types.
+	switch v := value.(type) {
+	case *ProjectStatus:
+		*x = *v
+	case ProjectStatus:
+		*x = v
+	case int:
+		*x = ProjectStatus(v)
+	case int64:
+		*x = ProjectStatus(v)
+	case uint:
+		*x = ProjectStatus(v)
+	case uint64:
+		*x = ProjectStatus(v)
+	case *int:
+		*x = ProjectStatus(*v)
+	case *int64:
+		*x = ProjectStatus(*v)
+	case *uint:
+		*x = ProjectStatus(*v)
+	case *uint64:
+		*x = ProjectStatus(*v)
+	case string:
+		*x, err = ParseProjectStatus(v)
+	case *string:
+		*x, err = ParseProjectStatus(*v)
+	case []byte:
+		*x, err = ParseProjectStatus(string(v))
 	}
-	*x = tmp
-	return nil
+
+	return
 }
 
 // Value implements the driver Valuer interface.
 func (x ProjectStatus) Value() (driver.Value, error) {
 	return x.String(), nil
+}
+
+type NullProjectStatus struct {
+	ProjectStatus ProjectStatus
+	Valid         bool
+}
+
+func NewNullProjectStatus(val interface{}) (x NullProjectStatus) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *NullProjectStatus) Scan(value interface{}) (err error) {
+	if value == nil {
+		x.ProjectStatus, x.Valid = ProjectStatus(0), false
+		return
+	}
+
+	err = x.ProjectStatus.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x NullProjectStatus) Value() (driver.Value, error) {
+	if !x.Valid {
+		return nil, nil
+	}
+	// driver.Value accepts int64 for int values.
+	return int64(x.ProjectStatus), nil
+}
+
+type NullProjectStatusStr struct {
+	NullProjectStatus
+}
+
+func NewNullProjectStatusStr(val interface{}) (x NullProjectStatusStr) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x NullProjectStatusStr) Value() (driver.Value, error) {
+	if !x.Valid {
+		return nil, nil
+	}
+	return x.ProjectStatus.String(), nil
 }
