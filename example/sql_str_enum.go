@@ -93,6 +93,13 @@ func (x *JobState) Scan(value interface{}) (err error) {
 			return _JobStateErrNilPtr
 		}
 		*x = JobState(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = JobState(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
+		*x = JobState(*v)
 	case *uint:
 		if v == nil {
 			return _JobStateErrNilPtr

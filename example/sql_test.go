@@ -1,9 +1,11 @@
 package example
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSQLExtras(t *testing.T) {
@@ -114,5 +116,40 @@ func TestSQLExtras(t *testing.T) {
 			assert.Equal(t, tc.result, status)
 		})
 	}
+
+}
+
+func TestSQLMarshal(t *testing.T) {
+
+	val := struct {
+		Status NullProjectStatus `json:"status,omitempty"`
+	}{}
+
+	result, err := json.Marshal(val)
+	require.NoError(t, err)
+	assert.Equal(t, `{"status":null}`, string(result))
+
+	val2 := val
+	require.NoError(t, json.Unmarshal(result, &val2))
+	assert.Equal(t, val, val2)
+
+	val.Status = NewNullProjectStatus(1)
+	result, err = json.Marshal(val)
+	require.NoError(t, err)
+	assert.Equal(t, `{"status":"inWork"}`, string(result))
+
+	require.NoError(t, json.Unmarshal(result, &val2))
+	assert.Equal(t, val, val2)
+
+	require.NoError(t, json.Unmarshal([]byte(`{"status":"inWork"}`), &val2))
+	assert.Equal(t, val, val2)
+
+	require.NoError(t, json.Unmarshal([]byte(`{"status":"2"}`), &val2))
+	val.Status = NewNullProjectStatus(2)
+	assert.Equal(t, val, val2)
+
+	require.NoError(t, json.Unmarshal([]byte(`{"status":3}`), &val2))
+	val.Status = NewNullProjectStatus(3)
+	assert.Equal(t, val, val2)
 
 }

@@ -73,15 +73,20 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		*x = ImageType(v)
 	case string:
 		*x, err = ParseImageType(v)
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(v); verr == nil {
+				*x, err = ImageType(val), nil
+			}
+		}
 	case []byte:
 		*x, err = ParseImageType(string(v))
 		if err != nil {
-			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
 				*x, err = ImageType(val), nil
 			}
 		}
-
 	case ImageType:
 		*x = v
 	case int:
@@ -105,6 +110,13 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 			return _ImageTypeErrNilPtr
 		}
 		*x = ImageType(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = ImageType(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
+		*x = ImageType(*v)
 	case *uint:
 		if v == nil {
 			return _ImageTypeErrNilPtr
@@ -120,6 +132,12 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 			return _ImageTypeErrNilPtr
 		}
 		*x, err = ParseImageType(*v)
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(*v); verr == nil {
+				*x, err = ImageType(val), nil
+			}
+		}
 	}
 
 	return

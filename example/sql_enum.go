@@ -5,6 +5,7 @@ package example
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -57,6 +58,22 @@ func (x ProjectStatus) Ptr() *ProjectStatus {
 	return &x
 }
 
+// MarshalText implements the text marshaller method
+func (x ProjectStatus) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the text unmarshaller method
+func (x *ProjectStatus) UnmarshalText(text []byte) error {
+	name := string(text)
+	tmp, err := ParseProjectStatus(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+
 var _ProjectStatusErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
@@ -73,15 +90,20 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 		*x = ProjectStatus(v)
 	case string:
 		*x, err = ParseProjectStatus(v)
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(v); verr == nil {
+				*x, err = ProjectStatus(val), nil
+			}
+		}
 	case []byte:
 		*x, err = ParseProjectStatus(string(v))
 		if err != nil {
-			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
 				*x, err = ProjectStatus(val), nil
 			}
 		}
-
 	case ProjectStatus:
 		*x = v
 	case int:
@@ -105,6 +127,13 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 			return _ProjectStatusErrNilPtr
 		}
 		*x = ProjectStatus(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = ProjectStatus(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
+		*x = ProjectStatus(*v)
 	case *uint:
 		if v == nil {
 			return _ProjectStatusErrNilPtr
@@ -120,6 +149,12 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 			return _ProjectStatusErrNilPtr
 		}
 		*x, err = ParseProjectStatus(*v)
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(*v); verr == nil {
+				*x, err = ProjectStatus(val), nil
+			}
+		}
 	}
 
 	return
@@ -159,6 +194,26 @@ func (x NullProjectStatus) Value() (driver.Value, error) {
 	}
 	// driver.Value accepts int64 for int values.
 	return int64(x.ProjectStatus), nil
+}
+
+// MarshalJSON correctly serializes a NullProjectStatus to JSON.
+func (n NullProjectStatus) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.ProjectStatus)
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a NullProjectStatus from JSON.
+func (n *NullProjectStatus) UnmarshalJSON(b []byte) error {
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil {
+		return err
+	}
+	err = n.Scan(x)
+	return err
 }
 
 type NullProjectStatusStr struct {

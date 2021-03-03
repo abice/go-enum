@@ -81,16 +81,21 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	case int64:
 		*x = {{.enum.Name}}(v)
 	case string:
-		*x, err = Parse{{.enum.Name}}(v)
+		*x, err = Parse{{.enum.Name}}(v){{if .sqlnullint }}
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(v); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}{{end}}
 	case []byte:
 		*x, err = Parse{{.enum.Name}}(string(v)){{if .sqlnullint }}
 		if err != nil {
-			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
 				*x, err = {{.enum.Name}}(val), nil
 			}
-		}
-		{{end}}
+		}{{end}}
 	case {{.enum.Name}}:
 		*x = v
 	case int:
@@ -114,6 +119,13 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 			return _{{.enum.Name}}ErrNilPtr
 		}
 		*x = {{.enum.Name}}(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = {{.enum.Name}}(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
 	case *uint:
 		if v == nil{
 			return _{{.enum.Name}}ErrNilPtr
@@ -128,7 +140,13 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		if v == nil{
 			return _{{.enum.Name}}ErrNilPtr
 		}
-		*x, err = Parse{{.enum.Name}}(*v)
+		*x, err = Parse{{.enum.Name}}(*v){{if .sqlnullint }}
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(*v); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}{{end}}
 	}
 	
 	return 
@@ -207,6 +225,28 @@ func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return x.{{.enum.Name}}.String(), nil
+}
+{{ end }}
+
+{{ if .marshal }}
+// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
+func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.{{.enum.Name}})
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
+func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil{
+		return err
+	}
+	err = n.Scan(x)
+	return err
 }
 {{ end }}
 
