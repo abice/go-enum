@@ -168,9 +168,11 @@ func (x ProjectStatus) Value() (driver.Value, error) {
 type NullProjectStatus struct {
 	ProjectStatus ProjectStatus
 	Valid         bool
+	Set           bool
 }
 
 func NewNullProjectStatus(val interface{}) (x NullProjectStatus) {
+	x.Set = true
 	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
 	return
 }
@@ -207,6 +209,7 @@ func (n NullProjectStatus) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON correctly deserializes a NullProjectStatus from JSON.
 func (n *NullProjectStatus) UnmarshalJSON(b []byte) error {
+	n.Set = true
 	var x interface{}
 	err := json.Unmarshal(b, &x)
 	if err != nil {

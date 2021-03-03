@@ -188,11 +188,13 @@ func (x *{{.enum.Name}}) Type() string {
 
 {{ if or .sqlnullint .sqlnullstr }}
 type Null{{.enum.Name}} struct{
-	{{.enum.Name}} {{.enum.Name}}
-	Valid 					bool
+	{{.enum.Name}}	{{.enum.Name}}
+	Valid 					bool{{/* Add some info as to whether this value was set during unmarshalling or not */}}{{if .marshal }}
+	Set							bool{{ end }}
 }
 
 func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
+	{{- if .marshal }}x.Set = true{{ end }}
 	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
 	return
 }
@@ -240,6 +242,7 @@ func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
 func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
+	n.Set = true
 	var x interface{}
 	err := json.Unmarshal(b, &x)
 	if err != nil{

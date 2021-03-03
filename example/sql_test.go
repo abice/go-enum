@@ -113,24 +113,31 @@ func TestSQLExtras(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			status := NewNullProjectStatus(tc.input)
+			tc.result.Set = true
 			assert.Equal(t, tc.result, status)
 		})
 	}
 
 }
 
+type SQLMarshalType struct {
+	Status NullProjectStatus `json:"status"`
+}
+
 func TestSQLMarshal(t *testing.T) {
 
-	val := struct {
-		Status NullProjectStatus `json:"status,omitempty"`
-	}{}
+	var val SQLMarshalType
+	var val2 SQLMarshalType
 
 	result, err := json.Marshal(val)
 	require.NoError(t, err)
 	assert.Equal(t, `{"status":null}`, string(result))
 
-	val2 := val
+	require.NoError(t, json.Unmarshal([]byte(`{}`), &val2))
+	assert.Equal(t, val, val2)
+
 	require.NoError(t, json.Unmarshal(result, &val2))
+	val.Status.Set = true
 	assert.Equal(t, val, val2)
 
 	val.Status = NewNullProjectStatus(1)
@@ -150,6 +157,10 @@ func TestSQLMarshal(t *testing.T) {
 
 	require.NoError(t, json.Unmarshal([]byte(`{"status":3}`), &val2))
 	val.Status = NewNullProjectStatus(3)
+	assert.Equal(t, val, val2)
+
+	require.NoError(t, json.Unmarshal([]byte(`{"status":null}`), &val2))
+	val.Status = NullProjectStatus{Set: true}
 	assert.Equal(t, val, val2)
 
 }
