@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --sql
+//go:generate ../bin/go-enum -f=$GOFILE --sql --sqlnullstr --sqlnullint --ptr --marshal
 
 package example
 

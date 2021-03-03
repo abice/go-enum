@@ -91,6 +91,10 @@ func ParseColor(name string) (Color, error) {
 	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
+func (x Color) Ptr() *Color {
+	return &x
+}
+
 // MarshalText implements the text marshaller method
 func (x Color) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil

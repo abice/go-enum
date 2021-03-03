@@ -41,6 +41,12 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	{{- end}}
 }
 
+{{ if .ptr }}
+func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
+	return &x
+}
+{{end}}
+
 {{ if .marshal }}
 // MarshalText implements the text marshaller method
 func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
@@ -59,34 +65,107 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
-{{ if .sql }}
+{{ if or .sql .sqlnullint .sqlnullstr}}
+var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
 // Scan implements the Scanner interface.
-func (x *{{.enum.Name}}) Scan(value interface{}) error {
-	var name string
-
-	switch v := value.(type) {
-	case string:
-		name = v
-	case []byte:
-		name = string(v)
-	case nil:
+func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
+	if value == nil {
 		*x = {{.enum.Name}}(0)
-		return nil
+		return
 	}
 
-	tmp, err := Parse{{.enum.Name}}(name)
-	if err != nil {
-		return err
+	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
+	switch v := value.(type) {
+	case int64:
+		*x = {{.enum.Name}}(v)
+	case string:
+		*x, err = Parse{{.enum.Name}}(v){{if .sqlnullint }}
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(v); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}{{end}}
+	case []byte:
+		*x, err = Parse{{.enum.Name}}(string(v)){{if .sqlnullint }}
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(string(v)); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}{{end}}
+	case {{.enum.Name}}:
+		*x = v
+	case int:
+		*x = {{.enum.Name}}(v)
+	case *{{.enum.Name}}:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = *v
+	case uint:
+		*x = {{.enum.Name}}(v)
+	case uint64:
+		*x = {{.enum.Name}}(v)
+	case *int:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
+	case *int64:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = {{.enum.Name}}(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
+	case *uint:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
+	case *uint64:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = {{.enum.Name}}(*v)
+	case *string:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x, err = Parse{{.enum.Name}}(*v){{if .sqlnullint }}
+		if err != nil {
+			// try parsing the integer value as a string
+			if val, verr := strconv.Atoi(*v); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}{{end}}
 	}
-	*x = tmp
-	return nil
+	
+	return 
 }
 
+{{ if or .sql .sqlnullstr }}
 // Value implements the driver Valuer interface.
 func (x {{.enum.Name}}) Value() (driver.Value, error) {
 	return x.String(), nil
 }
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x {{.enum.Name}}) Value() (driver.Value, error) {
+	return int64(x), nil
+}
 {{end}}
+
+{{end}}
+
 
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
@@ -106,6 +185,116 @@ func (x *{{.enum.Name}}) Type() string {
 	return "{{.enum.Name}}"
 }
 {{end}}
+
+{{ if or .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}} struct{
+	{{.enum.Name}}	{{.enum.Name}}
+	Valid 					bool{{/* Add some info as to whether this value was set during unmarshalling or not */}}{{if .marshal }}
+	Set							bool{{ end }}
+}
+
+func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
+	{{- if .marshal }}x.Set = true{{ end }}
+	if value == nil {
+		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(0), false
+		return
+	}
+
+	err = x.{{.enum.Name}}.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+{{ if .sqlnullint }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	// driver.Value accepts int64 for int values.
+	return int64(x.{{.enum.Name}}), nil
+}
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ end }}
+
+{{ if .marshal }}
+// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
+func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.{{.enum.Name}})
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
+func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
+	n.Set = true
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil{
+		return err
+	}
+	err = n.Scan(x)
+	return err
+}
+{{ end }}
+
+{{ end }}
+
+{{ if and .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}}Str struct {
+	Null{{.enum.Name}}
+}
+
+func NewNull{{.enum.Name}}Str(val interface{}) (x Null{{.enum.Name}}Str) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}Str) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ if .marshal }}
+// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
+func (n Null{{.enum.Name}}Str) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.{{.enum.Name}})
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
+func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
+	n.Set = true
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil{
+		return err
+	}
+	err = n.Scan(x)
+	return err
+}
+{{ end }}
+{{ end }}
 
 {{end}}
 
