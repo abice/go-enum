@@ -65,7 +65,7 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
-{{ if .sql }}
+{{ if or .sql .sqlnullint .sqlnullstr}}
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	if value == nil {
@@ -106,11 +106,20 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	return 
 }
 
+{{ if or .sql .sqlnullstr }}
 // Value implements the driver Valuer interface.
 func (x {{.enum.Name}}) Value() (driver.Value, error) {
 	return x.String(), nil
 }
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x {{.enum.Name}}) Value() (driver.Value, error) {
+	return int64(x), nil
+}
 {{end}}
+
+{{end}}
+
 
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
