@@ -5,7 +5,9 @@ package example
 
 import (
 	"database/sql/driver"
+	"errors"
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -55,6 +57,8 @@ func ParseImageType(name string) (ImageType, error) {
 	return ImageType(0), fmt.Errorf("%s is not a valid ImageType", name)
 }
 
+var _ImageTypeErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
 // Scan implements the Scanner interface.
 func (x *ImageType) Scan(value interface{}) (err error) {
 	if value == nil {
@@ -63,33 +67,59 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 	}
 
 	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
-	case *ImageType:
-		*x = *v
+	case int64:
+		*x = ImageType(v)
+	case string:
+		*x, err = ParseImageType(v)
+	case []byte:
+		*x, err = ParseImageType(string(v))
+		if err != nil {
+			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			if val, verr := strconv.Atoi(string(v)); verr == nil {
+				*x, err = ImageType(val), nil
+			}
+		}
+
 	case ImageType:
 		*x = v
 	case int:
 		*x = ImageType(v)
-	case int64:
-		*x = ImageType(v)
+	case *ImageType:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
+		*x = *v
 	case uint:
 		*x = ImageType(v)
 	case uint64:
 		*x = ImageType(v)
 	case *int:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
 		*x = ImageType(*v)
 	case *int64:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
 		*x = ImageType(*v)
 	case *uint:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
 		*x = ImageType(*v)
 	case *uint64:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
 		*x = ImageType(*v)
-	case string:
-		*x, err = ParseImageType(v)
 	case *string:
+		if v == nil {
+			return _ImageTypeErrNilPtr
+		}
 		*x, err = ParseImageType(*v)
-	case []byte:
-		*x, err = ParseImageType(string(v))
 	}
 
 	return

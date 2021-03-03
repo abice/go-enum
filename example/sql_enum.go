@@ -5,7 +5,9 @@ package example
 
 import (
 	"database/sql/driver"
+	"errors"
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -55,6 +57,8 @@ func (x ProjectStatus) Ptr() *ProjectStatus {
 	return &x
 }
 
+var _ProjectStatusErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
 // Scan implements the Scanner interface.
 func (x *ProjectStatus) Scan(value interface{}) (err error) {
 	if value == nil {
@@ -63,33 +67,59 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 	}
 
 	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
-	case *ProjectStatus:
-		*x = *v
+	case int64:
+		*x = ProjectStatus(v)
+	case string:
+		*x, err = ParseProjectStatus(v)
+	case []byte:
+		*x, err = ParseProjectStatus(string(v))
+		if err != nil {
+			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			if val, verr := strconv.Atoi(string(v)); verr == nil {
+				*x, err = ProjectStatus(val), nil
+			}
+		}
+
 	case ProjectStatus:
 		*x = v
 	case int:
 		*x = ProjectStatus(v)
-	case int64:
-		*x = ProjectStatus(v)
+	case *ProjectStatus:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
+		*x = *v
 	case uint:
 		*x = ProjectStatus(v)
 	case uint64:
 		*x = ProjectStatus(v)
 	case *int:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
 		*x = ProjectStatus(*v)
 	case *int64:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
 		*x = ProjectStatus(*v)
 	case *uint:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
 		*x = ProjectStatus(*v)
 	case *uint64:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
 		*x = ProjectStatus(*v)
-	case string:
-		*x, err = ParseProjectStatus(v)
 	case *string:
+		if v == nil {
+			return _ProjectStatusErrNilPtr
+		}
 		*x, err = ParseProjectStatus(*v)
-	case []byte:
-		*x, err = ParseProjectStatus(string(v))
 	}
 
 	return

@@ -333,9 +333,15 @@ func TestSQLIntExtras(t *testing.T) {
 	assert.Error(t, err, "Should have had an error parsing a non status")
 
 	var (
-		intVal  int       = 3
-		strVal  string    = "png"
-		enumVal ImageType = ImageTypeGif
+		intVal        int       = 3
+		strVal        string    = "png"
+		enumVal       ImageType = ImageTypeGif
+		nullInt       *int
+		nullInt64     *int64
+		nullUint      *uint
+		nullUint64    *uint64
+		nullString    *string
+		nullImageType *ImageType
 	)
 
 	tests := map[string]struct {
@@ -390,6 +396,31 @@ func TestSQLIntExtras(t *testing.T) {
 		},
 		"*int": {
 			input: &intVal,
+			result: NullImageType{
+				ImageType: ImageTypeTiff,
+				Valid:     true,
+			},
+		},
+		"nullInt": {
+			input: nullInt,
+		},
+		"nullInt64": {
+			input: nullInt64,
+		},
+		"nullUint": {
+			input: nullUint,
+		},
+		"nullUint64": {
+			input: nullUint64,
+		},
+		"nullString": {
+			input: nullString,
+		},
+		"nullImageType": {
+			input: nullImageType,
+		},
+		"int as []byte": {
+			input: []byte("3"),
 			result: NullImageType{
 				ImageType: ImageTypeTiff,
 				Valid:     true,

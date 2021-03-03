@@ -66,6 +66,8 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 {{end}}
 
 {{ if or .sql .sqlnullint .sqlnullstr}}
+var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	if value == nil {
@@ -74,33 +76,59 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	}
 
 	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
-	case *{{.enum.Name}}:
-		*x = *v
+	case int64:
+		*x = {{.enum.Name}}(v)
+	case string:
+		*x, err = Parse{{.enum.Name}}(v)
+	case []byte:
+		*x, err = Parse{{.enum.Name}}(string(v)){{if .sqlnullint }}
+		if err != nil {
+			// mysql might pass in a `[]byte('1')` instead of an int ¯\_(ツ)_/¯
+			if val, verr := strconv.Atoi(string(v)); verr == nil {
+				*x, err = {{.enum.Name}}(val), nil
+			}
+		}
+		{{end}}
 	case {{.enum.Name}}:
 		*x = v
 	case int:
 		*x = {{.enum.Name}}(v)
-	case int64:
-		*x = {{.enum.Name}}(v)
+	case *{{.enum.Name}}:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = *v
 	case uint:
 		*x = {{.enum.Name}}(v)
 	case uint64:
 		*x = {{.enum.Name}}(v)
 	case *int:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
 		*x = {{.enum.Name}}(*v)
 	case *int64:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
 		*x = {{.enum.Name}}(*v)
 	case *uint:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
 		*x = {{.enum.Name}}(*v)
 	case *uint64:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
 		*x = {{.enum.Name}}(*v)
-	case string:
-		*x, err = Parse{{.enum.Name}}(v)
 	case *string:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
 		*x, err = Parse{{.enum.Name}}(*v)
-	case []byte:
-		*x, err = Parse{{.enum.Name}}(string(v))
 	}
 	
 	return 

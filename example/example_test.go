@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/spf13/pflag"
@@ -218,4 +219,57 @@ func TestNoZeroValues(t *testing.T) {
 		})
 
 	}
+}
+
+func BenchmarkMakeParse(b *testing.B) {
+
+	knownItems := map[string]struct {
+		input  string
+		output Make
+		err    error
+	}{
+		"cased lookup": {
+			input:  MakeAudi.String(),
+			output: MakeAudi,
+		},
+		"lowercase lookup": {
+			input:  strings.ToLower(MakeVolkswagon.String()),
+			output: MakeVolkswagon,
+		},
+		"hyphenated upper": {
+			input:  strings.ToUpper(MakeMercedesBenz.String()),
+			output: MakeMercedesBenz,
+		},
+		"numeric": {
+			input:  "2",
+			output: MakeChevy,
+		},
+		"last numeric": {
+			input:  "20",
+			output: MakeVolkswagon,
+		},
+		"failure": {
+			input:  "xyz",
+			output: MakeToyota,
+			err:    errors.New("xyz is not a valid Make, try [Toyota, Chevy, Ford, Tesla, Hyundai, Nissan, Jaguar, Audi, BMW, Mercedes-Benz, Volkswagon]"),
+		},
+	}
+
+	for name, tc := range knownItems {
+		b.Run(name, func(b *testing.B) {
+			b.ReportAllocs()
+
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				out, err := ParseMake(tc.input)
+				assert.Equal(b, tc.output, out)
+				if tc.err != nil {
+					assert.Error(b, err)
+				} else {
+					assert.NoError(b, err)
+				}
+			}
+		})
+	}
+
 }
