@@ -233,7 +233,7 @@ func BenchmarkColorParse(b *testing.B) {
 	knownItems := []string{
 		ColorRedOrangeBlue.String(),
 		strings.ToLower(ColorRedOrangeBlue.String()),
-		"2",
+		// "2",  Leave this in to add an int as string parsing option in future.
 	}
 
 	var err error

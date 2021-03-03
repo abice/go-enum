@@ -240,14 +240,15 @@ func BenchmarkMakeParse(b *testing.B) {
 			input:  strings.ToUpper(MakeMercedesBenz.String()),
 			output: MakeMercedesBenz,
 		},
-		"numeric": {
-			input:  "2",
-			output: MakeChevy,
-		},
-		"last numeric": {
-			input:  "20",
-			output: MakeVolkswagon,
-		},
+		// Leave this in to add an int as string parsing option in future.
+		// "numeric": {
+		// 	input:  "2",
+		// 	output: MakeChevy,
+		// },
+		// "last numeric": {
+		// 	input:  "20",
+		// 	output: MakeVolkswagon,
+		// },
 		"failure": {
 			input:  "xyz",
 			output: MakeToyota,
