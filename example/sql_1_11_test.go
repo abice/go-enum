@@ -332,6 +332,50 @@ func TestExampleSQL(t *testing.T) {
 				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
 			},
 		},
+		"Nullable select an float64": {
+			setupMock: func(t testing.TB, mocks *MockSQL) {
+				val := float64(2)
+				gomock.InOrder(
+					// Select In Work
+					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Stmt.EXPECT().NumInput().Return(1),
+					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
+					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
+					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{val}).Return(nil),
+					mocks.Rows.EXPECT().Close().Return(nil),
+					mocks.Stmt.EXPECT().Close().Return(nil),
+				)
+			},
+			tester: func(t testing.TB, conn *sql.DB) {
+				// Get inWork status
+				status, err := getNullProjectStatus(conn)
+				require.NoError(t, err, "failed getting project status")
+				require.True(t, status.Valid)
+				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+			},
+		},
+		"Nullable select an *float64": {
+			setupMock: func(t testing.TB, mocks *MockSQL) {
+				val := float64(2)
+				gomock.InOrder(
+					// Select In Work
+					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Stmt.EXPECT().NumInput().Return(1),
+					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
+					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
+					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{&val}).Return(nil),
+					mocks.Rows.EXPECT().Close().Return(nil),
+					mocks.Stmt.EXPECT().Close().Return(nil),
+				)
+			},
+			tester: func(t testing.TB, conn *sql.DB) {
+				// Get inWork status
+				status, err := getNullProjectStatus(conn)
+				require.NoError(t, err, "failed getting project status")
+				require.True(t, status.Valid)
+				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+			},
+		},
 		"standard update": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(

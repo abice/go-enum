@@ -172,13 +172,13 @@ type NullProjectStatus struct {
 }
 
 func NewNullProjectStatus(val interface{}) (x NullProjectStatus) {
-	x.Set = true
 	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
 	return
 }
 
 // Scan implements the Scanner interface.
 func (x *NullProjectStatus) Scan(value interface{}) (err error) {
+	x.Set = true
 	if value == nil {
 		x.ProjectStatus, x.Valid = ProjectStatus(0), false
 		return
@@ -234,4 +234,25 @@ func (x NullProjectStatusStr) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return x.ProjectStatus.String(), nil
+}
+
+// MarshalJSON correctly serializes a NullProjectStatus to JSON.
+func (n NullProjectStatusStr) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.ProjectStatus)
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a NullProjectStatus from JSON.
+func (n *NullProjectStatusStr) UnmarshalJSON(b []byte) error {
+	n.Set = true
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil {
+		return err
+	}
+	err = n.Scan(x)
+	return err
 }
