@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	// JobStatePending is a JobState of type Pending
+	// JobStatePending is a JobState of type Pending.
 	JobStatePending JobState = iota
-	// JobStateProcessing is a JobState of type Processing
+	// JobStateProcessing is a JobState of type Processing.
 	JobStateProcessing
-	// JobStateCompleted is a JobState of type Completed
+	// JobStateCompleted is a JobState of type Completed.
 	JobStateCompleted
-	// JobStateFailed is a JobState of type Failed
+	// JobStateFailed is a JobState of type Failed.
 	JobStateFailed
 )
 

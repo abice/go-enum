@@ -11,15 +11,15 @@ import (
 )
 
 const (
-	// ImageTypeJpeg is a ImageType of type Jpeg
+	// ImageTypeJpeg is a ImageType of type Jpeg.
 	ImageTypeJpeg ImageType = iota
-	// ImageTypeJpg is a ImageType of type Jpg
+	// ImageTypeJpg is a ImageType of type Jpg.
 	ImageTypeJpg
-	// ImageTypePng is a ImageType of type Png
+	// ImageTypePng is a ImageType of type Png.
 	ImageTypePng
-	// ImageTypeTiff is a ImageType of type Tiff
+	// ImageTypeTiff is a ImageType of type Tiff.
 	ImageTypeTiff
-	// ImageTypeGif is a ImageType of type Gif
+	// ImageTypeGif is a ImageType of type Gif.
 	ImageTypeGif
 )
 
