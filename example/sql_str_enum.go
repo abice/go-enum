@@ -5,17 +5,18 @@ package example
 
 import (
 	"database/sql/driver"
+	"errors"
 	"fmt"
 )
 
 const (
-	// JobStatePending is a JobState of type Pending
+	// JobStatePending is a JobState of type Pending.
 	JobStatePending JobState = iota
-	// JobStateProcessing is a JobState of type Processing
+	// JobStateProcessing is a JobState of type Processing.
 	JobStateProcessing
-	// JobStateCompleted is a JobState of type Completed
+	// JobStateCompleted is a JobState of type Completed.
 	JobStateCompleted
-	// JobStateFailed is a JobState of type Failed
+	// JobStateFailed is a JobState of type Failed.
 	JobStateFailed
 )
 
@@ -51,6 +52,8 @@ func ParseJobState(name string) (JobState, error) {
 	return JobState(0), fmt.Errorf("%s is not a valid JobState", name)
 }
 
+var _JobStateErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
 // Scan implements the Scanner interface.
 func (x *JobState) Scan(value interface{}) (err error) {
 	if value == nil {
@@ -59,33 +62,59 @@ func (x *JobState) Scan(value interface{}) (err error) {
 	}
 
 	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
-	case *JobState:
-		*x = *v
+	case int64:
+		*x = JobState(v)
+	case string:
+		*x, err = ParseJobState(v)
+	case []byte:
+		*x, err = ParseJobState(string(v))
 	case JobState:
 		*x = v
 	case int:
 		*x = JobState(v)
-	case int64:
-		*x = JobState(v)
+	case *JobState:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
+		*x = *v
 	case uint:
 		*x = JobState(v)
 	case uint64:
 		*x = JobState(v)
 	case *int:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
 		*x = JobState(*v)
 	case *int64:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
+		*x = JobState(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		*x = JobState(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
 		*x = JobState(*v)
 	case *uint:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
 		*x = JobState(*v)
 	case *uint64:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
 		*x = JobState(*v)
-	case string:
-		*x, err = ParseJobState(v)
 	case *string:
+		if v == nil {
+			return _JobStateErrNilPtr
+		}
 		*x, err = ParseJobState(*v)
-	case []byte:
-		*x, err = ParseJobState(string(v))
 	}
 
 	return

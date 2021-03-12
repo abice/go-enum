@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	// CommentedValue1 is a Commented of type Value1
+	// CommentedValue1 is a Commented of type Value1.
 	// Commented value 1
 	CommentedValue1 Commented = iota
-	// CommentedValue2 is a Commented of type Value2
+	// CommentedValue2 is a Commented of type Value2.
 	CommentedValue2
-	// CommentedValue3 is a Commented of type Value3
+	// CommentedValue3 is a Commented of type Value3.
 	// Commented value 3
 	CommentedValue3
 )
@@ -69,15 +69,15 @@ func (x *Commented) UnmarshalText(text []byte) error {
 }
 
 const (
-	// Skipped value
+	// Skipped value.
 	// Placeholder with a ','  in it. (for harder testing)
 	_ ComplexCommented = iota
-	// ComplexCommentedValue1 is a ComplexCommented of type Value1
+	// ComplexCommentedValue1 is a ComplexCommented of type Value1.
 	// Commented value 1
 	ComplexCommentedValue1
-	// ComplexCommentedValue2 is a ComplexCommented of type Value2
+	// ComplexCommentedValue2 is a ComplexCommented of type Value2.
 	ComplexCommentedValue2
-	// ComplexCommentedValue3 is a ComplexCommented of type Value3
+	// ComplexCommentedValue3 is a ComplexCommented of type Value3.
 	// Commented value 3
 	ComplexCommentedValue3
 )

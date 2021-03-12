@@ -1,26 +1,8 @@
-//go:generate ../bin/mockgen -destination sql_mock_test.go -package example database/sql/driver Conn,Driver,Stmt,Result,Rows
-
-/*
-This example shows the conversion of enumerations between GO and SQL database.
-You can run this example with the command: `go test -tags example github.com/abice/go-enum/example -v -run ^ExampleSQL$`
-Don't forget to change the constant "dataSourceName" if necessary and apply the sql query.
-
-SQL query to create a database and fill the initial data:
-
-	CREATE TABLE project
-	(
-		id INT PRIMARY KEY AUTO_INCREMENT,
-		status ENUM('pending', 'inWork', 'completed', 'rejected')
-	);
-	INSERT INTO project (`id`, `status`) VALUES (1, 'pending')
-*/
-
 package example
 
 import (
 	"database/sql"
 	driver "database/sql/driver"
-	"fmt"
 	"testing"
 
 	gomock "github.com/golang/mock/gomock"
@@ -29,74 +11,11 @@ import (
 )
 
 const (
-	dataSourceName     = "root:pass@tcp(localhost:3306)/database"
-	hardcodedProjectID = 1
+	imageTypeSelect = `SELECT format FROM images WHERE id = ?`
+	imageTypeUpdate = `Update images SET format = ? WHERE id = ?`
 )
 
-// A Matcher is a representation of a class of values.
-// It is used to represent the valid or expected arguments to a mocked method.
-type DriverValueMatcher struct {
-	values []driver.Value
-}
-
-func MatchesValues(vals ...driver.Value) *DriverValueMatcher {
-	return &DriverValueMatcher{
-		values: vals,
-	}
-}
-
-// Matches returns whether x is a match.
-func (d *DriverValueMatcher) Matches(x interface{}) bool {
-
-	switch values := x.(type) {
-	case []driver.Value:
-		if len(values) != len(d.values) {
-			return false
-		}
-		for i, value := range values {
-			if !assert.ObjectsAreEqualValues(d.values[i], value) {
-				fmt.Printf("%v != %v\n", value, d.values[i])
-				return false
-			}
-		}
-	default:
-		return false
-	}
-
-	return true
-}
-
-// String describes what the matcher matches.
-func (d *DriverValueMatcher) String() string {
-	return fmt.Sprintf("%v", d.values)
-}
-
-type MockSQL struct {
-	Driver *MockDriver
-	Conn   *MockConn
-	Stmt   *MockStmt
-	Result *MockResult
-	Rows   *MockRows
-}
-
-func WithMockSQL(t testing.TB) (*MockSQL, func()) {
-	t.Helper()
-
-	ctrl := gomock.NewController(t)
-
-	mocks := &MockSQL{
-		Conn:   NewMockConn(ctrl),
-		Stmt:   NewMockStmt(ctrl),
-		Result: NewMockResult(ctrl),
-		Rows:   NewMockRows(ctrl),
-	}
-
-	return mocks, func() {
-		ctrl.Finish()
-	}
-}
-
-func TestExampleSQL(t *testing.T) {
+func TestExampleSQLIntOnly(t *testing.T) {
 
 	tests := map[string]struct {
 		setupMock func(t testing.TB, mocks *MockSQL)
@@ -106,7 +25,7 @@ func TestExampleSQL(t *testing.T) {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -117,36 +36,16 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getProjectStatus(conn)
+				status, err := getImageType(conn)
 				require.NoError(t, err, "failed getting project status")
-				require.Equal(t, ProjectStatusPending, *status)
-			},
-		},
-		"NullableStr Select Null": {
-			setupMock: func(t testing.TB, mocks *MockSQL) {
-				gomock.InOrder(
-					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
-					mocks.Stmt.EXPECT().NumInput().Return(1),
-					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
-					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
-					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{nil}).Return(nil),
-					mocks.Rows.EXPECT().Close().Return(nil),
-					mocks.Stmt.EXPECT().Close().Return(nil),
-				)
-			},
-			tester: func(t testing.TB, conn *sql.DB) {
-				// Get inWork status
-				status, err := getNullStrProjectStatus(conn)
-				require.NoError(t, err, "failed getting project status")
-				require.False(t, status.Valid)
+				require.Equal(t, ImageTypeJpeg, status)
 			},
 		},
 		"Nullable Select Null": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -157,7 +56,7 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.False(t, status.Valid)
 			},
@@ -166,27 +65,27 @@ func TestExampleSQL(t *testing.T) {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
-					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{ProjectStatusInWork.String()}).Return(nil),
+					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{ImageTypePng.String()}).Return(nil),
 					mocks.Rows.EXPECT().Close().Return(nil),
 					mocks.Stmt.EXPECT().Close().Return(nil),
 				)
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getProjectStatus(conn)
+				status, err := getImageType(conn)
 				require.NoError(t, err, "failed getting project status")
-				require.Equal(t, ProjectStatusInWork, *status)
+				require.Equal(t, ImageTypePng, status)
 			},
 		},
 		"Nullable select an int": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -197,17 +96,17 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an int64": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -218,17 +117,38 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
+			},
+		},
+		"Nullable select an float64": {
+			setupMock: func(t testing.TB, mocks *MockSQL) {
+				gomock.InOrder(
+					// Select In Work
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
+					mocks.Stmt.EXPECT().NumInput().Return(1),
+					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
+					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
+					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{float64(2)}).Return(nil),
+					mocks.Rows.EXPECT().Close().Return(nil),
+					mocks.Stmt.EXPECT().Close().Return(nil),
+				)
+			},
+			tester: func(t testing.TB, conn *sql.DB) {
+				// Get inWork status
+				status, err := getNullImageType(conn)
+				require.NoError(t, err, "failed getting project status")
+				require.True(t, status.Valid)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an uint": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -239,17 +159,17 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an uint64": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -260,10 +180,10 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an *uint64": {
@@ -271,7 +191,7 @@ func TestExampleSQL(t *testing.T) {
 				val := uint64(2)
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -282,10 +202,10 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an *int64": {
@@ -293,7 +213,7 @@ func TestExampleSQL(t *testing.T) {
 				val := int64(2)
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -304,54 +224,10 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
-			},
-		},
-		"Nullable select an *uint": {
-			setupMock: func(t testing.TB, mocks *MockSQL) {
-				val := uint(2)
-				gomock.InOrder(
-					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
-					mocks.Stmt.EXPECT().NumInput().Return(1),
-					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
-					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
-					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{&val}).Return(nil),
-					mocks.Rows.EXPECT().Close().Return(nil),
-					mocks.Stmt.EXPECT().Close().Return(nil),
-				)
-			},
-			tester: func(t testing.TB, conn *sql.DB) {
-				// Get inWork status
-				status, err := getNullProjectStatus(conn)
-				require.NoError(t, err, "failed getting project status")
-				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
-			},
-		},
-		"Nullable select an float64": {
-			setupMock: func(t testing.TB, mocks *MockSQL) {
-				val := float64(2)
-				gomock.InOrder(
-					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
-					mocks.Stmt.EXPECT().NumInput().Return(1),
-					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
-					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
-					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{val}).Return(nil),
-					mocks.Rows.EXPECT().Close().Return(nil),
-					mocks.Stmt.EXPECT().Close().Return(nil),
-				)
-			},
-			tester: func(t testing.TB, conn *sql.DB) {
-				// Get inWork status
-				status, err := getNullProjectStatus(conn)
-				require.NoError(t, err, "failed getting project status")
-				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"Nullable select an *float64": {
@@ -359,7 +235,7 @@ func TestExampleSQL(t *testing.T) {
 				val := float64(2)
 				gomock.InOrder(
 					// Select In Work
-					mocks.Conn.EXPECT().Prepare("SELECT status FROM project WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(1),
 					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
 					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
@@ -370,25 +246,47 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				status, err := getNullProjectStatus(conn)
+				status, err := getNullImageType(conn)
 				require.NoError(t, err, "failed getting project status")
 				require.True(t, status.Valid)
-				require.Equal(t, ProjectStatusCompleted, status.ProjectStatus)
+				require.Equal(t, ImageTypePng, status.ImageType)
+			},
+		},
+		"Nullable select an *uint": {
+			setupMock: func(t testing.TB, mocks *MockSQL) {
+				val := uint(2)
+				gomock.InOrder(
+					// Select In Work
+					mocks.Conn.EXPECT().Prepare(imageTypeSelect).Return(mocks.Stmt, nil),
+					mocks.Stmt.EXPECT().NumInput().Return(1),
+					mocks.Stmt.EXPECT().Query(gomock.Any()).Return(mocks.Rows, nil),
+					mocks.Rows.EXPECT().Columns().Return([]string{`status`}),
+					mocks.Rows.EXPECT().Next(gomock.Any()).SetArg(0, []driver.Value{&val}).Return(nil),
+					mocks.Rows.EXPECT().Close().Return(nil),
+					mocks.Stmt.EXPECT().Close().Return(nil),
+				)
+			},
+			tester: func(t testing.TB, conn *sql.DB) {
+				// Get inWork status
+				status, err := getNullImageType(conn)
+				require.NoError(t, err, "failed getting project status")
+				require.True(t, status.Valid)
+				require.Equal(t, ImageTypePng, status.ImageType)
 			},
 		},
 		"standard update": {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Update value
-					mocks.Conn.EXPECT().Prepare("UPDATE project SET status = ? WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeUpdate).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(2),
-					mocks.Stmt.EXPECT().Exec(MatchesValues(ProjectStatusRejected.String(), hardcodedProjectID)).Return(mocks.Result, nil),
+					mocks.Stmt.EXPECT().Exec(MatchesValues(int64(ImageTypeTiff), hardcodedProjectID)).Return(mocks.Result, nil),
 					mocks.Stmt.EXPECT().Close().Return(nil),
 				)
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				err := setProjectStatus(conn, ProjectStatusRejected)
+				err := setImageType(conn, ImageTypeTiff)
 				require.NoError(t, err, "failed updating project status")
 			},
 		},
@@ -396,15 +294,15 @@ func TestExampleSQL(t *testing.T) {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Update value
-					mocks.Conn.EXPECT().Prepare("UPDATE project SET status = ? WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeUpdate).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(2),
-					mocks.Stmt.EXPECT().Exec(MatchesValues(3, hardcodedProjectID)).Return(mocks.Result, nil),
+					mocks.Stmt.EXPECT().Exec(MatchesValues(int64(ImageTypeTiff), hardcodedProjectID)).Return(mocks.Result, nil),
 					mocks.Stmt.EXPECT().Close().Return(nil),
 				)
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				err := setProjectStatus(conn, NewNullProjectStatus(ProjectStatusRejected))
+				err := setImageType(conn, NewNullImageType(ImageTypeTiff))
 				require.NoError(t, err, "failed updating project status")
 			},
 		},
@@ -412,7 +310,7 @@ func TestExampleSQL(t *testing.T) {
 			setupMock: func(t testing.TB, mocks *MockSQL) {
 				gomock.InOrder(
 					// Update value
-					mocks.Conn.EXPECT().Prepare("UPDATE project SET status = ? WHERE id = ?").Return(mocks.Stmt, nil),
+					mocks.Conn.EXPECT().Prepare(imageTypeUpdate).Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(2),
 					mocks.Stmt.EXPECT().Exec(MatchesValues(nil, hardcodedProjectID)).Return(mocks.Result, nil),
 					mocks.Stmt.EXPECT().Close().Return(nil),
@@ -420,39 +318,7 @@ func TestExampleSQL(t *testing.T) {
 			},
 			tester: func(t testing.TB, conn *sql.DB) {
 				// Get inWork status
-				err := setProjectStatus(conn, NullProjectStatus{})
-				require.NoError(t, err, "failed updating project status")
-			},
-		},
-		"nullable string update": {
-			setupMock: func(t testing.TB, mocks *MockSQL) {
-				gomock.InOrder(
-					// Update value
-					mocks.Conn.EXPECT().Prepare("UPDATE project SET status = ? WHERE id = ?").Return(mocks.Stmt, nil),
-					mocks.Stmt.EXPECT().NumInput().Return(2),
-					mocks.Stmt.EXPECT().Exec(MatchesValues(ProjectStatusRejected.String(), hardcodedProjectID)).Return(mocks.Result, nil),
-					mocks.Stmt.EXPECT().Close().Return(nil),
-				)
-			},
-			tester: func(t testing.TB, conn *sql.DB) {
-				// Get inWork status
-				err := setProjectStatus(conn, NewNullProjectStatusStr(ProjectStatusRejected))
-				require.NoError(t, err, "failed updating project status")
-			},
-		},
-		"nullable invalid string update": {
-			setupMock: func(t testing.TB, mocks *MockSQL) {
-				gomock.InOrder(
-					// Update value
-					mocks.Conn.EXPECT().Prepare("UPDATE project SET status = ? WHERE id = ?").Return(mocks.Stmt, nil),
-					mocks.Stmt.EXPECT().NumInput().Return(2),
-					mocks.Stmt.EXPECT().Exec(MatchesValues(nil, hardcodedProjectID)).Return(mocks.Result, nil),
-					mocks.Stmt.EXPECT().Close().Return(nil),
-				)
-			},
-			tester: func(t testing.TB, conn *sql.DB) {
-				// Get inWork status
-				err := setProjectStatus(conn, NullProjectStatusStr{})
+				err := setImageType(conn, NullImageType{})
 				require.NoError(t, err, "failed updating project status")
 			},
 		},
@@ -464,19 +330,19 @@ func TestExampleSQL(t *testing.T) {
 		driverctrl.Finish()
 	}()
 
-	sql.Register("mock", driver)
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 
 			require.NotNil(t, tc.setupMock)
 			require.NotNil(t, tc.tester)
 
-			mocks, validate := WithMockSQL(t)
-			defer validate()
+			sql.Register(t.Name(), driver)
+			mocks, finish := WithMockSQL(t)
+			defer finish()
 
 			driver.EXPECT().Open(dataSourceName).Return(mocks.Conn, nil)
 
-			conn, err := sql.Open("mock", dataSourceName)
+			conn, err := sql.Open(t.Name(), dataSourceName)
 			require.NoError(t, err, "failed opening mock db")
 
 			tc.setupMock(t, mocks)
@@ -487,27 +353,130 @@ func TestExampleSQL(t *testing.T) {
 	}
 }
 
-func getProjectStatus(db *sql.DB) (*ProjectStatus, error) {
-	var status ProjectStatus
-	err := db.QueryRow(`SELECT status FROM project WHERE id = ?`, hardcodedProjectID).Scan(&status)
-	if err != nil {
-		return nil, err
+func getImageType(db *sql.DB) (state ImageType, err error) {
+	err = db.QueryRow(imageTypeSelect, hardcodedProjectID).Scan(&state)
+	return
+}
+
+func getNullImageType(db *sql.DB) (state NullImageType, err error) {
+	err = db.QueryRow(imageTypeSelect, hardcodedProjectID).Scan(&state)
+	return
+}
+
+func setImageType(db *sql.DB, state interface{}) error {
+	_, err := db.Exec(imageTypeUpdate, state, hardcodedProjectID)
+	return err
+}
+
+func TestSQLIntExtras(t *testing.T) {
+
+	assert.Equal(t, "ImageType(22)", ImageType(22).String(), "String value is not correct")
+
+	_, err := ParseImageType(`NotAStatus`)
+	assert.Error(t, err, "Should have had an error parsing a non status")
+
+	var (
+		intVal        int       = 3
+		strVal        string    = "png"
+		enumVal       ImageType = ImageTypeGif
+		nullInt       *int
+		nullInt64     *int64
+		nullUint      *uint
+		nullUint64    *uint64
+		nullString    *string
+		nullImageType *ImageType
+	)
+
+	tests := map[string]struct {
+		input  interface{}
+		result NullImageType
+	}{
+		"nil": {},
+		"val": {
+			input: ImageTypeTiff,
+			result: NullImageType{
+				ImageType: ImageTypeTiff,
+				Valid:     true,
+			},
+		},
+		"ptr": {
+			input: &enumVal,
+			result: NullImageType{
+				ImageType: ImageTypeGif,
+				Valid:     true,
+			},
+		},
+		"string": {
+			input: strVal,
+			result: NullImageType{
+				ImageType: ImageTypePng,
+				Valid:     true,
+			},
+		},
+		"*string": {
+			input: &strVal,
+			result: NullImageType{
+				ImageType: ImageTypePng,
+				Valid:     true,
+			},
+		},
+		"invalid string": {
+			input: "random value",
+		},
+		"[]byte": {
+			input: []byte(ImageTypeGif.String()),
+			result: NullImageType{
+				ImageType: ImageTypeGif,
+				Valid:     true,
+			},
+		},
+		"int": {
+			input: intVal,
+			result: NullImageType{
+				ImageType: ImageTypeTiff,
+				Valid:     true,
+			},
+		},
+		"*int": {
+			input: &intVal,
+			result: NullImageType{
+				ImageType: ImageTypeTiff,
+				Valid:     true,
+			},
+		},
+		"nullInt": {
+			input: nullInt,
+		},
+		"nullInt64": {
+			input: nullInt64,
+		},
+		"nullUint": {
+			input: nullUint,
+		},
+		"nullUint64": {
+			input: nullUint64,
+		},
+		"nullString": {
+			input: nullString,
+		},
+		"nullImageType": {
+			input: nullImageType,
+		},
+		"int as []byte": {
+			input: []byte("3"),
+			result: NullImageType{
+				ImageType: ImageTypeTiff,
+				Valid:     true,
+			},
+		},
 	}
 
-	return status.Ptr(), nil
-}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			status := NewNullImageType(tc.input)
+			assert.Equal(t, status, tc.result)
 
-func getNullStrProjectStatus(db *sql.DB) (status NullProjectStatusStr, err error) {
-	err = db.QueryRow(`SELECT status FROM project WHERE id = ?`, hardcodedProjectID).Scan(&status)
-	return
-}
+		})
+	}
 
-func getNullProjectStatus(db *sql.DB) (status NullProjectStatus, err error) {
-	err = db.QueryRow(`SELECT status FROM project WHERE id = ?`, hardcodedProjectID).Scan(&status)
-	return
-}
-
-func setProjectStatus(db *sql.DB, status interface{}) error {
-	_, err := db.Exec(`UPDATE project SET status = ? WHERE id = ?`, status, hardcodedProjectID)
-	return err
 }

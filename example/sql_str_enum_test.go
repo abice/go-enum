@@ -328,9 +328,15 @@ func TestSQLStrExtras(t *testing.T) {
 	assert.Error(t, err, "Should have had an error parsing a non status")
 
 	var (
-		intVal  int      = 3
-		strVal  string   = "completed"
-		enumVal JobState = JobStateCompleted
+		intVal       int      = 3
+		strVal       string   = "completed"
+		enumVal      JobState = JobStateCompleted
+		nullInt      *int
+		nullInt64    *int64
+		nullUint     *uint
+		nullUint64   *uint64
+		nullString   *string
+		nullJobState *JobState
 	)
 
 	tests := map[string]struct {
@@ -389,6 +395,27 @@ func TestSQLStrExtras(t *testing.T) {
 				JobState: JobStateFailed,
 				Valid:    true,
 			},
+		},
+		"nullInt": {
+			input: nullInt,
+		},
+		"nullInt64": {
+			input: nullInt64,
+		},
+		"nullUint": {
+			input: nullUint,
+		},
+		"nullUint64": {
+			input: nullUint64,
+		},
+		"nullString": {
+			input: nullString,
+		},
+		"nullImageType": {
+			input: nullJobState,
+		},
+		"int as []byte": { // must have --sqlnullint flag to get this feature.
+			input: []byte("3"),
 		},
 	}
 

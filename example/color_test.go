@@ -3,6 +3,7 @@ package example
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -225,4 +226,26 @@ func TestColorMarshal(t *testing.T) {
 			assert.JSONEq(tt, test.output, string(raw))
 		})
 	}
+}
+
+func BenchmarkColorParse(b *testing.B) {
+
+	knownItems := []string{
+		ColorRedOrangeBlue.String(),
+		strings.ToLower(ColorRedOrangeBlue.String()),
+		// "2",  Leave this in to add an int as string parsing option in future.
+	}
+
+	var err error
+	for _, item := range knownItems {
+		b.Run(item, func(b *testing.B) {
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, err = ParseColor(item)
+				assert.NoError(b, err)
+			}
+		})
+	}
+
 }

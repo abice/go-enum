@@ -9,28 +9,28 @@ import (
 )
 
 const (
-	// ColorBlack is a Color of type Black
+	// ColorBlack is a Color of type Black.
 	ColorBlack Color = iota
-	// ColorWhite is a Color of type White
+	// ColorWhite is a Color of type White.
 	ColorWhite
-	// ColorRed is a Color of type Red
+	// ColorRed is a Color of type Red.
 	ColorRed
-	// ColorGreen is a Color of type Green
+	// ColorGreen is a Color of type Green.
 	// Green starts with 33
 	ColorGreen Color = iota + 30
-	// ColorBlue is a Color of type Blue
+	// ColorBlue is a Color of type Blue.
 	ColorBlue
-	// ColorGrey is a Color of type Grey
+	// ColorGrey is a Color of type Grey.
 	ColorGrey
-	// ColorYellow is a Color of type Yellow
+	// ColorYellow is a Color of type Yellow.
 	ColorYellow
-	// ColorBlueGreen is a Color of type Blue-Green
+	// ColorBlueGreen is a Color of type Blue-Green.
 	ColorBlueGreen
-	// ColorRedOrange is a Color of type Red-Orange
+	// ColorRedOrange is a Color of type Red-Orange.
 	ColorRedOrange
-	// ColorYellowGreen is a Color of type Yellow_green
+	// ColorYellowGreen is a Color of type Yellow_green.
 	ColorYellowGreen
-	// ColorRedOrangeBlue is a Color of type Red-Orange-Blue
+	// ColorRedOrangeBlue is a Color of type Red-Orange-Blue.
 	ColorRedOrangeBlue
 )
 
