@@ -111,7 +111,7 @@ func main() {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			for _, fileName := range argv.FileNames.Value() {
+			for _, fileOption := range argv.FileNames.Value() {
 
 				g := generator.NewGenerator()
 
@@ -152,24 +152,47 @@ func main() {
 					g.WithSQLNullStr()
 				}
 
-				originalName := fileName
+				var filenames []string
 
-				out("go-enum started. file: %s\n", color.Cyan(originalName))
-				fileName, _ = filepath.Abs(fileName)
-				outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
-
-				// Parse the file given in arguments
-				raw, err := g.GenerateFromFile(fileName)
-				if err != nil {
-					return fmt.Errorf("failed generating enums\nInputFile=%s\nError=%s", color.Cyan(fileName), color.RedBg(err))
+				// In order to maintain existing capabilities, only glob when a * is in the path.
+				// Leave execution on par with old method in case there are bad patterns in use that somehow
+				// work without the Glob method.
+				if strings.Contains(fileOption, "*") {
+					matches, err := filepath.Glob(fileOption)
+					if err != nil {
+						return fmt.Errorf("failed parsing glob filepath\nInputFile=%s\nError=%s", color.Cyan(fileOption), color.RedBg(err))
+					}
+					filenames = append(filenames, matches...)
+				} else {
+					filenames = append(filenames, fileOption)
 				}
 
-				mode := int(0644)
-				err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
-				if err != nil {
-					return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))
+				for _, fileName := range filenames {
+					originalName := fileName
+
+					out("go-enum started. file: %s\n", color.Cyan(originalName))
+					fileName, _ = filepath.Abs(fileName)
+					outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
+
+					// Parse the file given in arguments
+					raw, err := g.GenerateFromFile(fileName)
+					if err != nil {
+						return fmt.Errorf("failed generating enums\nInputFile=%s\nError=%s", color.Cyan(fileName), color.RedBg(err))
+					}
+
+					// Nothing was generated, ignore the output and don't create a file.
+					if len(raw) < 1 {
+						out(color.Yellow("go-enum ignored. file: %s\n"), color.Cyan(originalName))
+						continue
+					}
+
+					mode := int(0644)
+					err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
+					if err != nil {
+						return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))
+					}
+					out("go-enum finished. file: %s\n", color.Cyan(originalName))
 				}
-				out("go-enum finished. file: %s\n", color.Cyan(originalName))
 			}
 
 			return nil
