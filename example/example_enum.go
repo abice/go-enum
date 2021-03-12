@@ -9,47 +9,47 @@ import (
 )
 
 const (
-	// MakeToyota is a Make of type Toyota
+	// MakeToyota is a Make of type Toyota.
 	MakeToyota Make = iota
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeChevy is a Make of type Chevy
+	// MakeChevy is a Make of type Chevy.
 	MakeChevy
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeFord is a Make of type Ford
+	// MakeFord is a Make of type Ford.
 	MakeFord
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeTesla is a Make of type Tesla
+	// MakeTesla is a Make of type Tesla.
 	MakeTesla
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeHyundai is a Make of type Hyundai
+	// MakeHyundai is a Make of type Hyundai.
 	MakeHyundai
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeNissan is a Make of type Nissan
+	// MakeNissan is a Make of type Nissan.
 	MakeNissan
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeJaguar is a Make of type Jaguar
+	// MakeJaguar is a Make of type Jaguar.
 	MakeJaguar
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeAudi is a Make of type Audi
+	// MakeAudi is a Make of type Audi.
 	MakeAudi
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeBMW is a Make of type BMW
+	// MakeBMW is a Make of type BMW.
 	MakeBMW
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeMercedesBenz is a Make of type Mercedes-Benz
+	// MakeMercedesBenz is a Make of type Mercedes-Benz.
 	MakeMercedesBenz
-	// Skipped value
+	// Skipped value.
 	_
-	// MakeVolkswagon is a Make of type Volkswagon
+	// MakeVolkswagon is a Make of type Volkswagon.
 	MakeVolkswagon
 )
 
@@ -169,17 +169,17 @@ func (x *Make) Type() string {
 }
 
 const (
-	// NoZerosStart is a NoZeros of type Start
+	// NoZerosStart is a NoZeros of type Start.
 	NoZerosStart NoZeros = iota + 20
-	// NoZerosMiddle is a NoZeros of type Middle
+	// NoZerosMiddle is a NoZeros of type Middle.
 	NoZerosMiddle
-	// NoZerosEnd is a NoZeros of type End
+	// NoZerosEnd is a NoZeros of type End.
 	NoZerosEnd
-	// NoZerosPs is a NoZeros of type Ps
+	// NoZerosPs is a NoZeros of type Ps.
 	NoZerosPs
-	// NoZerosPps is a NoZeros of type Pps
+	// NoZerosPps is a NoZeros of type Pps.
 	NoZerosPps
-	// NoZerosPpps is a NoZeros of type Ppps
+	// NoZerosPpps is a NoZeros of type Ppps.
 	NoZerosPpps
 )
 

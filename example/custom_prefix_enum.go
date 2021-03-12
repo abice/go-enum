@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	// AcmeIncProductAnvil is a Product of type Anvil
+	// AcmeIncProductAnvil is a Product of type Anvil.
 	AcmeIncProductAnvil Product = iota
-	// AcmeIncProductDynamite is a Product of type Dynamite
+	// AcmeIncProductDynamite is a Product of type Dynamite.
 	AcmeIncProductDynamite
-	// AcmeIncProductGlue is a Product of type Glue
+	// AcmeIncProductGlue is a Product of type Glue.
 	AcmeIncProductGlue
 )
 

@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	// AnimalCat is a Animal of type Cat
+	// AnimalCat is a Animal of type Cat.
 	AnimalCat Animal = iota
-	// AnimalDog is a Animal of type Dog
+	// AnimalDog is a Animal of type Dog.
 	AnimalDog
-	// AnimalFish is a Animal of type Fish
+	// AnimalFish is a Animal of type Fish.
 	AnimalFish
 )
 
