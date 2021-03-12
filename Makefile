@@ -71,8 +71,7 @@ phony: clean tc build
 
 .PHONY: example
 example:
-	$(GO) generate ./example
-
+	$(GO) generate ./example/...
 
 bin/goimports: go.sum
 	$(call goinstall,golang.org/x/tools/cmd/goimports)
