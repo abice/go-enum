@@ -14,19 +14,20 @@ import (
 )
 
 type rootT struct {
-	FileNames      cli.StringSlice
-	NoPrefix       bool
-	Lowercase      bool
-	NoCase         bool
-	Marshal        bool
-	SQL            bool
-	Flag           bool
-	Prefix         string
-	Names          bool
-	LeaveSnakeCase bool
-	SQLNullStr     bool
-	SQLNullInt     bool
-	Ptr            bool
+	FileNames         cli.StringSlice
+	NoPrefix          bool
+	Lowercase         bool
+	NoCase            bool
+	Marshal           bool
+	SQL               bool
+	Flag              bool
+	Prefix            string
+	Names             bool
+	LeaveSnakeCase    bool
+	SQLNullStr        bool
+	SQLNullInt        bool
+	Ptr               bool
+	TemplateFileNames cli.StringSlice
 }
 
 func main() {
@@ -109,6 +110,12 @@ func main() {
 				Usage:       "Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str",
 				Destination: &argv.SQLNullStr,
 			},
+			&cli.StringSliceFlag{
+				Name:        "template",
+				Aliases:     []string{"t"},
+				Usage:       "Additional template file(s) to generate enums.  Use more than one flag for more files.",
+				Destination: &argv.TemplateFileNames,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			for _, fileOption := range argv.FileNames.Value() {
@@ -150,6 +157,9 @@ func main() {
 				}
 				if argv.SQLNullStr {
 					g.WithSQLNullStr()
+				}
+				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
+					g.WithTemplates(templates...)
 				}
 
 				var filenames []string

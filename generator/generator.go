@@ -30,6 +30,7 @@ const (
 type Generator struct {
 	t               *template.Template
 	knownTemplates  map[string]*template.Template
+	userTemplates   map[string]*template.Template
 	fileSet         *token.FileSet
 	noPrefix        bool
 	lowercaseLookup bool
@@ -67,6 +68,7 @@ type EnumValue struct {
 func NewGenerator() *Generator {
 	g := &Generator{
 		knownTemplates: make(map[string]*template.Template),
+		userTemplates:  make(map[string]*template.Template),
 		t:              template.New("generator"),
 		fileSet:        token.NewFileSet(),
 		noPrefix:       false,
@@ -163,6 +165,17 @@ func (g *Generator) WithSQLNullStr() *Generator {
 	return g
 }
 
+// WithTemplates is used to provide the filenames of additional templates.
+func (g *Generator) WithTemplates(filenames ...string) *Generator {
+	for _, t := range template.Must(g.t.ParseFiles(filenames...)).Templates() {
+		if _, ok := g.knownTemplates[t.Name()]; !ok {
+			g.userTemplates[t.Name()] = t
+		}
+	}
+	g.updateTemplates()
+	return g
+}
+
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
 // that can be written to any file desired.  It has already had goimports run on the code before being returned.
 func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
@@ -222,6 +235,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		err = g.t.ExecuteTemplate(vBuff, "enum", data)
 		if err != nil {
 			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+		}
+
+		for _, t := range g.userTemplates {
+			err = g.t.ExecuteTemplate(vBuff, t.Name(), data)
+			if err != nil {
+				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q, template: %v", name, t.Name()))
+			}
 		}
 	}
 
