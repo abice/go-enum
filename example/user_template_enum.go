@@ -46,6 +46,13 @@ func ParseOceanColor(name string) (OceanColor, error) {
 	return OceanColor(0), fmt.Errorf("%s is not a valid OceanColor", name)
 }
 
+func ParseOceanColorGlobbedExample() bool {
+	return true
+}
+func ParseOceanColorGlobbedExample2() bool {
+	return true
+}
+
 // Additional template
 func ParseOceanColorExample() bool {
 	return true
