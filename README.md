@@ -39,7 +39,7 @@ GLOBAL OPTIONS:
    --ptr                       Adds a pointer method to get a pointer from const values (default: false)
    --sqlnullint                Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)
    --sqlnullstr                Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
-   --template value, -t value  Additional template file(s) to generate enums.  Use more than one flag for more files.
+   --template value, -t value  Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.
    --help, -h                  show help (default: false)
 ```
 

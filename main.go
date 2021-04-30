@@ -113,7 +113,7 @@ func main() {
 			&cli.StringSliceFlag{
 				Name:        "template",
 				Aliases:     []string{"t"},
-				Usage:       "Additional template file(s) to generate enums.  Use more than one flag for more files.",
+				Usage:       "Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.",
 				Destination: &argv.TemplateFileNames,
 			},
 		},
@@ -159,22 +159,20 @@ func main() {
 					g.WithSQLNullStr()
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
-					g.WithTemplates(templates...)
+					for _, t := range templates {
+						if fn, err := globFilenames(t); err != nil {
+							return err
+						} else {
+							g.WithTemplates(fn...)
+						}
+					}
 				}
 
 				var filenames []string
-
-				// In order to maintain existing capabilities, only glob when a * is in the path.
-				// Leave execution on par with old method in case there are bad patterns in use that somehow
-				// work without the Glob method.
-				if strings.Contains(fileOption, "*") {
-					matches, err := filepath.Glob(fileOption)
-					if err != nil {
-						return fmt.Errorf("failed parsing glob filepath\nInputFile=%s\nError=%s", color.Cyan(fileOption), color.RedBg(err))
-					}
-					filenames = append(filenames, matches...)
+				if fn, err := globFilenames(fileOption); err != nil {
+					return err
 				} else {
-					filenames = append(filenames, fileOption)
+					filenames = fn
 				}
 
 				for _, fileName := range filenames {
@@ -211,5 +209,21 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// globFilenames gets a list of filenames matching the provided filename.
+// In order to maintain existing capabilities, only glob when a * is in the path.
+// Leave execution on par with old method in case there are bad patterns in use that somehow
+// work without the Glob method.
+func globFilenames(filename string) ([]string, error) {
+	if strings.Contains(filename, "*") {
+		matches, err := filepath.Glob(filename)
+		if err != nil {
+			return []string{}, fmt.Errorf("failed parsing glob filepath\nInputFile=%s\nError=%s", color.Cyan(filename), color.RedBg(err))
+		}
+		return matches, nil
+	} else {
+		return []string{filename}, nil
 	}
 }
