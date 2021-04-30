@@ -28,21 +28,22 @@ const (
 
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
-	t               *template.Template
-	knownTemplates  map[string]*template.Template
-	fileSet         *token.FileSet
-	noPrefix        bool
-	lowercaseLookup bool
-	caseInsensitive bool
-	marshal         bool
-	sql             bool
-	flag            bool
-	names           bool
-	leaveSnakeCase  bool
-	prefix          string
-	sqlNullInt      bool
-	sqlNullStr      bool
-	ptr             bool
+	t                 *template.Template
+	knownTemplates    map[string]*template.Template
+	userTemplateNames []string
+	fileSet           *token.FileSet
+	noPrefix          bool
+	lowercaseLookup   bool
+	caseInsensitive   bool
+	marshal           bool
+	sql               bool
+	flag              bool
+	names             bool
+	leaveSnakeCase    bool
+	prefix            string
+	sqlNullInt        bool
+	sqlNullStr        bool
+	ptr               bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -66,10 +67,11 @@ type EnumValue struct {
 // templates loaded.
 func NewGenerator() *Generator {
 	g := &Generator{
-		knownTemplates: make(map[string]*template.Template),
-		t:              template.New("generator"),
-		fileSet:        token.NewFileSet(),
-		noPrefix:       false,
+		knownTemplates:    make(map[string]*template.Template),
+		userTemplateNames: make([]string, 0),
+		t:                 template.New("generator"),
+		fileSet:           token.NewFileSet(),
+		noPrefix:          false,
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -163,6 +165,18 @@ func (g *Generator) WithSQLNullStr() *Generator {
 	return g
 }
 
+// WithTemplates is used to provide the filenames of additional templates.
+func (g *Generator) WithTemplates(filenames ...string) *Generator {
+	for _, ut := range template.Must(g.t.ParseFiles(filenames...)).Templates() {
+		if _, ok := g.knownTemplates[ut.Name()]; !ok {
+			g.userTemplateNames = append(g.userTemplateNames, ut.Name())
+		}
+	}
+	g.updateTemplates()
+	sort.Strings(g.userTemplateNames)
+	return g
+}
+
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
 // that can be written to any file desired.  It has already had goimports run on the code before being returned.
 func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
@@ -222,6 +236,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		err = g.t.ExecuteTemplate(vBuff, "enum", data)
 		if err != nil {
 			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+		}
+
+		for _, userTemplateName := range g.userTemplateNames {
+			err = g.t.ExecuteTemplate(vBuff, userTemplateName, data)
+			if err != nil {
+				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q, template: %v", name, userTemplateName))
+			}
 		}
 	}
 
