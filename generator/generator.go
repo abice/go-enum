@@ -168,9 +168,9 @@ func (g *Generator) WithSQLNullStr() *Generator {
 // WithTemplates is used to provide the filenames of additional templates.
 func (g *Generator) WithTemplates(filenames ...string) *Generator {
 	appendUserTemplates := func(t *template.Template) {
-		for _, t := range t.Templates() {
-			if _, ok := g.knownTemplates[t.Name()]; !ok {
-				g.userTemplateNames = append(g.userTemplateNames, t.Name())
+		for _, ut := range t.Templates() {
+			if _, ok := g.knownTemplates[ut.Name()]; !ok {
+				g.userTemplateNames = append(g.userTemplateNames, ut.Name())
 			}
 		}
 		g.updateTemplates()
