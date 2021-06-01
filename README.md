@@ -26,20 +26,21 @@ USAGE:
    go-enum [global options] [arguments...]
 
 GLOBAL OPTIONS:
-   --file value, -f value  The file(s) to generate enums.  Use more than one flag for more files.
-   --noprefix              Prevents the constants generated from having the Enum as a prefix. (default: false)
-   --lower                 Adds lowercase variants of the enum strings for lookup. (default: false)
-   --nocase                Adds case insensitive parsing to the enumeration (forces lower flag). (default: false)
-   --marshal               Adds text (and inherently json) marshalling functions. (default: false)
-   --sql                   Adds SQL database scan and value functions. (default: false)
-   --flag                  Adds golang flag functions. (default: false)
-   --prefix value          Replaces the prefix with a user one.
-   --names                 Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
-   --nocamel               Removes the snake_case to CamelCase name changing (default: false)
-   --ptr                   Adds a pointer method to get a pointer from const values (default: false)
-   --sqlnullint            Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)
-   --sqlnullstr            Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
-   --help, -h              show help (default: false)
+   --file value, -f value      The file(s) to generate enums.  Use more than one flag for more files.
+   --noprefix                  Prevents the constants generated from having the Enum as a prefix. (default: false)
+   --lower                     Adds lowercase variants of the enum strings for lookup. (default: false)
+   --nocase                    Adds case insensitive parsing to the enumeration (forces lower flag). (default: false)
+   --marshal                   Adds text (and inherently json) marshalling functions. (default: false)
+   --sql                       Adds SQL database scan and value functions. (default: false)
+   --flag                      Adds golang flag functions. (default: false)
+   --prefix value              Replaces the prefix with a user one.
+   --names                     Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
+   --nocamel                   Removes the snake_case to CamelCase name changing (default: false)
+   --ptr                       Adds a pointer method to get a pointer from const values (default: false)
+   --sqlnullint                Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)
+   --sqlnullstr                Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
+   --template value, -t value  Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.
+   --help, -h                  show help (default: false)
 ```
 
 ### Syntax
