@@ -360,7 +360,7 @@ func sanitizeValue(value string) string {
 		return skipHolder
 	}
 
-	name := value
+	name := strings.ReplaceAll(value, "+", "plus")
 
 	// If the start character is not a unicode letter (this check includes the case of '_')
 	// then we need to add an exported prefix, so tack on a 'X' at the beginning
