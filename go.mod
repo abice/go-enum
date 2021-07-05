@@ -1,6 +1,6 @@
 module github.com/abice/go-enum
 
-go 1.12
+go 1.16
 
 require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
