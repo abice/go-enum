@@ -16,7 +16,7 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/labstack/gommon v0.3.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/goveralls v0.0.7
+	github.com/mattn/goveralls v0.0.9
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1
