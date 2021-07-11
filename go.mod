@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/bradleyjkemp/cupaloy v2.2.0+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
@@ -24,7 +24,6 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
-	golang.org/x/sys v0.0.0-20201113233024-12cec1faf1ba // indirect
-	golang.org/x/tools v0.0.0-20201114224030-61ea331ec02b
+	golang.org/x/tools v0.1.1
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
