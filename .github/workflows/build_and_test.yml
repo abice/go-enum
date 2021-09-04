@@ -1,0 +1,35 @@
+name: build and test
+
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go:
+          # Drop support of go 1.12
+          - "1.13"
+          - "1.14"
+          - "1.15"
+          - "1.16"
+    name: run tests with go version ${{ matrix.go }}
+    steps:
+      - name: install go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: make build
+
+      - name: Test
+        run: |
+          make cover
+          if [[ -n "$COVERALLS_TOKEN" ]]; then
+            make coveralls
+          fi
