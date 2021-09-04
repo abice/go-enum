@@ -1,6 +1,6 @@
 # go-enum
 
-[![Actions Status](https://github.com/abice/go-enum/workflows/build_and_test/badge.svg)](https://github.com/abice/go-enum/actions)
+[![Actions Status](https://github.com/abice/go-enum/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/abice/go-enum/actions/workflows/build_and_test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/abice/go-enum)](https://goreportcard.com/report/github.com/abice/go-enum)
 [![Coverage Status](https://coveralls.io/repos/github/abice/go-enum/badge.svg)](https://coveralls.io/github/abice/go-enum)
 [![GoDoc](https://godoc.org/github.com/abice/go-enum?status.svg)](https://godoc.org/github.com/abice/go-enum)
