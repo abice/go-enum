@@ -6,12 +6,22 @@ else
 endif
 
 GO ?= GO111MODULE=on go
-COVERAGEDIR = coverage
+COVERAGEDIR= coverage
 SERVICE=local
-ifdef CIRCLE_WORKING_DIRECTORY
-  COVERAGEDIR = $(CIRCLE_WORKING_DIRECTORY)/coverage
-	SERVICE=circle-ci
+
+ifdef GITHUB_ACTIONS
+SERVICE=github-actions
 endif
+
+DATE := $(shell date -u '+%FT%T%z')
+GITHUB_SHA ?= $(shell git rev-parse HEAD)
+GITHUB_REF ?= local
+
+LDFLAGS += -X "main.version=$(GITHUB_REF)"
+LDFLAGS += -X "main.commit=$(GITHUB_SHA)"
+LDFLAGS += -X "main.date=$(DATE)"
+LDFLAGS += -X "main.builtBy=$(USER)"
+LDFLAGS += -extldflags '-static'
 
 define goinstall
 	mkdir -p $(shell pwd)/bin
@@ -23,10 +33,11 @@ GOBINDATA=bin/go-bindata
 GOIMPORTS=bin/goimports
 GOVERALLS=bin/goveralls
 MOCKGEN=bin/mockgen
+GORELEASER=bin/goreleaser
 deps: $(MOCKGEN)
 deps: $(GOBINDATA)
 deps: $(GOIMPORTS)
-deps: $(GOVERALLS)
+deps: $(GORELEASER)
 
 PACKAGES='./generator' './example'
 
@@ -36,7 +47,7 @@ all: build fmt test example cover install
 build: deps
 	$(GO) generate ./generator
 	if [ ! -d bin ]; then mkdir bin; fi
-	$(GO) build -v -o bin/go-enum .
+	$(GO) build -v -o bin/go-enum -ldflags='-X "main.version=example" -X "main.commit=example" -X "main.date=example" -X "main.builtBy=example"'  .
 
 fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
@@ -56,6 +67,7 @@ clean:
 	rm -f bin/go-enum
 	rm -rf coverage/
 	rm -rf bin/
+	rm -rf dist/
 
 .PHONY: generate
 generate:
@@ -84,3 +96,10 @@ bin/goveralls: go.sum
 
 bin/go-bindata: go.sum
 	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
+
+bin/goreleaser: go.sum go.mod
+	$(call goinstall,github.com/goreleaser/goreleaser)
+
+.PHONY: release
+release: $(GORELEASER)
+	$(GORELEASER) release --snapshot --skip-publish --rm-dist

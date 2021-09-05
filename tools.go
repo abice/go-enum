@@ -5,6 +5,7 @@ package main
 import (
 	_ "github.com/golang/mock/mockgen"
 	_ "github.com/golang/mock/mockgen/model"
+	_ "github.com/goreleaser/goreleaser"
 	_ "github.com/kevinburke/go-bindata/go-bindata"
 	_ "github.com/mattn/goveralls"
 	_ "golang.org/x/tools/cmd/cover"

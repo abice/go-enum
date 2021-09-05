@@ -38,3 +38,8 @@ jobs:
           if [[ -n "$COVERALLS_TOKEN" ]]; then
             make coveralls
           fi
+      - name: Upload coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage.*

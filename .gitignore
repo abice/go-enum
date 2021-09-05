@@ -18,3 +18,5 @@
 vendor/
 coverage.out
 coverage.html
+
+dist/

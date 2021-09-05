@@ -13,6 +13,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var (
+	version string
+	commit  string
+	date    string
+	builtBy string
+)
+
 type rootT struct {
 	FileNames         cli.StringSlice
 	NoPrefix          bool
@@ -121,6 +128,10 @@ func main() {
 			for _, fileOption := range argv.FileNames.Value() {
 
 				g := generator.NewGenerator()
+				g.Version = version
+				g.Revision = commit
+				g.BuildDate = date
+				g.BuiltBy = builtBy
 
 				if argv.NoPrefix {
 					g.WithNoPrefix()
