@@ -25,6 +25,10 @@ const (
 
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
+	Version           string
+	Revision          string
+	BuildDate         string
+	BuiltBy           string
 	t                 *template.Template
 	knownTemplates    map[string]*template.Template
 	userTemplateNames []string
@@ -64,6 +68,10 @@ type EnumValue struct {
 // templates loaded.
 func NewGenerator() *Generator {
 	g := &Generator{
+		Version:           "-",
+		Revision:          "-",
+		BuildDate:         "-",
+		BuiltBy:           "-",
 		knownTemplates:    make(map[string]*template.Template),
 		userTemplateNames: make([]string, 0),
 		t:                 template.New("generator"),
@@ -193,7 +201,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 	pkg := f.Name.Name
 
 	vBuff := bytes.NewBuffer([]byte{})
-	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg})
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{
+		"package":   pkg,
+		"version":   g.Version,
+		"revision":  g.Revision,
+		"buildDate": g.BuildDate,
+		"builtBy":   g.BuiltBy,
+	})
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed writing header")
 	}
