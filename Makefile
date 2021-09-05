@@ -33,11 +33,9 @@ GOBINDATA=bin/go-bindata
 GOIMPORTS=bin/goimports
 GOVERALLS=bin/goveralls
 MOCKGEN=bin/mockgen
-GORELEASER=bin/goreleaser
 deps: $(MOCKGEN)
 deps: $(GOBINDATA)
 deps: $(GOIMPORTS)
-deps: $(GORELEASER)
 
 PACKAGES='./generator' './example'
 
@@ -96,10 +94,3 @@ bin/goveralls: go.sum
 
 bin/go-bindata: go.sum
 	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
-
-bin/goreleaser: go.sum go.mod
-	$(call goinstall,github.com/goreleaser/goreleaser)
-
-.PHONY: release
-release: $(GORELEASER)
-	$(GORELEASER) release --snapshot --skip-publish --rm-dist
