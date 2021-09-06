@@ -131,3 +131,59 @@ func TestCustomPrefixExampleFile(t *testing.T) {
 		fmt.Println(string(imported))
 	}
 }
+
+func TestAliasParsing(t *testing.T) {
+	tests := map[string]struct {
+		input        []string
+		resultingMap map[string]string
+		err          error
+	}{
+		"no aliases": {
+			resultingMap: map[string]string{},
+		},
+		"multiple arrays": {
+			input: []string{
+				`!:Bang,a:a`,
+				`@:AT`,
+				`&:AND,|:OR`,
+			},
+			resultingMap: map[string]string{
+				"a": "a",
+				"!": "Bang",
+				"@": "AT",
+				"&": "AND",
+				"|": "OR",
+			},
+		},
+		"more types": {
+			input: []string{
+				`*:star,+:PLUS`,
+				`-:less`,
+				`#:HASH,!:Bang`,
+			},
+			resultingMap: map[string]string{
+				"*": "star",
+				"+": "PLUS",
+				"-": "less",
+				"#": "HASH",
+				"!": "Bang",
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			defer func() {
+				replacementNames = map[string]string{}
+			}()
+			err := ParseAliases(tc.input)
+			if tc.err != nil {
+				require.Error(t, err)
+				require.EqualError(t, err, tc.err.Error())
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.resultingMap, replacementNames)
+			}
+		})
+	}
+}

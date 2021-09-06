@@ -17,14 +17,20 @@ const (
 	AnimalDog
 	// AnimalFish is a Animal of type Fish.
 	AnimalFish
+	// AnimalFishPlusPlus is a Animal of type Fish++.
+	AnimalFishPlusPlus
+	// AnimalFishSharp is a Animal of type Fish#.
+	AnimalFishSharp
 )
 
-const _AnimalName = "CatDogFish"
+const _AnimalName = "CatDogFishFish++Fish#"
 
 var _AnimalMap = map[Animal]string{
 	0: _AnimalName[0:3],
 	1: _AnimalName[3:6],
 	2: _AnimalName[6:10],
+	3: _AnimalName[10:16],
+	4: _AnimalName[16:21],
 }
 
 // String implements the Stringer interface.
@@ -36,9 +42,11 @@ func (x Animal) String() string {
 }
 
 var _AnimalValue = map[string]Animal{
-	_AnimalName[0:3]:  0,
-	_AnimalName[3:6]:  1,
-	_AnimalName[6:10]: 2,
+	_AnimalName[0:3]:   0,
+	_AnimalName[3:6]:   1,
+	_AnimalName[6:10]:  2,
+	_AnimalName[10:16]: 3,
+	_AnimalName[16:21]: 4,
 }
 
 // ParseAnimal attempts to convert a string to a Animal
