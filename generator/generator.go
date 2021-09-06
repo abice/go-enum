@@ -1,5 +1,3 @@
-//go:generate ../bin/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
-
 package generator
 
 import (
@@ -16,7 +14,6 @@ import (
 	"unicode"
 
 	"github.com/Masterminds/sprig"
-	"github.com/abice/go-enum/generator/assets"
 	"github.com/pkg/errors"
 	"golang.org/x/tools/imports"
 )
@@ -28,6 +25,10 @@ const (
 
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
+	Version           string
+	Revision          string
+	BuildDate         string
+	BuiltBy           string
 	t                 *template.Template
 	knownTemplates    map[string]*template.Template
 	userTemplateNames []string
@@ -67,6 +68,10 @@ type EnumValue struct {
 // templates loaded.
 func NewGenerator() *Generator {
 	g := &Generator{
+		Version:           "-",
+		Revision:          "-",
+		BuildDate:         "-",
+		BuiltBy:           "-",
 		knownTemplates:    make(map[string]*template.Template),
 		userTemplateNames: make([]string, 0),
 		t:                 template.New("generator"),
@@ -83,9 +88,7 @@ func NewGenerator() *Generator {
 
 	g.t.Funcs(funcs)
 
-	for _, asset := range assets.AssetNames() {
-		g.t = template.Must(g.t.Parse(string(assets.MustAsset(asset))))
-	}
+	g.addEmbeddedTemplates()
 
 	g.updateTemplates()
 
@@ -198,7 +201,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 	pkg := f.Name.Name
 
 	vBuff := bytes.NewBuffer([]byte{})
-	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg})
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{
+		"package":   pkg,
+		"version":   g.Version,
+		"revision":  g.Revision,
+		"buildDate": g.BuildDate,
+		"builtBy":   g.BuiltBy,
+	})
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed writing header")
 	}
