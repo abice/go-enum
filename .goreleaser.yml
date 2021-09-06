@@ -1,4 +1,3 @@
-# Make sure to check the documentation at http://goreleaser.com
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -13,12 +12,22 @@ builds:
       - windows
       - darwin
 
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+
 archives:
-  - format_overrides:
-      - goos: windows
-        format: zip
+  # Distribute just the binaries by default
+  - format: binary
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+
 snapshot:
-  name_template: "{{ incpatch .Version }}-dev"
+  name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
