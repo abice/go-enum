@@ -1,4 +1,3 @@
-# This is an example .goreleaser.yml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 before:
   hooks:
@@ -15,16 +14,11 @@ builds:
       - darwin
 
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-checksum:
-  name_template: "checksums.txt"
+  - format_overrides:
+      - goos: windows
+        format: zip
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  name_template: "{{ incpatch .Version }}-dev"
 changelog:
   sort: asc
   filters:
