@@ -23,6 +23,10 @@ const (
 	parseCommentPrefix = `//`
 )
 
+var (
+	replacementNames = map[string]string{}
+)
+
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
 	Version           string
@@ -166,6 +170,28 @@ func (g *Generator) WithSQLNullInt() *Generator {
 func (g *Generator) WithSQLNullStr() *Generator {
 	g.sqlNullStr = true
 	return g
+}
+
+// ParseAliases is used to add aliases to replace during name sanitization.
+func ParseAliases(aliases []string) error {
+	aliasMap := map[string]string{}
+
+	for _, str := range aliases {
+		kvps := strings.Split(str, ",")
+		for _, kvp := range kvps {
+			parts := strings.Split(kvp, ":")
+			if len(parts) != 2 {
+				return fmt.Errorf("invalid formatted alias entry %q, must be in the format \"key:value\"", kvp)
+			}
+			aliasMap[parts[0]] = parts[1]
+		}
+	}
+
+	for k, v := range aliasMap {
+		replacementNames[k] = v
+	}
+
+	return nil
 }
 
 // WithTemplates is used to provide the filenames of additional templates.
@@ -370,6 +396,10 @@ func sanitizeValue(value string) string {
 	}
 
 	name := value
+
+	for k, v := range replacementNames {
+		name = strings.ReplaceAll(name, k, v)
+	}
 
 	// If the start character is not a unicode letter (this check includes the case of '_')
 	// then we need to add an exported prefix, so tack on a 'X' at the beginning

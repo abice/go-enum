@@ -35,6 +35,7 @@ type rootT struct {
 	SQLNullInt        bool
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
+	Aliases           cli.StringSlice
 }
 
 func main() {
@@ -49,6 +50,7 @@ func main() {
 		Name:            "go-enum",
 		Usage:           "An enum generator for go",
 		HideHelpCommand: true,
+		Version:         version,
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
 				Name:        "file",
@@ -123,8 +125,17 @@ func main() {
 				Usage:       "Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.",
 				Destination: &argv.TemplateFileNames,
 			},
+			&cli.StringSliceFlag{
+				Name:        "alias",
+				Aliases:     []string{"a"},
+				Usage:       "Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be \"key:value,key2:value2\", or specify multiple entries, or both!]",
+				Destination: &argv.Aliases,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
+				return err
+			}
 			for _, fileOption := range argv.FileNames.Value() {
 
 				g := generator.NewGenerator()

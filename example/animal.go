@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE
+//go:generate ../bin/go-enum -f=$GOFILE -a "+:Plus,#:Sharp"
 
 package example
 
@@ -6,5 +6,7 @@ package example
 // Cat,
 // Dog,
 // Fish
+// Fish++
+// Fish#
 // )
 type Animal int32
