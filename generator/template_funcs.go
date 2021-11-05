@@ -22,7 +22,7 @@ func Mapify(e Enum) (ret string, err error) {
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
 			nextIndex := index + len(val.Name)
-			ret = fmt.Sprintf("%s%d: %s[%d:%d],\n", ret, val.Value, strName, index, nextIndex)
+			ret = fmt.Sprintf("%s%s: %s[%d:%d],\n", ret, val.PrefixedName, strName, index, nextIndex)
 			index = nextIndex
 		}
 	}
@@ -38,9 +38,9 @@ func Unmapify(e Enum, lowercase bool) (ret string, err error) {
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
 			nextIndex := index + len(val.Name)
-			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
+			ret = fmt.Sprintf("%s%s[%d:%d]: %s,\n", ret, strName, index, nextIndex, val.PrefixedName)
 			if lowercase {
-				ret = fmt.Sprintf("%sstrings.ToLower(%s[%d:%d]): %d,\n", ret, strName, index, nextIndex, val.Value)
+				ret = fmt.Sprintf("%sstrings.ToLower(%s[%d:%d]): %s,\n", ret, strName, index, nextIndex, val.PrefixedName)
 			}
 			index = nextIndex
 		}

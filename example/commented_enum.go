@@ -25,9 +25,9 @@ const (
 const _CommentedName = "value1value2value3"
 
 var _CommentedMap = map[Commented]string{
-	0: _CommentedName[0:6],
-	1: _CommentedName[6:12],
-	2: _CommentedName[12:18],
+	CommentedValue1: _CommentedName[0:6],
+	CommentedValue2: _CommentedName[6:12],
+	CommentedValue3: _CommentedName[12:18],
 }
 
 // String implements the Stringer interface.
@@ -39,12 +39,12 @@ func (x Commented) String() string {
 }
 
 var _CommentedValue = map[string]Commented{
-	_CommentedName[0:6]:                    0,
-	strings.ToLower(_CommentedName[0:6]):   0,
-	_CommentedName[6:12]:                   1,
-	strings.ToLower(_CommentedName[6:12]):  1,
-	_CommentedName[12:18]:                  2,
-	strings.ToLower(_CommentedName[12:18]): 2,
+	_CommentedName[0:6]:                    CommentedValue1,
+	strings.ToLower(_CommentedName[0:6]):   CommentedValue1,
+	_CommentedName[6:12]:                   CommentedValue2,
+	strings.ToLower(_CommentedName[6:12]):  CommentedValue2,
+	_CommentedName[12:18]:                  CommentedValue3,
+	strings.ToLower(_CommentedName[12:18]): CommentedValue3,
 }
 
 // ParseCommented attempts to convert a string to a Commented
@@ -88,9 +88,9 @@ const (
 const _ComplexCommentedName = "value1value2value3"
 
 var _ComplexCommentedMap = map[ComplexCommented]string{
-	1: _ComplexCommentedName[0:6],
-	2: _ComplexCommentedName[6:12],
-	3: _ComplexCommentedName[12:18],
+	ComplexCommentedValue1: _ComplexCommentedName[0:6],
+	ComplexCommentedValue2: _ComplexCommentedName[6:12],
+	ComplexCommentedValue3: _ComplexCommentedName[12:18],
 }
 
 // String implements the Stringer interface.
@@ -102,12 +102,12 @@ func (x ComplexCommented) String() string {
 }
 
 var _ComplexCommentedValue = map[string]ComplexCommented{
-	_ComplexCommentedName[0:6]:                    1,
-	strings.ToLower(_ComplexCommentedName[0:6]):   1,
-	_ComplexCommentedName[6:12]:                   2,
-	strings.ToLower(_ComplexCommentedName[6:12]):  2,
-	_ComplexCommentedName[12:18]:                  3,
-	strings.ToLower(_ComplexCommentedName[12:18]): 3,
+	_ComplexCommentedName[0:6]:                    ComplexCommentedValue1,
+	strings.ToLower(_ComplexCommentedName[0:6]):   ComplexCommentedValue1,
+	_ComplexCommentedName[6:12]:                   ComplexCommentedValue2,
+	strings.ToLower(_ComplexCommentedName[6:12]):  ComplexCommentedValue2,
+	_ComplexCommentedName[12:18]:                  ComplexCommentedValue3,
+	strings.ToLower(_ComplexCommentedName[12:18]): ComplexCommentedValue3,
 }
 
 // ParseComplexCommented attempts to convert a string to a ComplexCommented

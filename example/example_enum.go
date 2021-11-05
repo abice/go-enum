@@ -80,17 +80,17 @@ func MakeNames() []string {
 }
 
 var _MakeMap = map[Make]string{
-	0:  _MakeName[0:6],
-	2:  _MakeName[6:11],
-	4:  _MakeName[11:15],
-	6:  _MakeName[15:20],
-	8:  _MakeName[20:27],
-	10: _MakeName[27:33],
-	12: _MakeName[33:39],
-	14: _MakeName[39:43],
-	16: _MakeName[43:46],
-	18: _MakeName[46:59],
-	20: _MakeName[59:69],
+	MakeToyota:       _MakeName[0:6],
+	MakeChevy:        _MakeName[6:11],
+	MakeFord:         _MakeName[11:15],
+	MakeTesla:        _MakeName[15:20],
+	MakeHyundai:      _MakeName[20:27],
+	MakeNissan:       _MakeName[27:33],
+	MakeJaguar:       _MakeName[33:39],
+	MakeAudi:         _MakeName[39:43],
+	MakeBMW:          _MakeName[43:46],
+	MakeMercedesBenz: _MakeName[46:59],
+	MakeVolkswagon:   _MakeName[59:69],
 }
 
 // String implements the Stringer interface.
@@ -102,28 +102,28 @@ func (x Make) String() string {
 }
 
 var _MakeValue = map[string]Make{
-	_MakeName[0:6]:                    0,
-	strings.ToLower(_MakeName[0:6]):   0,
-	_MakeName[6:11]:                   2,
-	strings.ToLower(_MakeName[6:11]):  2,
-	_MakeName[11:15]:                  4,
-	strings.ToLower(_MakeName[11:15]): 4,
-	_MakeName[15:20]:                  6,
-	strings.ToLower(_MakeName[15:20]): 6,
-	_MakeName[20:27]:                  8,
-	strings.ToLower(_MakeName[20:27]): 8,
-	_MakeName[27:33]:                  10,
-	strings.ToLower(_MakeName[27:33]): 10,
-	_MakeName[33:39]:                  12,
-	strings.ToLower(_MakeName[33:39]): 12,
-	_MakeName[39:43]:                  14,
-	strings.ToLower(_MakeName[39:43]): 14,
-	_MakeName[43:46]:                  16,
-	strings.ToLower(_MakeName[43:46]): 16,
-	_MakeName[46:59]:                  18,
-	strings.ToLower(_MakeName[46:59]): 18,
-	_MakeName[59:69]:                  20,
-	strings.ToLower(_MakeName[59:69]): 20,
+	_MakeName[0:6]:                    MakeToyota,
+	strings.ToLower(_MakeName[0:6]):   MakeToyota,
+	_MakeName[6:11]:                   MakeChevy,
+	strings.ToLower(_MakeName[6:11]):  MakeChevy,
+	_MakeName[11:15]:                  MakeFord,
+	strings.ToLower(_MakeName[11:15]): MakeFord,
+	_MakeName[15:20]:                  MakeTesla,
+	strings.ToLower(_MakeName[15:20]): MakeTesla,
+	_MakeName[20:27]:                  MakeHyundai,
+	strings.ToLower(_MakeName[20:27]): MakeHyundai,
+	_MakeName[27:33]:                  MakeNissan,
+	strings.ToLower(_MakeName[27:33]): MakeNissan,
+	_MakeName[33:39]:                  MakeJaguar,
+	strings.ToLower(_MakeName[33:39]): MakeJaguar,
+	_MakeName[39:43]:                  MakeAudi,
+	strings.ToLower(_MakeName[39:43]): MakeAudi,
+	_MakeName[43:46]:                  MakeBMW,
+	strings.ToLower(_MakeName[43:46]): MakeBMW,
+	_MakeName[46:59]:                  MakeMercedesBenz,
+	strings.ToLower(_MakeName[46:59]): MakeMercedesBenz,
+	_MakeName[59:69]:                  MakeVolkswagon,
+	strings.ToLower(_MakeName[59:69]): MakeVolkswagon,
 }
 
 // ParseMake attempts to convert a string to a Make
@@ -205,12 +205,12 @@ func NoZerosNames() []string {
 }
 
 var _NoZerosMap = map[NoZeros]string{
-	20: _NoZerosName[0:5],
-	21: _NoZerosName[5:11],
-	22: _NoZerosName[11:14],
-	23: _NoZerosName[14:16],
-	24: _NoZerosName[16:19],
-	25: _NoZerosName[19:23],
+	NoZerosStart:  _NoZerosName[0:5],
+	NoZerosMiddle: _NoZerosName[5:11],
+	NoZerosEnd:    _NoZerosName[11:14],
+	NoZerosPs:     _NoZerosName[14:16],
+	NoZerosPps:    _NoZerosName[16:19],
+	NoZerosPpps:   _NoZerosName[19:23],
 }
 
 // String implements the Stringer interface.
@@ -222,18 +222,18 @@ func (x NoZeros) String() string {
 }
 
 var _NoZerosValue = map[string]NoZeros{
-	_NoZerosName[0:5]:                    20,
-	strings.ToLower(_NoZerosName[0:5]):   20,
-	_NoZerosName[5:11]:                   21,
-	strings.ToLower(_NoZerosName[5:11]):  21,
-	_NoZerosName[11:14]:                  22,
-	strings.ToLower(_NoZerosName[11:14]): 22,
-	_NoZerosName[14:16]:                  23,
-	strings.ToLower(_NoZerosName[14:16]): 23,
-	_NoZerosName[16:19]:                  24,
-	strings.ToLower(_NoZerosName[16:19]): 24,
-	_NoZerosName[19:23]:                  25,
-	strings.ToLower(_NoZerosName[19:23]): 25,
+	_NoZerosName[0:5]:                    NoZerosStart,
+	strings.ToLower(_NoZerosName[0:5]):   NoZerosStart,
+	_NoZerosName[5:11]:                   NoZerosMiddle,
+	strings.ToLower(_NoZerosName[5:11]):  NoZerosMiddle,
+	_NoZerosName[11:14]:                  NoZerosEnd,
+	strings.ToLower(_NoZerosName[11:14]): NoZerosEnd,
+	_NoZerosName[14:16]:                  NoZerosPs,
+	strings.ToLower(_NoZerosName[14:16]): NoZerosPs,
+	_NoZerosName[16:19]:                  NoZerosPps,
+	strings.ToLower(_NoZerosName[16:19]): NoZerosPps,
+	_NoZerosName[19:23]:                  NoZerosPpps,
+	strings.ToLower(_NoZerosName[19:23]): NoZerosPpps,
 }
 
 // ParseNoZeros attempts to convert a string to a NoZeros

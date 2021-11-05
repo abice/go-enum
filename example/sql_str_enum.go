@@ -26,10 +26,10 @@ const (
 const _JobStateName = "pendingprocessingcompletedfailed"
 
 var _JobStateMap = map[JobState]string{
-	0: _JobStateName[0:7],
-	1: _JobStateName[7:17],
-	2: _JobStateName[17:26],
-	3: _JobStateName[26:32],
+	JobStatePending:    _JobStateName[0:7],
+	JobStateProcessing: _JobStateName[7:17],
+	JobStateCompleted:  _JobStateName[17:26],
+	JobStateFailed:     _JobStateName[26:32],
 }
 
 // String implements the Stringer interface.
@@ -41,10 +41,10 @@ func (x JobState) String() string {
 }
 
 var _JobStateValue = map[string]JobState{
-	_JobStateName[0:7]:   0,
-	_JobStateName[7:17]:  1,
-	_JobStateName[17:26]: 2,
-	_JobStateName[26:32]: 3,
+	_JobStateName[0:7]:   JobStatePending,
+	_JobStateName[7:17]:  JobStateProcessing,
+	_JobStateName[17:26]: JobStateCompleted,
+	_JobStateName[26:32]: JobStateFailed,
 }
 
 // ParseJobState attempts to convert a string to a JobState

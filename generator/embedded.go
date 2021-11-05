@@ -1,4 +1,5 @@
 //go:generate ../bin/go-bindata -nometadata -o assets/assets.go -pkg=assets enum.tmpl
+//go:build !go1.16
 // +build !go1.16
 
 package generator

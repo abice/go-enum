@@ -28,10 +28,10 @@ const (
 const _ProjectStatusName = "pendinginWorkcompletedrejected"
 
 var _ProjectStatusMap = map[ProjectStatus]string{
-	0: _ProjectStatusName[0:7],
-	1: _ProjectStatusName[7:13],
-	2: _ProjectStatusName[13:22],
-	3: _ProjectStatusName[22:30],
+	ProjectStatusPending:   _ProjectStatusName[0:7],
+	ProjectStatusInWork:    _ProjectStatusName[7:13],
+	ProjectStatusCompleted: _ProjectStatusName[13:22],
+	ProjectStatusRejected:  _ProjectStatusName[22:30],
 }
 
 // String implements the Stringer interface.
@@ -43,10 +43,10 @@ func (x ProjectStatus) String() string {
 }
 
 var _ProjectStatusValue = map[string]ProjectStatus{
-	_ProjectStatusName[0:7]:   0,
-	_ProjectStatusName[7:13]:  1,
-	_ProjectStatusName[13:22]: 2,
-	_ProjectStatusName[22:30]: 3,
+	_ProjectStatusName[0:7]:   ProjectStatusPending,
+	_ProjectStatusName[7:13]:  ProjectStatusInWork,
+	_ProjectStatusName[13:22]: ProjectStatusCompleted,
+	_ProjectStatusName[22:30]: ProjectStatusRejected,
 }
 
 // ParseProjectStatus attempts to convert a string to a ProjectStatus

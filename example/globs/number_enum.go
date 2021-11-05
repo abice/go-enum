@@ -36,16 +36,16 @@ const (
 const _NumberName = "0123456789"
 
 var _NumberMap = map[Number]string{
-	0: _NumberName[0:1],
-	1: _NumberName[1:2],
-	2: _NumberName[2:3],
-	3: _NumberName[3:4],
-	4: _NumberName[4:5],
-	5: _NumberName[5:6],
-	6: _NumberName[6:7],
-	7: _NumberName[7:8],
-	8: _NumberName[8:9],
-	9: _NumberName[9:10],
+	Number0: _NumberName[0:1],
+	Number1: _NumberName[1:2],
+	Number2: _NumberName[2:3],
+	Number3: _NumberName[3:4],
+	Number4: _NumberName[4:5],
+	Number5: _NumberName[5:6],
+	Number6: _NumberName[6:7],
+	Number7: _NumberName[7:8],
+	Number8: _NumberName[8:9],
+	Number9: _NumberName[9:10],
 }
 
 // String implements the Stringer interface.
@@ -57,16 +57,16 @@ func (x Number) String() string {
 }
 
 var _NumberValue = map[string]Number{
-	_NumberName[0:1]:  0,
-	_NumberName[1:2]:  1,
-	_NumberName[2:3]:  2,
-	_NumberName[3:4]:  3,
-	_NumberName[4:5]:  4,
-	_NumberName[5:6]:  5,
-	_NumberName[6:7]:  6,
-	_NumberName[7:8]:  7,
-	_NumberName[8:9]:  8,
-	_NumberName[9:10]: 9,
+	_NumberName[0:1]:  Number0,
+	_NumberName[1:2]:  Number1,
+	_NumberName[2:3]:  Number2,
+	_NumberName[3:4]:  Number3,
+	_NumberName[4:5]:  Number4,
+	_NumberName[5:6]:  Number5,
+	_NumberName[6:7]:  Number6,
+	_NumberName[7:8]:  Number7,
+	_NumberName[8:9]:  Number8,
+	_NumberName[9:10]: Number9,
 }
 
 // ParseNumber attempts to convert a string to a Number
