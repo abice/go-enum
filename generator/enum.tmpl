@@ -28,6 +28,18 @@ const (
 
 {{ template "stringer" . }}
 
+var _{{.enum.Name}}Map = {{ mapify .enum }}
+
+// String implements the Stringer interface.
+func (x {{.enum.Name}}) String() string {
+	if str, ok := _{{.enum.Name}}Map[x]; ok {
+		return str
+	}
+	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
+}
+
+var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
+
 // Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
@@ -314,17 +326,5 @@ func {{.enum.Name}}Names() []string {
 	return tmp
 }
 {{ end -}}
-
-var _{{.enum.Name}}Map = {{ mapify .enum }}
-
-// String implements the Stringer interface.
-func (x {{.enum.Name}}) String() string {
-	if str, ok := _{{.enum.Name}}Map[x]; ok {
-		return str
-	}
-	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
-}
-
-var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
 {{end}}

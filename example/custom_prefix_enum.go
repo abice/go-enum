@@ -22,9 +22,9 @@ const (
 const _ProductName = "AnvilDynamiteGlue"
 
 var _ProductMap = map[Product]string{
-	0: _ProductName[0:5],
-	1: _ProductName[5:13],
-	2: _ProductName[13:17],
+	AcmeIncProductAnvil:    _ProductName[0:5],
+	AcmeIncProductDynamite: _ProductName[5:13],
+	AcmeIncProductGlue:     _ProductName[13:17],
 }
 
 // String implements the Stringer interface.
@@ -36,9 +36,9 @@ func (x Product) String() string {
 }
 
 var _ProductValue = map[string]Product{
-	_ProductName[0:5]:   0,
-	_ProductName[5:13]:  1,
-	_ProductName[13:17]: 2,
+	_ProductName[0:5]:   AcmeIncProductAnvil,
+	_ProductName[5:13]:  AcmeIncProductDynamite,
+	_ProductName[13:17]: AcmeIncProductGlue,
 }
 
 // ParseProduct attempts to convert a string to a Product

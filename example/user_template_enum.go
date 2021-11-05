@@ -22,9 +22,9 @@ const (
 const _OceanColorName = "CeruleanBlueGreen"
 
 var _OceanColorMap = map[OceanColor]string{
-	0: _OceanColorName[0:8],
-	1: _OceanColorName[8:12],
-	2: _OceanColorName[12:17],
+	OceanColorCerulean: _OceanColorName[0:8],
+	OceanColorBlue:     _OceanColorName[8:12],
+	OceanColorGreen:    _OceanColorName[12:17],
 }
 
 // String implements the Stringer interface.
@@ -36,9 +36,9 @@ func (x OceanColor) String() string {
 }
 
 var _OceanColorValue = map[string]OceanColor{
-	_OceanColorName[0:8]:   0,
-	_OceanColorName[8:12]:  1,
-	_OceanColorName[12:17]: 2,
+	_OceanColorName[0:8]:   OceanColorCerulean,
+	_OceanColorName[8:12]:  OceanColorBlue,
+	_OceanColorName[12:17]: OceanColorGreen,
 }
 
 // ParseOceanColor attempts to convert a string to a OceanColor

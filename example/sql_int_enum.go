@@ -29,11 +29,11 @@ const (
 const _ImageTypeName = "jpegjpgpngtiffgif"
 
 var _ImageTypeMap = map[ImageType]string{
-	0: _ImageTypeName[0:4],
-	1: _ImageTypeName[4:7],
-	2: _ImageTypeName[7:10],
-	3: _ImageTypeName[10:14],
-	4: _ImageTypeName[14:17],
+	ImageTypeJpeg: _ImageTypeName[0:4],
+	ImageTypeJpg:  _ImageTypeName[4:7],
+	ImageTypePng:  _ImageTypeName[7:10],
+	ImageTypeTiff: _ImageTypeName[10:14],
+	ImageTypeGif:  _ImageTypeName[14:17],
 }
 
 // String implements the Stringer interface.
@@ -45,11 +45,11 @@ func (x ImageType) String() string {
 }
 
 var _ImageTypeValue = map[string]ImageType{
-	_ImageTypeName[0:4]:   0,
-	_ImageTypeName[4:7]:   1,
-	_ImageTypeName[7:10]:  2,
-	_ImageTypeName[10:14]: 3,
-	_ImageTypeName[14:17]: 4,
+	_ImageTypeName[0:4]:   ImageTypeJpeg,
+	_ImageTypeName[4:7]:   ImageTypeJpg,
+	_ImageTypeName[7:10]:  ImageTypePng,
+	_ImageTypeName[10:14]: ImageTypeTiff,
+	_ImageTypeName[14:17]: ImageTypeGif,
 }
 
 // ParseImageType attempts to convert a string to a ImageType
