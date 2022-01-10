@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/bradleyjkemp/cupaloy v2.2.0+incompatible
+	github.com/bradleyjkemp/cupaloy v2.3.0+incompatible
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.2.0 // indirect
