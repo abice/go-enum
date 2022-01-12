@@ -56,6 +56,17 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	{{- end}}
 }
 
+{{ if .must }}
+// MustParse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
+func MustParse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
+	x, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+	    panic(err)
+	}
+	return err
+}
+{{end}}
+
 {{ if .ptr }}
 func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
 	return &x
