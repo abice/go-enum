@@ -34,6 +34,7 @@ type rootT struct {
 	SQLNullStr        bool
 	SQLNullInt        bool
 	Ptr               bool
+	Must              bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
 }
@@ -110,6 +111,11 @@ func main() {
 				Destination: &argv.Ptr,
 			},
 			&cli.BoolFlag{
+				Name:        "must",
+				Usage:       "Adds a panicking parse function",
+				Destination: &argv.Must,
+			},			
+			&cli.BoolFlag{
 				Name:        "sqlnullint",
 				Usage:       "Adds a Null{{ENUM}} type for marshalling a nullable int value to sql",
 				Destination: &argv.SQLNullInt,
@@ -173,6 +179,9 @@ func main() {
 				}
 				if argv.Ptr {
 					g.WithPtr()
+				}
+				if argv.Must {
+					g.WithMust()
 				}
 				if argv.SQLNullInt {
 					g.WithSQLNullInt()

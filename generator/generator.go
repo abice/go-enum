@@ -49,6 +49,7 @@ type Generator struct {
 	sqlNullInt        bool
 	sqlNullStr        bool
 	ptr               bool
+	must              bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -160,6 +161,12 @@ func (g *Generator) WithPtr() *Generator {
 	return g
 }
 
+// WithMust adds a way to add a panicing parse conversion function to the cnum.
+func (g *Generator) WithMust() *Generator {
+	g.must = true
+	return g
+}
+
 // WithSQLNullInt is used to add a null int option for SQL interactions.
 func (g *Generator) WithSQLNullInt() *Generator {
 	g.sqlNullInt = true
@@ -264,6 +271,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"flag":       g.flag,
 			"names":      g.names,
 			"ptr":        g.ptr,
+			"must":       g.must,
 			"sqlnullint": g.sqlNullInt,
 			"sqlnullstr": g.sqlNullStr,
 		}
