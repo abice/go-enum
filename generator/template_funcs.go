@@ -2,13 +2,18 @@ package generator
 
 import (
 	"fmt"
+	"strings"
 )
 
 // Stringify returns a string that is all of the enum value names concatenated without a separator
-func Stringify(e Enum) (ret string, err error) {
+func Stringify(e Enum, forceLower bool) (ret string, err error) {
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
-			ret = ret + val.RawName
+			next := val.RawName
+			if forceLower {
+				next = strings.ToLower(next)
+			}
+			ret = ret + next
 		}
 	}
 	return

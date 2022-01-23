@@ -52,7 +52,7 @@ var _ImageTypeValue = map[string]ImageType{
 	_ImageTypeName[14:17]: ImageTypeGif,
 }
 
-// ParseImageType attempts to convert a string to a ImageType
+// ParseImageType attempts to convert a string to a ImageType.
 func ParseImageType(name string) (ImageType, error) {
 	if x, ok := _ImageTypeValue[name]; ok {
 		return x, nil

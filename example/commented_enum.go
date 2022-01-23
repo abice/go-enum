@@ -47,7 +47,7 @@ var _CommentedValue = map[string]Commented{
 	strings.ToLower(_CommentedName[12:18]): CommentedValue3,
 }
 
-// ParseCommented attempts to convert a string to a Commented
+// ParseCommented attempts to convert a string to a Commented.
 func ParseCommented(name string) (Commented, error) {
 	if x, ok := _CommentedValue[name]; ok {
 		return x, nil
@@ -55,12 +55,12 @@ func ParseCommented(name string) (Commented, error) {
 	return Commented(0), fmt.Errorf("%s is not a valid Commented", name)
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x Commented) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *Commented) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseCommented(name)
@@ -110,7 +110,7 @@ var _ComplexCommentedValue = map[string]ComplexCommented{
 	strings.ToLower(_ComplexCommentedName[12:18]): ComplexCommentedValue3,
 }
 
-// ParseComplexCommented attempts to convert a string to a ComplexCommented
+// ParseComplexCommented attempts to convert a string to a ComplexCommented.
 func ParseComplexCommented(name string) (ComplexCommented, error) {
 	if x, ok := _ComplexCommentedValue[name]; ok {
 		return x, nil
@@ -118,12 +118,12 @@ func ParseComplexCommented(name string) (ComplexCommented, error) {
 	return ComplexCommented(0), fmt.Errorf("%s is not a valid ComplexCommented", name)
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x ComplexCommented) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *ComplexCommented) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseComplexCommented(name)

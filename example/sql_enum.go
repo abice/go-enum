@@ -49,7 +49,7 @@ var _ProjectStatusValue = map[string]ProjectStatus{
 	_ProjectStatusName[22:30]: ProjectStatusRejected,
 }
 
-// ParseProjectStatus attempts to convert a string to a ProjectStatus
+// ParseProjectStatus attempts to convert a string to a ProjectStatus.
 func ParseProjectStatus(name string) (ProjectStatus, error) {
 	if x, ok := _ProjectStatusValue[name]; ok {
 		return x, nil
@@ -61,12 +61,12 @@ func (x ProjectStatus) Ptr() *ProjectStatus {
 	return &x
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x ProjectStatus) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *ProjectStatus) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseProjectStatus(name)

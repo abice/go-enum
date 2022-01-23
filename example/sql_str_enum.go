@@ -47,7 +47,7 @@ var _JobStateValue = map[string]JobState{
 	_JobStateName[26:32]: JobStateFailed,
 }
 
-// ParseJobState attempts to convert a string to a JobState
+// ParseJobState attempts to convert a string to a JobState.
 func ParseJobState(name string) (JobState, error) {
 	if x, ok := _JobStateValue[name]; ok {
 		return x, nil

@@ -86,7 +86,7 @@ var _ColorValue = map[string]Color{
 	strings.ToLower(_ColorName[64:79]): ColorRedOrangeBlue,
 }
 
-// ParseColor attempts to convert a string to a Color
+// ParseColor attempts to convert a string to a Color.
 func ParseColor(name string) (Color, error) {
 	if x, ok := _ColorValue[name]; ok {
 		return x, nil
@@ -94,16 +94,25 @@ func ParseColor(name string) (Color, error) {
 	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
+// MustParseColor converts a string to a Color, and panics if is not valid.
+func MustParseColor(name string) Color {
+	val, err := ParseColor(name)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+
 func (x Color) Ptr() *Color {
 	return &x
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x Color) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *Color) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseColor(name)

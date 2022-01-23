@@ -133,7 +133,7 @@ var _LetterValue = map[string]Letter{
 	_LetterName[25:26]: LetterZ,
 }
 
-// ParseLetter attempts to convert a string to a Letter
+// ParseLetter attempts to convert a string to a Letter.
 func ParseLetter(name string) (Letter, error) {
 	if x, ok := _LetterValue[name]; ok {
 		return x, nil

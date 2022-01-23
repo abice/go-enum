@@ -49,6 +49,8 @@ type Generator struct {
 	sqlNullInt        bool
 	sqlNullStr        bool
 	ptr               bool
+	mustParse         bool
+	forceLower        bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -172,6 +174,18 @@ func (g *Generator) WithSQLNullStr() *Generator {
 	return g
 }
 
+// WithMustParse is used to add a method `MustParse` that will panic on failure.
+func (g *Generator) WithMustParse() *Generator {
+	g.mustParse = true
+	return g
+}
+
+// WithForceLower is used to force enums names to lower case while keeping variable names the same.
+func (g *Generator) WithForceLower() *Generator {
+	g.forceLower = true
+	return g
+}
+
 // ParseAliases is used to add aliases to replace during name sanitization.
 func ParseAliases(aliases []string) error {
 	aliasMap := map[string]string{}
@@ -266,6 +280,8 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"ptr":        g.ptr,
 			"sqlnullint": g.sqlNullInt,
 			"sqlnullstr": g.sqlNullStr,
+			"mustparse":  g.mustParse,
+			"forcelower": g.forceLower,
 		}
 
 		err = g.t.ExecuteTemplate(vBuff, "enum", data)

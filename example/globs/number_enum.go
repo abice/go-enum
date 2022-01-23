@@ -69,7 +69,7 @@ var _NumberValue = map[string]Number{
 	_NumberName[9:10]: Number9,
 }
 
-// ParseNumber attempts to convert a string to a Number
+// ParseNumber attempts to convert a string to a Number.
 func ParseNumber(name string) (Number, error) {
 	if x, ok := _NumberValue[name]; ok {
 		return x, nil

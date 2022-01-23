@@ -23,6 +23,12 @@ func TestColorString(t *testing.T) {
 	assert.Equal(t, &x, Color(109).Ptr())
 }
 
+func TestColorMustParse(t *testing.T) {
+	x := `avocadogreen`
+
+	assert.PanicsWithError(t, x+" is not a valid Color", func() { MustParseColor(x) })
+}
+
 func TestColorUnmarshal(t *testing.T) {
 	tests := []struct {
 		name          string
