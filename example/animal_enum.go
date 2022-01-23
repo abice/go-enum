@@ -49,7 +49,7 @@ var _AnimalValue = map[string]Animal{
 	_AnimalName[16:21]: AnimalFishSharp,
 }
 
-// ParseAnimal attempts to convert a string to a Animal
+// ParseAnimal attempts to convert a string to a Animal.
 func ParseAnimal(name string) (Animal, error) {
 	if x, ok := _AnimalValue[name]; ok {
 		return x, nil

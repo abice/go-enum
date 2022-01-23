@@ -126,7 +126,7 @@ var _MakeValue = map[string]Make{
 	strings.ToLower(_MakeName[59:69]): MakeVolkswagon,
 }
 
-// ParseMake attempts to convert a string to a Make
+// ParseMake attempts to convert a string to a Make.
 func ParseMake(name string) (Make, error) {
 	if x, ok := _MakeValue[name]; ok {
 		return x, nil
@@ -138,12 +138,12 @@ func ParseMake(name string) (Make, error) {
 	return Make(0), fmt.Errorf("%s is not a valid Make, try [%s]", name, strings.Join(_MakeNames, ", "))
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x Make) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *Make) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseMake(name)
@@ -236,7 +236,7 @@ var _NoZerosValue = map[string]NoZeros{
 	strings.ToLower(_NoZerosName[19:23]): NoZerosPpps,
 }
 
-// ParseNoZeros attempts to convert a string to a NoZeros
+// ParseNoZeros attempts to convert a string to a NoZeros.
 func ParseNoZeros(name string) (NoZeros, error) {
 	if x, ok := _NoZerosValue[name]; ok {
 		return x, nil
@@ -248,12 +248,12 @@ func ParseNoZeros(name string) (NoZeros, error) {
 	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros, try [%s]", name, strings.Join(_NoZerosNames, ", "))
 }
 
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x NoZeros) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *NoZeros) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := ParseNoZeros(name)

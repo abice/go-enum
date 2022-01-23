@@ -41,7 +41,7 @@ var _ProductValue = map[string]Product{
 	_ProductName[13:17]: AcmeIncProductGlue,
 }
 
-// ParseProduct attempts to convert a string to a Product
+// ParseProduct attempts to convert a string to a Product.
 func ParseProduct(name string) (Product, error) {
 	if x, ok := _ProductValue[name]; ok {
 		return x, nil

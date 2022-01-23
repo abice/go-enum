@@ -40,7 +40,7 @@ func (x {{.enum.Name}}) String() string {
 
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
-// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}
+// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return x, nil
@@ -63,12 +63,12 @@ func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
 {{end}}
 
 {{ if .marshal }}
-// MarshalText implements the text marshaller method
+// MarshalText implements the text marshaller method.
 func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
-// UnmarshalText implements the text unmarshaller method
+// UnmarshalText implements the text unmarshaller method.
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	name := string(text)
 	tmp, err := Parse{{.enum.Name}}(name)

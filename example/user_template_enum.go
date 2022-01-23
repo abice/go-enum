@@ -41,7 +41,7 @@ var _OceanColorValue = map[string]OceanColor{
 	_OceanColorName[12:17]: OceanColorGreen,
 }
 
-// ParseOceanColor attempts to convert a string to a OceanColor
+// ParseOceanColor attempts to convert a string to a OceanColor.
 func ParseOceanColor(name string) (OceanColor, error) {
 	if x, ok := _OceanColorValue[name]; ok {
 		return x, nil
