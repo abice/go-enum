@@ -94,6 +94,15 @@ func ParseColor(name string) (Color, error) {
 	return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
+// MustParseColor converts a string to a Color, and panics if is not valid.
+func MustParseColor(name string) Color {
+	val, err := ParseColor(name)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+
 func (x Color) Ptr() *Color {
 	return &x
 }

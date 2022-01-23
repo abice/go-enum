@@ -5,7 +5,7 @@ else
 .SILENT:
 endif
 
-GO ?= GO111MODULE=on go
+GO ?= CGO_ENABLED=0 GO111MODULE=on go
 COVERAGEDIR= coverage
 SERVICE=local
 
@@ -51,7 +51,7 @@ fmt:
 	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: gen-test generate
-	$(GO) test -v -race -coverprofile=coverage.out ./...
+	$(GO) test -v -coverprofile=coverage.out ./...
 
 cover: gen-test test
 	$(GO) tool cover -html=coverage.out -o coverage.html

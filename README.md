@@ -10,6 +10,48 @@ An enum generator for go
 
 ## How it works
 
+go-enum will take a commented type declaration like this:
+
+```go
+// ENUM(jpeg, jpg, png, tiff, gif)
+type ImageType int
+```
+
+and generate a file with the iota definition along various optional niceties that you may need:
+
+```go
+const (
+	// ImageTypeJpeg is a ImageType of type Jpeg.
+	ImageTypeJpeg ImageType = iota
+	// ImageTypeJpg is a ImageType of type Jpg.
+	ImageTypeJpg
+	// ImageTypePng is a ImageType of type Png.
+	ImageTypePng
+	// ImageTypeTiff is a ImageType of type Tiff.
+	ImageTypeTiff
+	// ImageTypeGif is a ImageType of type Gif.
+	ImageTypeGif
+)
+
+// String implements the Stringer interface.
+func (x ImageType) String() string
+
+// ParseImageType attempts to convert a string to a ImageType.
+func ParseImageType(name string) (ImageType, error)
+
+// MarshalText implements the text marshaller method.
+func (x ImageType) MarshalText() ([]byte, error)
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *ImageType) UnmarshalText(text []byte) error
+```
+
+**Fear not the fact that the `MarshalText` and `UnmarshalText` are generated rather than JSON methods... they will still be utilized by the default JSON encoding methods.**
+
+If you find that the options given are not adequate for your use case, there is an option to add a custom template (`-t` flag) to the processing engine so that your custom code can be created!
+
+## Goal
+
 The goal of go-enum is to create an easy to use enum generator that will take a decorated type declaration like `type EnumName int` and create the associated constant values and funcs that will make life a little easier for adding new values.
 It's not perfect, but I think it's useful.
 

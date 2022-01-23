@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --marshal --lower --ptr
+//go:generate ../bin/go-enum -f=$GOFILE --marshal --lower --ptr --mustparse
 
 package example
 

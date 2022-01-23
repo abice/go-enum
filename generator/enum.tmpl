@@ -56,6 +56,17 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	{{- end}}
 }
 
+{{ if .mustparse }}
+// MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
+func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
+	val, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+{{end}}
+
 {{ if .ptr }}
 func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
 	return &x
@@ -315,7 +326,7 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 
 
 {{- define "stringer"}}
-const _{{.enum.Name}}Name = "{{ stringify .enum }}"
+const _{{.enum.Name}}Name = "{{ stringify .enum .forcelower }}"
 
 {{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
 

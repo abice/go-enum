@@ -36,6 +36,8 @@ type rootT struct {
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
+	MustParse         bool
+	ForceLower        bool
 }
 
 func main() {
@@ -131,6 +133,16 @@ func main() {
 				Usage:       "Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be \"key:value,key2:value2\", or specify multiple entries, or both!]",
 				Destination: &argv.Aliases,
 			},
+			&cli.BoolFlag{
+				Name:        "mustparse",
+				Usage:       "Adds a Must version of the Parse that will panic on failure.",
+				Destination: &argv.MustParse,
+			},
+			&cli.BoolFlag{
+				Name:        "forcelower",
+				Usage:       "Forces a camel cased comment to generate lowercased names.",
+				Destination: &argv.ForceLower,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
@@ -179,6 +191,12 @@ func main() {
 				}
 				if argv.SQLNullStr {
 					g.WithSQLNullStr()
+				}
+				if argv.MustParse {
+					g.WithMustParse()
+				}
+				if argv.ForceLower {
+					g.WithForceLower()
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
 					for _, t := range templates {
