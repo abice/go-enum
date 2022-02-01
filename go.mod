@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/kevinburke/go-bindata v3.22.0+incompatible
+	github.com/kevinburke/go-bindata v3.23.0+incompatible
 	github.com/kr/text v0.2.0 // indirect
 	github.com/labstack/gommon v0.3.1
 	github.com/mattn/goveralls v0.0.11
