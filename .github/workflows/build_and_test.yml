@@ -43,3 +43,6 @@ jobs:
         with:
           name: coverage
           path: coverage.*
+
+      - name: Assert no changes
+        run: make assert-no-changes

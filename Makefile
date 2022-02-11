@@ -67,6 +67,13 @@ clean:
 	rm -rf bin/
 	rm -rf dist/
 
+.PHONY: assert-no-changes
+assert-no-changes:
+	@if [ -n "$(shell git status --porcelain)" ]; then \
+		echo "git changes found: $(shell git status --porcelain)"; \
+		exit 1; \
+	fi
+
 .PHONY: generate
 generate:
 	$(GO) generate $(PACKAGES)
@@ -94,3 +101,6 @@ bin/goveralls: go.sum
 
 bin/go-bindata: go.sum
 	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
+
+generate1_15: generator/assets/assets.go generator/enum.tmpl
+	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
