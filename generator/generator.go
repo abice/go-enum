@@ -66,7 +66,7 @@ type EnumValue struct {
 	RawName      string
 	Name         string
 	PrefixedName string
-	Value        int
+	Value        uint64
 	Comment      string
 }
 
@@ -339,7 +339,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	enumDecl := getEnumDeclFromComments(ts.Doc.List)
 
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
-	data := 0
+	var data uint64
 	for _, value := range values {
 		var comment string
 
@@ -359,11 +359,13 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					newData, err := strconv.ParseInt(dataVal, 10, 32)
+					newData, err := strconv.ParseUint(dataVal, 10, 64)
 					if err != nil {
-						return nil, errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+						err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+						fmt.Println(err)
+						return nil, err
 					}
-					data = int(newData)
+					data = newData
 					value = value[:equalIndex]
 				} else {
 					value = strings.TrimSuffix(value, `=`)
