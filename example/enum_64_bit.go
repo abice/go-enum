@@ -1,4 +1,4 @@
-//go:generate go-enum -f=$GOFILE --ptr --marshal
+//go:generate ../bin/go-enum -f=$GOFILE --ptr --marshal
 
 package example
 
