@@ -1,5 +1,5 @@
-//go:build !go1.18
-// +build !go1.18
+//go:build go1.18
+// +build go1.18
 
 package generator
 
@@ -14,12 +14,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	testExample = `example_test.go`
+var (
+	testExampleFiles = map[string]string{
+		"og":   `example_test.go`,
+		"1.18": `example_1.18_test.go`,
+	}
 )
 
 // TestNoStructInputFile
-func TestNoStructFile(t *testing.T) {
+func Test118NoStructFile(t *testing.T) {
 	input := `package test
 	// Behavior
 	type SomeInterface interface{
@@ -39,7 +42,7 @@ func TestNoStructFile(t *testing.T) {
 }
 
 // TestNoFile
-func TestNoFile(t *testing.T) {
+func Test118NoFile(t *testing.T) {
 	g := NewGenerator().
 		WithoutSnakeToCamel()
 	// Parse the file given in arguments
@@ -48,67 +51,80 @@ func TestNoFile(t *testing.T) {
 }
 
 // TestExampleFile
-func TestExampleFile(t *testing.T) {
+func Test118ExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithSQLDriver().
 		WithCaseInsensitiveParse().
 		WithNames().
 		WithoutSnakeToCamel()
-	// Parse the file given in arguments
-	imported, err := g.GenerateFromFile(testExample)
-	require.Nil(t, err, "Error generating formatted code")
 
-	outputLines := strings.Split(string(imported), "\n")
-	cupaloy.SnapshotT(t, outputLines)
+	for name, testExample := range testExampleFiles {
+		t.Run(name, func(t *testing.T) {
+			// Parse the file given in arguments
+			imported, err := g.GenerateFromFile(testExample)
+			require.Nil(t, err, "Error generating formatted code")
 
-	if false {
-		fmt.Println(string(imported))
+			outputLines := strings.Split(string(imported), "\n")
+			cupaloy.SnapshotT(t, outputLines)
+
+			if false {
+				fmt.Println(string(imported))
+			}
+		})
 	}
 }
 
 // TestExampleFile
-func TestNoPrefixExampleFile(t *testing.T) {
+func Test118NoPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
 		WithNoPrefix().
 		WithFlag().
 		WithoutSnakeToCamel()
-	// Parse the file given in arguments
-	imported, err := g.GenerateFromFile(testExample)
-	require.Nil(t, err, "Error generating formatted code")
+	for name, testExample := range testExampleFiles {
+		t.Run(name, func(t *testing.T) {
+			// Parse the file given in arguments
+			imported, err := g.GenerateFromFile(testExample)
+			require.Nil(t, err, "Error generating formatted code")
 
-	outputLines := strings.Split(string(imported), "\n")
-	cupaloy.SnapshotT(t, outputLines)
+			outputLines := strings.Split(string(imported), "\n")
+			cupaloy.SnapshotT(t, outputLines)
 
-	if false {
-		fmt.Println(string(imported))
+			if false {
+				fmt.Println(string(imported))
+			}
+		})
 	}
 }
 
 // TestExampleFile
-func TestNoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
+func Test118NoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
 		WithNoPrefix().
 		WithFlag()
 
-	// Parse the file given in arguments
-	imported, err := g.GenerateFromFile(testExample)
-	require.Nil(t, err, "Error generating formatted code")
+	for name, testExample := range testExampleFiles {
+		t.Run(name, func(t *testing.T) {
+			// Parse the file given in arguments
+			imported, err := g.GenerateFromFile(testExample)
+			require.Nil(t, err, "Error generating formatted code")
 
-	outputLines := strings.Split(string(imported), "\n")
-	cupaloy.SnapshotT(t, outputLines)
+			outputLines := strings.Split(string(imported), "\n")
+			cupaloy.SnapshotT(t, outputLines)
 
-	if false {
-		fmt.Println(string(imported))
+			if false {
+				fmt.Println(string(imported))
+			}
+		})
 	}
 }
 
 // TestCustomPrefixExampleFile
-func TestCustomPrefixExampleFile(t *testing.T) {
+func Test118CustomPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
 		WithLowercaseVariant().
@@ -119,19 +135,23 @@ func TestCustomPrefixExampleFile(t *testing.T) {
 		WithSQLNullInt().
 		WithSQLNullStr().
 		WithPrefix("Custom_prefix_")
-	// Parse the file given in arguments
-	imported, err := g.GenerateFromFile(testExample)
-	require.Nil(t, err, "Error generating formatted code")
+	for name, testExample := range testExampleFiles {
+		t.Run(name, func(t *testing.T) {
+			// Parse the file given in arguments
+			imported, err := g.GenerateFromFile(testExample)
+			require.Nil(t, err, "Error generating formatted code")
 
-	outputLines := strings.Split(string(imported), "\n")
-	cupaloy.SnapshotT(t, outputLines)
+			outputLines := strings.Split(string(imported), "\n")
+			cupaloy.SnapshotT(t, outputLines)
 
-	if false {
-		fmt.Println(string(imported))
+			if false {
+				fmt.Println(string(imported))
+			}
+		})
 	}
 }
 
-func TestAliasParsing(t *testing.T) {
+func Test118AliasParsing(t *testing.T) {
 	tests := map[string]struct {
 		input        []string
 		resultingMap map[string]string

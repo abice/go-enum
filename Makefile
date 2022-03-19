@@ -48,7 +48,7 @@ build: deps
 	$(GO) build -v -o bin/go-enum -ldflags='-X "main.version=example" -X "main.commit=example" -X "main.date=example" -X "main.builtBy=example"'  .
 
 fmt:
-	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
+	-$(GO) fmt ./...
 
 test: gen-test generate
 	$(GO) test -v -race -coverprofile=coverage.out ./...
