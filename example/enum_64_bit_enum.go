@@ -8,6 +8,7 @@ package example
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -46,6 +47,32 @@ const (
 )
 
 const _Enum64bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30E2P31E2P32E2P33E2P63"
+
+var _Enum64bitNames = []string{
+	_Enum64bitName[0:5],
+	_Enum64bitName[5:10],
+	_Enum64bitName[10:15],
+	_Enum64bitName[15:20],
+	_Enum64bitName[20:25],
+	_Enum64bitName[25:30],
+	_Enum64bitName[30:35],
+	_Enum64bitName[35:40],
+	_Enum64bitName[40:45],
+	_Enum64bitName[45:50],
+	_Enum64bitName[50:55],
+	_Enum64bitName[55:60],
+	_Enum64bitName[60:65],
+	_Enum64bitName[65:70],
+	_Enum64bitName[70:75],
+	_Enum64bitName[75:80],
+}
+
+// Enum64bitNames returns a list of possible string values of Enum64bit.
+func Enum64bitNames() []string {
+	tmp := make([]string, len(_Enum64bitNames))
+	copy(tmp, _Enum64bitNames)
+	return tmp
+}
 
 var _Enum64bitMap = map[Enum64bit]string{
 	Enum64bitUnkno: _Enum64bitName[0:5],
@@ -98,25 +125,5 @@ func ParseEnum64bit(name string) (Enum64bit, error) {
 	if x, ok := _Enum64bitValue[name]; ok {
 		return x, nil
 	}
-	return Enum64bit(0), fmt.Errorf("%s is not a valid Enum64bit", name)
-}
-
-func (x Enum64bit) Ptr() *Enum64bit {
-	return &x
-}
-
-// MarshalText implements the text marshaller method.
-func (x Enum64bit) MarshalText() ([]byte, error) {
-	return []byte(x.String()), nil
-}
-
-// UnmarshalText implements the text unmarshaller method.
-func (x *Enum64bit) UnmarshalText(text []byte) error {
-	name := string(text)
-	tmp, err := ParseEnum64bit(name)
-	if err != nil {
-		return err
-	}
-	*x = tmp
-	return nil
+	return Enum64bit(0), fmt.Errorf("%s is not a valid Enum64bit, try [%s]", name, strings.Join(_Enum64bitNames, ", "))
 }
