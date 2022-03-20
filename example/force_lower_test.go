@@ -31,4 +31,11 @@ func TestForceLowerString(t *testing.T) {
 			assert.Equal(t, tc.input, output.String())
 		})
 	}
+
+	t.Run("failures", func(t *testing.T) {
+		assert.Equal(t, "ForceLowerType(99)", ForceLowerType(99).String())
+		_, err := ParseForceLowerType("-1")
+		assert.Error(t, err)
+
+	})
 }

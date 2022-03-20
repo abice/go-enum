@@ -8,6 +8,7 @@ package example
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -38,6 +39,28 @@ const (
 )
 
 const _Enum32bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30"
+
+var _Enum32bitNames = []string{
+	_Enum32bitName[0:5],
+	_Enum32bitName[5:10],
+	_Enum32bitName[10:15],
+	_Enum32bitName[15:20],
+	_Enum32bitName[20:25],
+	_Enum32bitName[25:30],
+	_Enum32bitName[30:35],
+	_Enum32bitName[35:40],
+	_Enum32bitName[40:45],
+	_Enum32bitName[45:50],
+	_Enum32bitName[50:55],
+	_Enum32bitName[55:60],
+}
+
+// Enum32bitNames returns a list of possible string values of Enum32bit.
+func Enum32bitNames() []string {
+	tmp := make([]string, len(_Enum32bitNames))
+	copy(tmp, _Enum32bitNames)
+	return tmp
+}
 
 var _Enum32bitMap = map[Enum32bit]string{
 	Enum32bitUnkno: _Enum32bitName[0:5],
@@ -82,25 +105,5 @@ func ParseEnum32bit(name string) (Enum32bit, error) {
 	if x, ok := _Enum32bitValue[name]; ok {
 		return x, nil
 	}
-	return Enum32bit(0), fmt.Errorf("%s is not a valid Enum32bit", name)
-}
-
-func (x Enum32bit) Ptr() *Enum32bit {
-	return &x
-}
-
-// MarshalText implements the text marshaller method.
-func (x Enum32bit) MarshalText() ([]byte, error) {
-	return []byte(x.String()), nil
-}
-
-// UnmarshalText implements the text unmarshaller method.
-func (x *Enum32bit) UnmarshalText(text []byte) error {
-	name := string(text)
-	tmp, err := ParseEnum32bit(name)
-	if err != nil {
-		return err
-	}
-	*x = tmp
-	return nil
+	return Enum32bit(0), fmt.Errorf("%s is not a valid Enum32bit, try [%s]", name, strings.Join(_Enum32bitNames, ", "))
 }

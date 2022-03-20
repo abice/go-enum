@@ -48,7 +48,7 @@ build: deps
 	$(GO) build -v -o bin/go-enum -ldflags='-X "main.version=example" -X "main.commit=example" -X "main.date=example" -X "main.builtBy=example"'  .
 
 fmt:
-	gofmt -l -w -s $$(find . -type f -name '*.go' -not -path "./vendor/*")
+	-$(GO) fmt ./...
 
 test: gen-test generate
 	$(GO) test -v -race -coverprofile=coverage.out ./...
@@ -104,3 +104,14 @@ bin/go-bindata: go.sum
 
 generate1_15: generator/assets/assets.go generator/enum.tmpl
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
+
+.PHONY: ci
+ci: docker_1.14
+ci: docker_1.15
+ci: docker_1.16
+ci: docker_1.17
+ci: docker_1.18
+
+docker_%:
+	echo "##### testing golang $* #####"
+	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
