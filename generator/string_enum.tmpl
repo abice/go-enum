@@ -1,30 +1,58 @@
-{{- define "enum"}}
+{{- define "string_enum"}}
 const (
 {{- $enumName := .enum.Name -}}
-{{- $vars := dict "lastoffset" 0 -}}
+{{- $lowercase := .lowercase}}
 {{ range $rIndex, $value := .enum.Values }}
-	{{- $lastOffset := pluck "lastoffset" $vars | first }}{{ $offset := sub $value.Value $rIndex }}
 	{{ if eq $value.Name "_"}}// Skipped value.{{else}}// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.Name}}.{{end}}
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
-    {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{ if ne 0 $offset }} + {{ $offset }}{{end}}{{else if ne $lastOffset $offset }}{{$enumName}} = iota + {{ $offset }}{{end}}{{$_ := set $vars "lastoffset" $offset}}
+    {{$value.PrefixedName}} {{$enumName}} = `{{$value.StrValue}}`
 {{- end}}
 )
 
-{{ template "stringer" . }}
+{{/* BEGIN NAMES */}}
+{{ if .names }}var _{{.enum.Name}}Names = []string{
+{{- range $rIndex, $value := .enum.Values }}
+  {{ if not (eq $value.Name "_")}}`{{$value.StrValue}}`,{{end}}
+{{- end}}
+}
 
-var _{{.enum.Name}}Map = {{ mapify .enum }}
+// {{.enum.Name}}Names returns a list of possible string values of {{.enum.Name}}.
+func {{.enum.Name}}Names() []string {
+	return []string{
+	{{- range $rIndex, $value := .enum.Values }}
+  {{ if not (eq $value.Name "_")}}`{{$value.StrValue}}`,{{end}}
+	{{- end}}
+	}
+}
+{{ end -}}{{/* END NAMES */}}
+
+{{/* Lookups */}}
+var _{{.enum.Name}}Map = map[{{.enum.Name}}]struct{}{
+{{- range $rIndex, $value := .enum.Values }}
+  {{ if not (eq $value.Name "_")}}`{{$value.StrValue}}`: {},{{end}}
+{{- end}}
+}
+
+var _{{.enum.Name}}Value = map[string]{{.enum.Name}}{
+{{- range $rIndex, $value := .enum.Values }}
+  {{ if not (eq $value.Name "_")}}`{{$value.StrValue}}`: {{$value.PrefixedName}},{{end}}
+	{{- if and $lowercase (not (eq (lower $value.StrValue) $value.StrValue)) }}
+	`{{lower $value.StrValue}}`: {{$value.PrefixedName}},
+	{{- end -}}
+{{- end}}
+}{{- /* END Lookups */}}
 
 // String implements the Stringer interface.
 func (x {{.enum.Name}}) String() string {
-	if str, ok := _{{.enum.Name}}Map[x]; ok {
-		return str
+	if _, ok := _{{.enum.Name}}Map[x]; ok {
+		return string(x)
 	}
-	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
+	return fmt.Sprintf("{{.enum.Name}}(%s)", string(x))
 }
-
-var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
+{{/* 
+var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }} */}}
 
 // Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
@@ -36,12 +64,13 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 		return x, nil
 	}{{- end}}
 	{{if .names -}}
-	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
+	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
 	{{- else -}}
-	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
+	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
 	{{- end}}
 }
 
+{{/* MUST PARSE */}}
 {{ if .mustparse }}
 // MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
 func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
@@ -83,15 +112,13 @@ var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per typ
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	if value == nil {
-		*x = {{.enum.Name}}(0)
+		*x = {{.enum.Name}}("")
 		return
 	}
 
 	// A wider range of scannable types.
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
-	case int64:
-		*x = {{.enum.Name}}(v)
 	case string:
 		*x, err = Parse{{.enum.Name}}(v){{if .sqlnullint }}
 		if err != nil {
@@ -110,44 +137,11 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		}{{end}}
 	case {{.enum.Name}}:
 		*x = v
-	case int:
-		*x = {{.enum.Name}}(v)
 	case *{{.enum.Name}}:
 		if v == nil{
 			return _{{.enum.Name}}ErrNilPtr
 		}
 		*x = *v
-	case uint:
-		*x = {{.enum.Name}}(v)
-	case uint64:
-		*x = {{.enum.Name}}(v)
-	case *int:
-		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
-		}
-		*x = {{.enum.Name}}(*v)
-	case *int64:
-		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
-		}
-		*x = {{.enum.Name}}(*v)
-	case float64: // json marshals everything as a float64 if it's a number
-		*x = {{.enum.Name}}(v)
-	case *float64: // json marshals everything as a float64 if it's a number
-		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
-		}
-		*x = {{.enum.Name}}(*v)
-	case *uint:
-		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
-		}
-		*x = {{.enum.Name}}(*v)
-	case *uint64:
-		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
-		}
-		*x = {{.enum.Name}}(*v)
 	case *string:
 		if v == nil{
 			return _{{.enum.Name}}ErrNilPtr
@@ -214,7 +208,7 @@ func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
 func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
 	{{- if .marshal }}x.Set = true{{ end }}
 	if value == nil {
-		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(0), false
+		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(""), false
 		return
 	}
 
@@ -223,16 +217,6 @@ func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
 	return
 }
 
-{{ if .sqlnullint }}
-// Value implements the driver Valuer interface.
-func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
-	if !x.Valid{
-		return nil, nil
-	}
-	// driver.Value accepts int64 for int values.
-	return int64(x.{{.enum.Name}}), nil
-}
-{{ else }}
 // Value implements the driver Valuer interface.
 func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 	if !x.Valid{
@@ -240,7 +224,6 @@ func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 	}
 	return x.{{.enum.Name}}.String(), nil
 }
-{{ end }}
 
 {{ if .marshal }}
 // MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
@@ -307,21 +290,5 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 }
 {{ end }}
 {{ end }}
-
-{{end}}
-
-
-{{- define "stringer"}}
-const _{{.enum.Name}}Name = "{{ stringify .enum .forcelower }}"
-
-{{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
-
-// {{.enum.Name}}Names returns a list of possible string values of {{.enum.Name}}.
-func {{.enum.Name}}Names() []string {
-	tmp := make([]string, len(_{{.enum.Name}}Names))
-	copy(tmp, _{{.enum.Name}}Names)
-	return tmp
-}
-{{ end -}}
 
 {{end}}

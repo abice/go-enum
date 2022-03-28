@@ -55,10 +55,11 @@ type Generator struct {
 
 // Enum holds data for a discovered enum in the parsed source
 type Enum struct {
-	Name   string
-	Prefix string
-	Type   string
-	Values []EnumValue
+	Name      string
+	Prefix    string
+	Type      string
+	IsNumeric bool
+	Values    []EnumValue
 }
 
 // EnumValue holds the individual data for each enum value within the found enum.
@@ -67,6 +68,7 @@ type EnumValue struct {
 	Name         string
 	PrefixedName string
 	Value        uint64
+	StrValue     string
 	Comment      string
 }
 
@@ -284,9 +286,16 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"forcelower": g.forceLower,
 		}
 
-		err = g.t.ExecuteTemplate(vBuff, "enum", data)
-		if err != nil {
-			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+		if enum.IsNumeric {
+			err = g.t.ExecuteTemplate(vBuff, "enum", data)
+			if err != nil {
+				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+			}
+		} else {
+			err = g.t.ExecuteTemplate(vBuff, "string_enum", data)
+			if err != nil {
+				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+			}
 		}
 
 		for _, userTemplateName := range g.userTemplateNames {
@@ -329,6 +338,8 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	enum.Name = ts.Name.Name
 	enum.Type = fmt.Sprintf("%s", ts.Type)
+	enum.IsNumeric = enum.Type != "string"
+	fmt.Println(enum.Type, " ==> ", enum.IsNumeric)
 	if !g.noPrefix {
 		enum.Prefix = ts.Name.Name
 	}
@@ -359,13 +370,15 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					newData, err := strconv.ParseUint(dataVal, 10, 64)
-					if err != nil {
-						err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
-						fmt.Println(err)
-						return nil, err
+					if enum.IsNumeric {
+						newData, err := strconv.ParseUint(dataVal, 10, 64)
+						if err != nil {
+							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+							fmt.Println(err)
+							return nil, err
+						}
+						data = newData
 					}
-					data = newData
 					value = value[:equalIndex]
 				} else {
 					value = strings.TrimSuffix(value, `=`)
@@ -384,6 +397,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
+
+			if !enum.IsNumeric {
+				ev.StrValue = strings.TrimSpace(value)
+			}
+
 			enum.Values = append(enum.Values, ev)
 			data++
 		}

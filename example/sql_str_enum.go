@@ -10,6 +10,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -41,15 +42,23 @@ func (x JobState) String() string {
 }
 
 var _JobStateValue = map[string]JobState{
-	_JobStateName[0:7]:   JobStatePending,
-	_JobStateName[7:17]:  JobStateProcessing,
-	_JobStateName[17:26]: JobStateCompleted,
-	_JobStateName[26:32]: JobStateFailed,
+	_JobStateName[0:7]:                    JobStatePending,
+	strings.ToLower(_JobStateName[0:7]):   JobStatePending,
+	_JobStateName[7:17]:                   JobStateProcessing,
+	strings.ToLower(_JobStateName[7:17]):  JobStateProcessing,
+	_JobStateName[17:26]:                  JobStateCompleted,
+	strings.ToLower(_JobStateName[17:26]): JobStateCompleted,
+	_JobStateName[26:32]:                  JobStateFailed,
+	strings.ToLower(_JobStateName[26:32]): JobStateFailed,
 }
 
 // ParseJobState attempts to convert a string to a JobState.
 func ParseJobState(name string) (JobState, error) {
 	if x, ok := _JobStateValue[name]; ok {
+		return x, nil
+	}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _JobStateValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
 	return JobState(0), fmt.Errorf("%s is not a valid JobState", name)
@@ -156,4 +165,118 @@ func (x NullJobState) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return x.JobState.String(), nil
+}
+
+const (
+
+	// JobStateStrPending is a JobStateStr of type Pending.
+	JobStateStrPending JobStateStr = `pending`
+	// JobStateStrProcessing is a JobStateStr of type Processing.
+	JobStateStrProcessing JobStateStr = `processing`
+	// JobStateStrCompleted is a JobStateStr of type Completed.
+	JobStateStrCompleted JobStateStr = `completed`
+	// JobStateStrFailed is a JobStateStr of type Failed.
+	JobStateStrFailed JobStateStr = `failed`
+)
+
+var _JobStateStrMap = map[JobStateStr]struct{}{
+	`pending`:    {},
+	`processing`: {},
+	`completed`:  {},
+	`failed`:     {},
+}
+
+var _JobStateStrValue = map[string]JobStateStr{
+	`pending`:    JobStateStrPending,
+	`processing`: JobStateStrProcessing,
+	`completed`:  JobStateStrCompleted,
+	`failed`:     JobStateStrFailed,
+}
+
+// String implements the Stringer interface.
+func (x JobStateStr) String() string {
+	if _, ok := _JobStateStrMap[x]; ok {
+		return string(x)
+	}
+	return fmt.Sprintf("JobStateStr(%s)", string(x))
+}
+
+// ParseJobStateStr attempts to convert a string to a JobStateStr.
+func ParseJobStateStr(name string) (JobStateStr, error) {
+	if x, ok := _JobStateStrValue[name]; ok {
+		return x, nil
+	}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _JobStateStrValue[strings.ToLower(name)]; ok {
+		return x, nil
+	}
+	return JobStateStr(""), fmt.Errorf("%s is not a valid JobStateStr", name)
+}
+
+var _JobStateStrErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
+// Scan implements the Scanner interface.
+func (x *JobStateStr) Scan(value interface{}) (err error) {
+	if value == nil {
+		*x = JobStateStr("")
+		return
+	}
+
+	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
+	switch v := value.(type) {
+	case string:
+		*x, err = ParseJobStateStr(v)
+	case []byte:
+		*x, err = ParseJobStateStr(string(v))
+	case JobStateStr:
+		*x = v
+	case *JobStateStr:
+		if v == nil {
+			return _JobStateStrErrNilPtr
+		}
+		*x = *v
+	case *string:
+		if v == nil {
+			return _JobStateStrErrNilPtr
+		}
+		*x, err = ParseJobStateStr(*v)
+	}
+
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x JobStateStr) Value() (driver.Value, error) {
+	return x.String(), nil
+}
+
+type NullJobStateStr struct {
+	JobStateStr JobStateStr
+	Valid       bool
+}
+
+func NewNullJobStateStr(val interface{}) (x NullJobStateStr) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *NullJobStateStr) Scan(value interface{}) (err error) {
+	if value == nil {
+		x.JobStateStr, x.Valid = JobStateStr(""), false
+		return
+	}
+
+	err = x.JobStateStr.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x NullJobStateStr) Value() (driver.Value, error) {
+	if !x.Valid {
+		return nil, nil
+	}
+	return x.JobStateStr.String(), nil
 }

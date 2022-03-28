@@ -280,3 +280,96 @@ func (x *NoZeros) Get() interface{} {
 func (x *NoZeros) Type() string {
 	return "NoZeros"
 }
+
+const (
+
+	// StringValuesCherry is a StringValues of type Cherry.
+	StringValuesCherry StringValues = `Cherry`
+	// StringValuesApple is a StringValues of type Apple.
+	StringValuesApple StringValues = `Apple`
+	// StringValuesGrape is a StringValues of type Grape.
+	StringValuesGrape StringValues = `Grape`
+)
+
+var _StringValuesNames = []string{
+	`Cherry`,
+	`Apple`,
+	`Grape`,
+}
+
+// StringValuesNames returns a list of possible string values of StringValues.
+func StringValuesNames() []string {
+	return []string{
+		`Cherry`,
+		`Apple`,
+		`Grape`,
+	}
+}
+
+var _StringValuesMap = map[StringValues]struct{}{
+	`Cherry`: {},
+	`Apple`:  {},
+	`Grape`:  {},
+}
+
+var _StringValuesValue = map[string]StringValues{
+	`Cherry`: StringValuesCherry,
+	`cherry`: StringValuesCherry,
+	`Apple`:  StringValuesApple,
+	`apple`:  StringValuesApple,
+	`Grape`:  StringValuesGrape,
+	`grape`:  StringValuesGrape,
+}
+
+// String implements the Stringer interface.
+func (x StringValues) String() string {
+	if _, ok := _StringValuesMap[x]; ok {
+		return string(x)
+	}
+	return fmt.Sprintf("StringValues(%s)", string(x))
+}
+
+// ParseStringValues attempts to convert a string to a StringValues.
+func ParseStringValues(name string) (StringValues, error) {
+	if x, ok := _StringValuesValue[name]; ok {
+		return x, nil
+	}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _StringValuesValue[strings.ToLower(name)]; ok {
+		return x, nil
+	}
+	return StringValues(""), fmt.Errorf("%s is not a valid StringValues, try [%s]", name, strings.Join(_StringValuesNames, ", "))
+}
+
+// MarshalText implements the text marshaller method.
+func (x StringValues) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *StringValues) UnmarshalText(text []byte) error {
+	name := string(text)
+	tmp, err := ParseStringValues(name)
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+
+// Set implements the Golang flag.Value interface func.
+func (x *StringValues) Set(val string) error {
+	v, err := ParseStringValues(val)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func.
+func (x *StringValues) Get() interface{} {
+	return *x
+}
+
+// Type implements the github.com/spf13/pFlag Value interface.
+func (x *StringValues) Type() string {
+	return "StringValues"
+}

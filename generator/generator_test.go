@@ -38,6 +38,29 @@ func TestNoStructFile(t *testing.T) {
 	}
 }
 
+// TestStringEnum
+func TestStringEnum(t *testing.T) {
+	input := `package test
+	/* ENUM(
+		Cherry
+		Apple
+		Grape
+	 )
+	 */
+	 type StringValues string
+	`
+	g := NewGenerator().
+		WithoutSnakeToCamel()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	if true { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
 // TestNoFile
 func TestNoFile(t *testing.T) {
 	g := NewGenerator().

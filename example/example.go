@@ -11,3 +11,11 @@ type Make int32
 
 // Make x ENUM(start=20,middle,end,ps,pps,ppps)
 type NoZeros int32
+
+/* ENUM(
+	Cherry
+	Apple
+	Grape
+ )
+*/
+type StringValues string
