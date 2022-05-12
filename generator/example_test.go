@@ -122,3 +122,11 @@ E2P33					= 8454967296
 )
 */
 type Enum64bit uint64
+
+// NonASCII
+// ENUM(
+// Продам = 1114
+// 車庫 = 300
+// էժան = 1
+// )
+type NonASCII int

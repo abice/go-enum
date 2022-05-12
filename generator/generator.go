@@ -407,39 +407,32 @@ func unescapeComment(comment string) string {
 // identifier = letter { letter | unicode_digit }
 // where letter can be unicode_letter or '_'
 func sanitizeValue(value string) string {
-
 	// Keep skip value holders
 	if value == skipHolder {
 		return skipHolder
 	}
 
-	name := value
-
+	replacedValue := value
 	for k, v := range replacementNames {
-		name = strings.ReplaceAll(name, k, v)
+		replacedValue = strings.ReplaceAll(replacedValue, k, v)
 	}
 
-	// If the start character is not a unicode letter (this check includes the case of '_')
-	// then we need to add an exported prefix, so tack on a 'X' at the beginning
-	if !(unicode.IsLetter(rune(name[0]))) {
-		name = `X` + name
-	}
+	nameBuilder := strings.Builder{}
+	nameBuilder.Grow(len(replacedValue))
 
-	// Loop through all the runes and remove any that aren't valid.
-	for i := 0; i < len(name); i++ {
-		r := rune(name[i])
-		if !(unicode.IsLetter(r) || unicode.IsNumber(r) || r == '_') {
-			if i < len(name) {
-				name = name[:i] + name[i+1:]
-			} else {
-				// At the end of the string, take off the last char
-				name = name[:i-1]
-			}
-			i--
+	for i, r := range replacedValue {
+		// If the start character is not a unicode letter (this check includes the case of '_')
+		// then we need to add an exported prefix, so tack on a 'X' at the beginning
+		if i == 0 && !unicode.IsLetter(r) {
+			nameBuilder.WriteRune('X')
+		}
+
+		if unicode.IsLetter(r) || unicode.IsNumber(r) || r == '_' {
+			nameBuilder.WriteRune(r)
 		}
 	}
 
-	return name
+	return nameBuilder.String()
 }
 
 func snakeToCamelCase(value string) string {
