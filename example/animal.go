@@ -8,5 +8,5 @@ package example
 // Fish
 // Fish++
 // Fish#
-// )
+// ).
 type Animal int32
