@@ -469,6 +469,12 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 			enumParamLevel += paramLevel
 			if enumParamLevel == 0 {
 				// End ENUM Declaration
+				if trimmed != "" {
+					end := strings.Index(trimmed, ")")
+					if end >= 0 {
+						parts[len(parts)-1] = trimmed[:end]
+					}
+				}
 				break
 			}
 		}
