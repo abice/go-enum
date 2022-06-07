@@ -493,7 +493,7 @@
   (string) (len=62) "\t// ColorWithCommentGreen is a ColorWithComment of type Green.",
   (string) (len=22) "\tColorWithCommentGreen",
   (string) (len=60) "\t// ColorWithCommentBlue is a ColorWithComment of type Blue.",
-  (string) (len=23) "\t// Blue starts with 33",
+  (string) (len=24) "\t// Blue starts with 33.",
   (string) (len=50) "\tColorWithCommentBlue ColorWithComment = iota + 29",
   (string) (len=60) "\t// ColorWithCommentGrey is a ColorWithComment of type Grey.",
   (string) (len=21) "\tColorWithCommentGrey",

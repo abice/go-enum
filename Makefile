@@ -105,6 +105,10 @@ bin/go-bindata: go.sum
 generate1_15: generator/assets/assets.go generator/enum.tmpl
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
 
+.PHONY: snapshots1_18
+snapshots1_18:
+	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.18 -c './update-snapshots.sh || true && make clean && make'
+
 .PHONY: ci
 ci: docker_1.14
 ci: docker_1.15

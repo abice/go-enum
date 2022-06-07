@@ -11,14 +11,14 @@ type X struct {
 // Blue=33
 // grey=
 // yellow
-// )
+// ).
 type Color int
 
 // Animal x ENUM(
 // Cat,
 // Dog,
 // Fish
-// )
+// ) Some other line of info
 type Animal int32
 
 // Model x ENUM(Toyota,_,Chevy,_,Ford)
@@ -28,7 +28,7 @@ type Model int32
  Coke
  Pepsi
  MtnDew
-)
+).
 */
 type Soda int64
 
@@ -62,7 +62,7 @@ type StartNotZero int64
 // ENUM(
 // Black, White, Red
 // Green
-// Blue=33 // Blue starts with 33
+// Blue=33 // Blue starts with 33.
 // grey=
 // yellow
 // )
