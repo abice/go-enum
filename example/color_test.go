@@ -27,6 +27,7 @@ func TestColorMustParse(t *testing.T) {
 	x := `avocadogreen`
 
 	assert.PanicsWithError(t, x+" is not a valid Color", func() { MustParseColor(x) })
+	assert.NotPanics(t, func() { MustParseColor(ColorGreen.String()) })
 }
 
 func TestColorUnmarshal(t *testing.T) {
