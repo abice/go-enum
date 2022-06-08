@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --marshal --lower --ptr --mustparse
+//go:generate ../bin/go-enum -f=$GOFILE --nocase
 
 package example
 

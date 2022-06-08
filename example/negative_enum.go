@@ -55,36 +55,11 @@ func ParseAllNegative(name string) (AllNegative, error) {
 	if x, ok := _AllNegativeValue[name]; ok {
 		return x, nil
 	}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _AllNegativeValue[strings.ToLower(name)]; ok {
+		return x, nil
+	}
 	return AllNegative(0), fmt.Errorf("%s is not a valid AllNegative", name)
-}
-
-// MustParseAllNegative converts a string to a AllNegative, and panics if is not valid.
-func MustParseAllNegative(name string) AllNegative {
-	val, err := ParseAllNegative(name)
-	if err != nil {
-		panic(err)
-	}
-	return val
-}
-
-func (x AllNegative) Ptr() *AllNegative {
-	return &x
-}
-
-// MarshalText implements the text marshaller method.
-func (x AllNegative) MarshalText() ([]byte, error) {
-	return []byte(x.String()), nil
-}
-
-// UnmarshalText implements the text unmarshaller method.
-func (x *AllNegative) UnmarshalText(text []byte) error {
-	name := string(text)
-	tmp, err := ParseAllNegative(name)
-	if err != nil {
-		return err
-	}
-	*x = tmp
-	return nil
 }
 
 const (
@@ -126,34 +101,9 @@ func ParseStatus(name string) (Status, error) {
 	if x, ok := _StatusValue[name]; ok {
 		return x, nil
 	}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _StatusValue[strings.ToLower(name)]; ok {
+		return x, nil
+	}
 	return Status(0), fmt.Errorf("%s is not a valid Status", name)
-}
-
-// MustParseStatus converts a string to a Status, and panics if is not valid.
-func MustParseStatus(name string) Status {
-	val, err := ParseStatus(name)
-	if err != nil {
-		panic(err)
-	}
-	return val
-}
-
-func (x Status) Ptr() *Status {
-	return &x
-}
-
-// MarshalText implements the text marshaller method.
-func (x Status) MarshalText() ([]byte, error) {
-	return []byte(x.String()), nil
-}
-
-// UnmarshalText implements the text unmarshaller method.
-func (x *Status) UnmarshalText(text []byte) error {
-	name := string(text)
-	tmp, err := ParseStatus(name)
-	if err != nil {
-		return err
-	}
-	*x = tmp
-	return nil
 }
