@@ -351,9 +351,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 		data = int64(0)
 	}
 	for _, value := range values {
-		var (
-			comment string
-		)
+		var comment string
 
 		// Trim and store comments
 		if strings.Contains(value, parseCommentPrefix) {
