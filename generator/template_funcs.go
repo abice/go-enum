@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -68,4 +69,14 @@ func Namify(e Enum) (ret string, err error) {
 	}
 	ret = ret + "}"
 	return
+}
+
+func Offset(index int, enumType string, val EnumValue) (strResult string) {
+	if strings.HasPrefix(enumType, "u") {
+		// Unsigned
+		return strconv.FormatUint(val.Value.(uint64)-uint64(index), 10)
+	} else {
+		// Signed
+		return strconv.FormatInt(val.Value.(int64)-int64(index), 10)
+	}
 }

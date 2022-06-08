@@ -66,7 +66,7 @@ type EnumValue struct {
 	RawName      string
 	Name         string
 	PrefixedName string
-	Value        uint64
+	Value        interface{}
 	Comment      string
 }
 
@@ -91,6 +91,7 @@ func NewGenerator() *Generator {
 	funcs["mapify"] = Mapify
 	funcs["unmapify"] = Unmapify
 	funcs["namify"] = Namify
+	funcs["offset"] = Offset
 
 	g.t.Funcs(funcs)
 
@@ -339,7 +340,16 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	enumDecl := getEnumDeclFromComments(ts.Doc.List)
 
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
-	var data uint64
+	var (
+		data     interface{}
+		unsigned bool
+	)
+	if strings.HasPrefix(enum.Type, "u") {
+		data = uint64(0)
+		unsigned = true
+	} else {
+		data = int64(0)
+	}
 	for _, value := range values {
 		var comment string
 
@@ -359,13 +369,23 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					newData, err := strconv.ParseUint(dataVal, 10, 64)
-					if err != nil {
-						err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
-						fmt.Println(err)
-						return nil, err
+					if unsigned {
+						newData, err := strconv.ParseUint(dataVal, 10, 64)
+						if err != nil {
+							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+							fmt.Println(err)
+							return nil, err
+						}
+						data = newData
+					} else {
+						newData, err := strconv.ParseInt(dataVal, 10, 64)
+						if err != nil {
+							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+							fmt.Println(err)
+							return nil, err
+						}
+						data = newData
 					}
-					data = newData
 					value = value[:equalIndex]
 				} else {
 					value = strings.TrimSuffix(value, `=`)
@@ -385,13 +405,23 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
 			enum.Values = append(enum.Values, ev)
-			data++
+			data = increment(data)
 		}
 	}
 
 	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
 
 	return enum, nil
+}
+
+func increment(d interface{}) interface{} {
+	switch d.(type) {
+	case uint64:
+		return d.(uint64) + 1
+	case int64:
+		return d.(int64) + 1
+	}
+	return d
 }
 
 func unescapeComment(comment string) string {
