@@ -415,11 +415,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 }
 
 func increment(d interface{}) interface{} {
-	switch d.(type) {
+	switch v := d.(type) {
 	case uint64:
-		return d.(uint64) + 1
+		return v + 1
 	case int64:
-		return d.(int64) + 1
+		return v + 1
 	}
 	return d
 }
