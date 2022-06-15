@@ -21,7 +21,7 @@ type Color int
 // ) Some other line of info
 type Animal int32
 
-// Model x ENUM(Toyota,_,Chevy,_,Ford)
+// Model x ENUM(Toyota,_,Chevy,_,Ford).
 type Model int32
 
 /* ENUM(
