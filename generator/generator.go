@@ -572,7 +572,14 @@ func breakCommentIntoLines(comment *ast.Comment) []string {
 
 // trimAllTheThings takes off all the cruft of a line that we don't need.
 func trimAllTheThings(thing string) string {
-	return strings.TrimSpace(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSpace(thing), `,`), `)`))
+	preTrimmed := strings.TrimSuffix(strings.TrimSpace(thing), `,`)
+	end := strings.Index(preTrimmed, `)`)
+
+	if end < 0 {
+		end = len(preTrimmed)
+	}
+
+	return strings.TrimSpace(preTrimmed[:end])
 }
 
 // inspect will walk the ast and fill a map of names and their struct information
