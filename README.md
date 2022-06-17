@@ -21,16 +21,16 @@ and generate a file with the iota definition along various optional niceties tha
 
 ```go
 const (
-	// ImageTypeJpeg is a ImageType of type Jpeg.
-	ImageTypeJpeg ImageType = iota
-	// ImageTypeJpg is a ImageType of type Jpg.
-	ImageTypeJpg
-	// ImageTypePng is a ImageType of type Png.
-	ImageTypePng
-	// ImageTypeTiff is a ImageType of type Tiff.
-	ImageTypeTiff
-	// ImageTypeGif is a ImageType of type Gif.
-	ImageTypeGif
+ // ImageTypeJpeg is a ImageType of type Jpeg.
+ ImageTypeJpeg ImageType = iota
+ // ImageTypeJpg is a ImageType of type Jpg.
+ ImageTypeJpg
+ // ImageTypePng is a ImageType of type Png.
+ ImageTypePng
+ // ImageTypeTiff is a ImageType of type Tiff.
+ ImageTypeTiff
+ // ImageTypeGif is a ImageType of type Gif.
+ ImageTypeGif
 )
 
 // String implements the Stringer interface.
@@ -80,10 +80,10 @@ I did not specify any overrides on the release binary names, so `uname -s` and `
 If you prefer makefile stuff, you can always do something like this:
 
 ```Makefile
-STANDARD_ENUMS = example/animal_enum.go \
-	example/color_enum.go
+STANDARD_ENUMS = ./_example/animal_enum.go \
+ ./_example/color_enum.go
 
-NULLABLE_ENUMS = example/sql_enum.go
+NULLABLE_ENUMS = ./_example/sql_enum.go
 
 $(STANDARD_ENUMS): GO_ENUM_FLAGS=--nocase --marshal --names --ptr
 $(NULLABLE_ENUMS): GO_ENUM_FLAGS=--nocase --marshal --names --sqlnullint --ptr
@@ -93,7 +93,7 @@ enums: $(STANDARD_ENUMS) $(NULLABLE_ENUMS)
 # The generator statement for go enum files.  Files that invalidate the
 # enum file: source file, the binary itself, and this file (in case you want to generate with different flags)
 %_enum.go: %.go $(GOENUM) Makefile
-	$(GOENUM) -f $*.go $(GO_ENUM_FLAGS)
+ $(GOENUM) -f $*.go $(GO_ENUM_FLAGS)
 ```
 
 ## Command options
@@ -172,7 +172,7 @@ const (
 
 #### Example
 
-There are a few examples in the `example` [directory](example).
+There are a few examples in the `_example` [directory](_example).
 I've included one here for easy access, but can't guarantee it's up to date.
 
 ``` go
@@ -204,110 +204,110 @@ The generated code will look something like:
 package example
 
 import (
-	"fmt"
-	"strings"
+ "fmt"
+ "strings"
 )
 
 const (
-	// ColorBlack is a Color of type Black.
-	ColorBlack Color = iota
-	// ColorWhite is a Color of type White.
-	ColorWhite
-	// ColorRed is a Color of type Red.
-	ColorRed
-	// ColorGreen is a Color of type Green.
-	// Green starts with 33
-	ColorGreen Color = iota + 30
-	// ColorBlue is a Color of type Blue.
-	ColorBlue
-	// ColorGrey is a Color of type Grey.
-	ColorGrey
-	// ColorYellow is a Color of type Yellow.
-	ColorYellow
-	// ColorBlueGreen is a Color of type Blue-Green.
-	ColorBlueGreen
-	// ColorRedOrange is a Color of type Red-Orange.
-	ColorRedOrange
-	// ColorYellowGreen is a Color of type Yellow_green.
-	ColorYellowGreen
-	// ColorRedOrangeBlue is a Color of type Red-Orange-Blue.
-	ColorRedOrangeBlue
+ // ColorBlack is a Color of type Black.
+ ColorBlack Color = iota
+ // ColorWhite is a Color of type White.
+ ColorWhite
+ // ColorRed is a Color of type Red.
+ ColorRed
+ // ColorGreen is a Color of type Green.
+ // Green starts with 33
+ ColorGreen Color = iota + 30
+ // ColorBlue is a Color of type Blue.
+ ColorBlue
+ // ColorGrey is a Color of type Grey.
+ ColorGrey
+ // ColorYellow is a Color of type Yellow.
+ ColorYellow
+ // ColorBlueGreen is a Color of type Blue-Green.
+ ColorBlueGreen
+ // ColorRedOrange is a Color of type Red-Orange.
+ ColorRedOrange
+ // ColorYellowGreen is a Color of type Yellow_green.
+ ColorYellowGreen
+ // ColorRedOrangeBlue is a Color of type Red-Orange-Blue.
+ ColorRedOrangeBlue
 )
 
 const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_greenred-orange-blue"
 
 var _ColorMap = map[Color]string{
-	ColorBlack:         _ColorName[0:5],
-	ColorWhite:         _ColorName[5:10],
-	ColorRed:           _ColorName[10:13],
-	ColorGreen:         _ColorName[13:18],
-	ColorBlue:          _ColorName[18:22],
-	ColorGrey:          _ColorName[22:26],
-	ColorYellow:        _ColorName[26:32],
-	ColorBlueGreen:     _ColorName[32:42],
-	ColorRedOrange:     _ColorName[42:52],
-	ColorYellowGreen:   _ColorName[52:64],
-	ColorRedOrangeBlue: _ColorName[64:79],
+ ColorBlack:         _ColorName[0:5],
+ ColorWhite:         _ColorName[5:10],
+ ColorRed:           _ColorName[10:13],
+ ColorGreen:         _ColorName[13:18],
+ ColorBlue:          _ColorName[18:22],
+ ColorGrey:          _ColorName[22:26],
+ ColorYellow:        _ColorName[26:32],
+ ColorBlueGreen:     _ColorName[32:42],
+ ColorRedOrange:     _ColorName[42:52],
+ ColorYellowGreen:   _ColorName[52:64],
+ ColorRedOrangeBlue: _ColorName[64:79],
 }
 
 // String implements the Stringer interface.
 func (x Color) String() string {
-	if str, ok := _ColorMap[x]; ok {
-		return str
-	}
-	return fmt.Sprintf("Color(%d)", x)
+ if str, ok := _ColorMap[x]; ok {
+  return str
+ }
+ return fmt.Sprintf("Color(%d)", x)
 }
 
 var _ColorValue = map[string]Color{
-	_ColorName[0:5]:                    ColorBlack,
-	strings.ToLower(_ColorName[0:5]):   ColorBlack,
-	_ColorName[5:10]:                   ColorWhite,
-	strings.ToLower(_ColorName[5:10]):  ColorWhite,
-	_ColorName[10:13]:                  ColorRed,
-	strings.ToLower(_ColorName[10:13]): ColorRed,
-	_ColorName[13:18]:                  ColorGreen,
-	strings.ToLower(_ColorName[13:18]): ColorGreen,
-	_ColorName[18:22]:                  ColorBlue,
-	strings.ToLower(_ColorName[18:22]): ColorBlue,
-	_ColorName[22:26]:                  ColorGrey,
-	strings.ToLower(_ColorName[22:26]): ColorGrey,
-	_ColorName[26:32]:                  ColorYellow,
-	strings.ToLower(_ColorName[26:32]): ColorYellow,
-	_ColorName[32:42]:                  ColorBlueGreen,
-	strings.ToLower(_ColorName[32:42]): ColorBlueGreen,
-	_ColorName[42:52]:                  ColorRedOrange,
-	strings.ToLower(_ColorName[42:52]): ColorRedOrange,
-	_ColorName[52:64]:                  ColorYellowGreen,
-	strings.ToLower(_ColorName[52:64]): ColorYellowGreen,
-	_ColorName[64:79]:                  ColorRedOrangeBlue,
-	strings.ToLower(_ColorName[64:79]): ColorRedOrangeBlue,
+ _ColorName[0:5]:                    ColorBlack,
+ strings.ToLower(_ColorName[0:5]):   ColorBlack,
+ _ColorName[5:10]:                   ColorWhite,
+ strings.ToLower(_ColorName[5:10]):  ColorWhite,
+ _ColorName[10:13]:                  ColorRed,
+ strings.ToLower(_ColorName[10:13]): ColorRed,
+ _ColorName[13:18]:                  ColorGreen,
+ strings.ToLower(_ColorName[13:18]): ColorGreen,
+ _ColorName[18:22]:                  ColorBlue,
+ strings.ToLower(_ColorName[18:22]): ColorBlue,
+ _ColorName[22:26]:                  ColorGrey,
+ strings.ToLower(_ColorName[22:26]): ColorGrey,
+ _ColorName[26:32]:                  ColorYellow,
+ strings.ToLower(_ColorName[26:32]): ColorYellow,
+ _ColorName[32:42]:                  ColorBlueGreen,
+ strings.ToLower(_ColorName[32:42]): ColorBlueGreen,
+ _ColorName[42:52]:                  ColorRedOrange,
+ strings.ToLower(_ColorName[42:52]): ColorRedOrange,
+ _ColorName[52:64]:                  ColorYellowGreen,
+ strings.ToLower(_ColorName[52:64]): ColorYellowGreen,
+ _ColorName[64:79]:                  ColorRedOrangeBlue,
+ strings.ToLower(_ColorName[64:79]): ColorRedOrangeBlue,
 }
 
 // ParseColor attempts to convert a string to a Color
 func ParseColor(name string) (Color, error) {
-	if x, ok := _ColorValue[name]; ok {
-		return x, nil
-	}
-	return Color(0), fmt.Errorf("%s is not a valid Color", name)
+ if x, ok := _ColorValue[name]; ok {
+  return x, nil
+ }
+ return Color(0), fmt.Errorf("%s is not a valid Color", name)
 }
 
 func (x Color) Ptr() *Color {
-	return &x
+ return &x
 }
 
 // MarshalText implements the text marshaller method
 func (x Color) MarshalText() ([]byte, error) {
-	return []byte(x.String()), nil
+ return []byte(x.String()), nil
 }
 
 // UnmarshalText implements the text unmarshaller method
 func (x *Color) UnmarshalText(text []byte) error {
-	name := string(text)
-	tmp, err := ParseColor(name)
-	if err != nil {
-		return err
-	}
-	*x = tmp
-	return nil
+ name := string(text)
+ tmp, err := ParseColor(name)
+ if err != nil {
+  return err
+ }
+ *x = tmp
+ return nil
 }
 ```

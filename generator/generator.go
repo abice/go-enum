@@ -260,6 +260,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 	}
 	sort.Strings(keys)
 
+	var created int
 	for _, name := range keys {
 		ts := enums[name]
 
@@ -269,6 +270,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			continue
 		}
 
+		created++
 		data := map[string]interface{}{
 			"enum":       enum,
 			"name":       name,
@@ -296,6 +298,11 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q, template: %v", name, userTemplateName))
 			}
 		}
+	}
+
+	if created < 1 {
+		// Don't save anything if we didn't actually generate any successful enums.
+		return nil, nil
 	}
 
 	formatted, err := imports.Process(pkg, vBuff.Bytes(), nil)
@@ -338,6 +345,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	}
 
 	enumDecl := getEnumDeclFromComments(ts.Doc.List)
+	if enumDecl == "" {
+		return nil, errors.New("failed parsing enum")
+	}
 
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
 	var (
@@ -530,6 +540,7 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 
 	if enumParamLevel > 0 {
 		fmt.Println("ENUM Parse error, there is a dangling '(' in your comment.")
+		return ""
 	}
 	joined := fmt.Sprintf("ENUM(%s)", strings.Join(parts, `,`))
 	return joined

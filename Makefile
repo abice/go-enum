@@ -37,7 +37,7 @@ deps: $(MOCKGEN)
 deps: $(GOBINDATA)
 deps: $(GOIMPORTS)
 
-PACKAGES='./generator' './example'
+PACKAGES='./generator' './_example'
 
 .PHONY: all
 all: build fmt test example cover install
@@ -88,7 +88,7 @@ phony: clean tc build
 
 .PHONY: example
 example:
-	$(GO) generate ./example/...
+	$(GO) generate ./_example/...
 
 bin/goimports: go.sum
 	$(call goinstall,golang.org/x/tools/cmd/goimports)
