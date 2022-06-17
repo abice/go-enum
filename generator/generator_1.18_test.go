@@ -75,6 +75,33 @@ func Test118ExampleFile(t *testing.T) {
 	}
 }
 
+// TestExampleFileMoreOptions
+func Test118ExampleFileMoreOptions(t *testing.T) {
+	g := NewGenerator().
+		WithMarshal().
+		WithSQLDriver().
+		WithCaseInsensitiveParse().
+		WithNames().
+		WithoutSnakeToCamel().
+		WithMustParse().
+		WithForceLower().
+		WithTemplates(`../_example/user_template.tmpl`)
+	for name, testExample := range testExampleFiles {
+		t.Run(name, func(t *testing.T) {
+			// Parse the file given in arguments
+			imported, err := g.GenerateFromFile(testExample)
+			require.Nil(t, err, "Error generating formatted code")
+
+			outputLines := strings.Split(string(imported), "\n")
+			cupaloy.SnapshotT(t, outputLines)
+
+			if false {
+				fmt.Println(string(imported))
+			}
+		})
+	}
+}
+
 // TestExampleFile
 func Test118NoPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
@@ -204,5 +231,93 @@ func Test118AliasParsing(t *testing.T) {
 				require.Equal(t, tc.resultingMap, replacementNames)
 			}
 		})
+	}
+}
+
+// TestEnumParseFailure
+func Test118EnumParseFailure(t *testing.T) {
+	input := `package test
+	// Behavior
+	type SomeInterface interface{
+
+	}
+
+	// ENUM(
+	//	a,
+	//}
+	type Animal int
+	`
+	g := NewGenerator().
+		WithoutSnakeToCamel()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Empty(t, string(output))
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
+// TestUintInvalidParsing
+func TestUintInvalidParsing(t *testing.T) {
+	input := `package test
+	// ENUM(
+	//	a=-1,
+	//)
+	type Animal uint
+	`
+	g := NewGenerator().
+		WithoutSnakeToCamel()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Empty(t, string(output))
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
+// TestIntInvalidParsing
+func Test118IntInvalidParsing(t *testing.T) {
+	input := `package test
+	// ENUM(
+	//	a=c,
+	//)
+	type Animal int
+	`
+	g := NewGenerator().
+		WithoutSnakeToCamel()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Empty(t, string(output))
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
+// TestAliasing
+func Test118Aliasing(t *testing.T) {
+	input := `package test
+	// ENUM(a,b,CDEF) with some extra text
+	type Animal int
+	`
+	g := NewGenerator().
+		WithoutSnakeToCamel()
+	ParseAliases([]string{"CDEF:C"})
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "// AnimalC is a Animal of type CDEF.")
+	if false { // Debugging statement
+		fmt.Println(string(output))
 	}
 }
