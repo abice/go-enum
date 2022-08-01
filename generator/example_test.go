@@ -130,3 +130,11 @@ type Enum64bit uint64
 // էժան = 1
 // )
 type NonASCII int
+
+// StringEnum.
+// ENUM(
+// random = 1114
+// values = 300
+// here  = 1
+// )
+type StringEnum string

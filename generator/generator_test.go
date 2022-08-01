@@ -1,6 +1,3 @@
-//go:build !go1.18
-// +build !go1.18
-
 package generator
 
 import (
@@ -200,9 +197,7 @@ func TestAliasParsing(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			defer func() {
-				replacementNames = map[string]string{}
-			}()
+			replacementNames = map[string]string{}
 			err := ParseAliases(tc.input)
 			if tc.err != nil {
 				require.Error(t, err)

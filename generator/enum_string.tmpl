@@ -1,0 +1,269 @@
+{{- define "enum_string"}}
+const (
+{{- $enumName := .enum.Name -}}
+{{- $enumType := .enum.Type -}}
+{{- $vars := dict "lastoffset" "0" -}}
+{{ range $rIndex, $value := .enum.Values }}
+	{{ if eq $value.Name "_"}}// Skipped value.{{else}}// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.RawName}}.{{end}}
+	{{- if $value.Comment}}
+	// {{$value.Comment}}
+	{{- end}}
+    {{$value.PrefixedName}} {{$enumName}} = "{{$value.RawName}}"
+{{- end}}
+)
+
+{{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
+
+// {{.enum.Name}}Names returns a list of possible string values of {{.enum.Name}}.
+func {{.enum.Name}}Names() []string {
+	tmp := make([]string, len(_{{.enum.Name}}Names))
+	copy(tmp, _{{.enum.Name}}Names)
+	return tmp
+}
+{{ end -}}
+
+// String implements the Stringer interface.
+func (x {{.enum.Name}}) String() string {
+	return string(x)
+}
+
+// String implements the Stringer interface.
+func (x {{.enum.Name}}) IsValid() bool {
+	_, err := Parse{{.enum.Name}}(string(x))
+	return err == nil
+}
+
+var _{{.enum.Name}}Value = {{ unmapifystring .enum .lowercase }}
+
+// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
+func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
+	if x, ok := _{{.enum.Name}}Value[name]; ok {
+		return x, nil
+	}{{if .nocase }}
+	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
+	if x, ok := _{{.enum.Name}}Value[strings.ToLower(name)]; ok {
+		return x, nil
+	}{{- end}}
+	{{if .names -}}
+	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
+	{{- else -}}
+	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
+	{{- end}}
+}
+
+{{ if .mustparse }}
+// MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
+func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
+	val, err := Parse{{.enum.Name}}(name)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+{{end}}
+
+{{ if .ptr }}
+func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
+	return &x
+}
+{{end}}
+
+{{ if .marshal }}
+// MarshalText implements the text marshaller method.
+func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
+	return []byte(string(x)), nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
+	tmp, err := Parse{{.enum.Name}}(string(text))
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+{{end}}
+
+{{ if or .sql .sqlnullint .sqlnullstr}}
+var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
+// Scan implements the Scanner interface.
+func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
+	if value == nil {
+		*x = {{.enum.Name}}("")
+		return
+	}
+
+	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
+	switch v := value.(type) {
+	case string:
+		*x, err = Parse{{.enum.Name}}(v)
+	case []byte:
+		*x, err = Parse{{.enum.Name}}(string(v))
+	case {{.enum.Name}}:
+		*x = v
+	case *{{.enum.Name}}:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x = *v
+	case *string:
+		if v == nil{
+			return _{{.enum.Name}}ErrNilPtr
+		}
+		*x, err = Parse{{.enum.Name}}(*v)
+	default:
+		return errors.New("invalid type for {{.enum.Name}}")
+	}
+	
+	return 
+}
+
+{{ if or .sql .sqlnullstr }}
+// Value implements the driver Valuer interface.
+func (x {{.enum.Name}}) Value() (driver.Value, error) {
+	return x.String(), nil
+}
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x {{.enum.Name}}) Value() (driver.Value, error) {
+	return string(x), nil
+}
+{{end}}
+
+{{end}}
+
+
+{{ if .flag }}
+// Set implements the Golang flag.Value interface func.
+func (x *{{.enum.Name}}) Set(val string) error {
+	v, err := Parse{{.enum.Name}}(val)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func.
+func (x *{{.enum.Name}}) Get() interface{} {
+	return *x
+}
+
+// Type implements the github.com/spf13/pFlag Value interface.
+func (x *{{.enum.Name}}) Type() string {
+	return "{{.enum.Name}}"
+}
+{{end}}
+
+{{ if or .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}} struct{
+	{{.enum.Name}}	{{.enum.Name}}
+	Valid 					bool{{/* Add some info as to whether this value was set during unmarshalling or not */}}{{if .marshal }}
+	Set							bool{{ end }}
+}
+
+func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
+	err := x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	_ = err // make any errcheck linters happy
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
+	if value == nil {
+		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(""), false
+		return
+	}
+
+	err = x.{{.enum.Name}}.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+{{ if .sqlnullint }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	// driver.Value accepts int64 for int values.
+	return string(x.{{.enum.Name}}), nil
+}
+{{ else }}
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ end }}
+
+{{ if .marshal }}
+// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
+func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.{{.enum.Name}})
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
+func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
+	n.Set = true
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil{
+		return err
+	}
+	err = n.Scan(x)
+	return err
+}
+{{ end }}
+
+{{ end }}
+
+{{ if and .sqlnullint .sqlnullstr }}
+type Null{{.enum.Name}}Str struct {
+	Null{{.enum.Name}}
+}
+
+func NewNull{{.enum.Name}}Str(val interface{}) (x Null{{.enum.Name}}Str) {
+	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x Null{{.enum.Name}}Str) Value() (driver.Value, error) {
+	if !x.Valid{
+		return nil, nil
+	}
+	return x.{{.enum.Name}}.String(), nil
+}
+{{ if .marshal }}
+// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
+func (n Null{{.enum.Name}}Str) MarshalJSON() ([]byte, error) {
+	const nullStr = "null"
+	if n.Valid {
+		return json.Marshal(n.{{.enum.Name}})
+	}
+	return []byte(nullStr), nil
+}
+
+// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
+func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
+	n.Set = true
+	var x interface{}
+	err := json.Unmarshal(b, &x)
+	if err != nil{
+		return err
+	}
+	err = n.Scan(x)
+	return err
+}
+{{ end }}
+{{ end }}
+
+{{end}}
+

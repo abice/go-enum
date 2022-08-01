@@ -90,6 +90,7 @@ func NewGenerator() *Generator {
 	funcs["stringify"] = Stringify
 	funcs["mapify"] = Mapify
 	funcs["unmapify"] = Unmapify
+	funcs["unmapifystring"] = UnmapifyStringEnum
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
 
@@ -287,7 +288,12 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"forcelower": g.forceLower,
 		}
 
-		err = g.t.ExecuteTemplate(vBuff, "enum", data)
+		templateName := "enum"
+		if enum.Type == "string" {
+			templateName = "enum_string"
+		}
+
+		err = g.t.ExecuteTemplate(vBuff, templateName, data)
 		if err != nil {
 			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
 		}

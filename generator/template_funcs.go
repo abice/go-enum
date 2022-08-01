@@ -55,8 +55,37 @@ func Unmapify(e Enum, lowercase bool) (ret string, err error) {
 	return
 }
 
+// Unmapify returns a map that is all of the indexes for a string value lookup
+func UnmapifyStringEnum(e Enum, lowercase bool) (ret string, err error) {
+	var builder strings.Builder
+	_, err = builder.WriteString("map[string]" + e.Name + "{\n")
+	if err != nil {
+		return
+	}
+	for _, val := range e.Values {
+		if val.Name != skipHolder {
+			_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", val.RawName, val.PrefixedName))
+			if err != nil {
+				return
+			}
+			if lowercase && strings.ToLower(val.RawName) != val.RawName {
+				_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", strings.ToLower(val.RawName), val.PrefixedName))
+				if err != nil {
+					return
+				}
+			}
+		}
+	}
+	builder.WriteByte('}')
+	ret = builder.String()
+	return
+}
+
 // Namify returns a slice that is all of the possible names for an enum in a slice
 func Namify(e Enum) (ret string, err error) {
+	if e.Type == "string" {
+		return namifyStringEnum(e)
+	}
 	strName := fmt.Sprintf(`_%sName`, e.Name)
 	ret = "[]string{\n"
 	index := 0
@@ -65,6 +94,18 @@ func Namify(e Enum) (ret string, err error) {
 			nextIndex := index + len(val.Name)
 			ret = fmt.Sprintf("%s%s[%d:%d],\n", ret, strName, index, nextIndex)
 			index = nextIndex
+		}
+	}
+	ret = ret + "}"
+	return
+}
+
+// Namify returns a slice that is all of the possible names for an enum in a slice
+func namifyStringEnum(e Enum) (ret string, err error) {
+	ret = "[]string{\n"
+	for _, val := range e.Values {
+		if val.Name != skipHolder {
+			ret = fmt.Sprintf("%sstring(%s),\n", ret, val.PrefixedName)
 		}
 	}
 	ret = ret + "}"
