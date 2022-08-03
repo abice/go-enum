@@ -287,7 +287,12 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"forcelower": g.forceLower,
 		}
 
-		err = g.t.ExecuteTemplate(vBuff, "enum", data)
+		templateName := "enum"
+		if enum.Type == "string" {
+			templateName = "enum_string"
+		}
+
+		err = g.t.ExecuteTemplate(vBuff, templateName, data)
 		if err != nil {
 			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
 		}

@@ -261,7 +261,7 @@ func Test118EnumParseFailure(t *testing.T) {
 }
 
 // TestUintInvalidParsing
-func TestUintInvalidParsing(t *testing.T) {
+func Test118UintInvalidParsing(t *testing.T) {
 	input := `package test
 	// ENUM(
 	//	a=-1,

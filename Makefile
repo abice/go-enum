@@ -40,7 +40,7 @@ deps: $(GOIMPORTS)
 PACKAGES='./generator' './_example'
 
 .PHONY: all
-all: build fmt test example cover install
+all: build fmt test example cover install assets
 
 build: deps
 	$(GO) generate ./generator
@@ -52,6 +52,7 @@ fmt:
 
 test: gen-test generate
 	$(GO) test -v -race -coverprofile=coverage.out ./...
+	$(GO) test -v -race ./_example
 
 cover: gen-test test
 	$(GO) tool cover -html=coverage.out -o coverage.html
@@ -61,11 +62,11 @@ coveralls: $(GOVERALLS)
 	$(GOVERALLS) -coverprofile=coverage.out -service=$(SERVICE) -repotoken=$(COVERALLS_TOKEN)
 
 clean:
-	$(GO) clean
 	rm -f bin/go-enum
 	rm -rf coverage/
 	rm -rf bin/
 	rm -rf dist/
+	$(GO) clean
 
 .PHONY: assert-no-changes
 assert-no-changes:
@@ -102,12 +103,15 @@ bin/goveralls: go.sum
 bin/go-bindata: go.sum
 	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
 
-generate1_15: generator/assets/assets.go generator/enum.tmpl
+assets: generator/enum.tmpl generator/enum_string.tmpl
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
 
-.PHONY: snapshots1_18
-snapshots1_18:
-	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.18 -c './update-snapshots.sh || true && make clean && make'
+snapshots: snapshots_1.17
+snapshots: snapshots_1.18
+
+snapshots_%:
+	echo "##### updating snapshots for golang $* #####"
+	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c './update-snapshots.sh || true'
 
 .PHONY: ci
 ci: docker_1.14
