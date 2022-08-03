@@ -90,7 +90,6 @@ func NewGenerator() *Generator {
 	funcs["stringify"] = Stringify
 	funcs["mapify"] = Mapify
 	funcs["unmapify"] = Unmapify
-	funcs["unmapifystring"] = UnmapifyStringEnum
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
 

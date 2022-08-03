@@ -33,7 +33,7 @@ func (x {{.enum.Name}}) IsValid() bool {
 	return err == nil
 }
 
-var _{{.enum.Name}}Value = {{ unmapifystring .enum .lowercase }}
+var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
 // Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
 func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
@@ -266,4 +266,3 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 {{ end }}
 
 {{end}}
-
