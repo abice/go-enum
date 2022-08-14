@@ -47,6 +47,8 @@ type Generator struct {
 	leaveSnakeCase    bool
 	prefix            string
 	sqlNullInt        bool
+	sqlInt            bool
+	sqlUInt           bool
 	sqlNullStr        bool
 	ptr               bool
 	mustParse         bool
@@ -55,10 +57,11 @@ type Generator struct {
 
 // Enum holds data for a discovered enum in the parsed source
 type Enum struct {
-	Name   string
-	Prefix string
-	Type   string
-	Values []EnumValue
+	Name     string
+	Prefix   string
+	Type     string
+	Unsigned bool
+	Values   []EnumValue
 }
 
 // EnumValue holds the individual data for each enum value within the found enum.
@@ -187,6 +190,18 @@ func (g *Generator) WithForceLower() *Generator {
 	return g
 }
 
+// WithSQLInt is used to add int sql storage for a string based enum.
+func (g *Generator) WithSQLInt() *Generator {
+	g.sqlInt = true
+	return g
+}
+
+// WithSQLUInt is used to add uint sql storage for a string based enum.
+func (g *Generator) WithSQLUInt() *Generator {
+	g.sqlUInt = true
+	return g
+}
+
 // ParseAliases is used to add aliases to replace during name sanitization.
 func ParseAliases(aliases []string) error {
 	aliasMap := map[string]string{}
@@ -281,6 +296,8 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"flag":       g.flag,
 			"names":      g.names,
 			"ptr":        g.ptr,
+			"sqlint":     g.sqlInt,
+			"sqluint":    g.sqlUInt,
 			"sqlnullint": g.sqlNullInt,
 			"sqlnullstr": g.sqlNullStr,
 			"mustparse":  g.mustParse,
@@ -356,12 +373,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
 	var (
-		data     interface{}
-		unsigned bool
+		data interface{}
 	)
-	if strings.HasPrefix(enum.Type, "u") {
+	if strings.HasPrefix(enum.Type, "u") || g.sqlUInt {
 		data = uint64(0)
-		unsigned = true
+		enum.Unsigned = true
 	} else {
 		data = int64(0)
 	}
@@ -384,7 +400,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					if unsigned {
+					if enum.Unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
 							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)

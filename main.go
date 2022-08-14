@@ -33,6 +33,8 @@ type rootT struct {
 	LeaveSnakeCase    bool
 	SQLNullStr        bool
 	SQLNullInt        bool
+	SQLInt            bool
+	SQLUInt           bool
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
@@ -110,6 +112,16 @@ func main() {
 				Name:        "ptr",
 				Usage:       "Adds a pointer method to get a pointer from const values",
 				Destination: &argv.Ptr,
+			},
+			&cli.BoolFlag{
+				Name:        "sqlint",
+				Usage:       "Adds SQL int64 database value functions for string typed ENUMS.",
+				Destination: &argv.SQLInt,
+			},
+			&cli.BoolFlag{
+				Name:        "sqluint",
+				Usage:       "Adds SQL uint64 database scan functions for string typed ENUMS.",
+				Destination: &argv.SQLUInt,
 			},
 			&cli.BoolFlag{
 				Name:        "sqlnullint",
@@ -197,6 +209,12 @@ func main() {
 				}
 				if argv.ForceLower {
 					g.WithForceLower()
+				}
+				if argv.SQLInt {
+					g.WithSQLInt()
+				}
+				if argv.SQLUInt {
+					g.WithSQLUInt()
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
 					for _, t := range templates {

@@ -25,6 +25,8 @@ const (
 	StrStateFailed StrState = "failed"
 )
 
+var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
+
 var _StrStateNames = []string{
 	string(StrStatePending),
 	string(StrStateRunning),
@@ -44,7 +46,7 @@ func (x StrState) String() string {
 	return string(x)
 }
 
-// String implements the Stringer interface.
+// IsValid returns whether the string contained is a valid StrState.
 func (x StrState) IsValid() bool {
 	_, err := ParseStrState(string(x))
 	return err == nil
@@ -66,7 +68,8 @@ func ParseStrState(name string) (StrState, error) {
 	if x, ok := _StrStateValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return StrState(""), fmt.Errorf("%s is not a valid StrState, try [%s]", name, strings.Join(_StrStateNames, ", "))
+
+	return StrState(""), fmt.Errorf("%s is %w", name, ErrInvalidStrState)
 }
 
 // MustParseStrState converts a string to a StrState, and panics if is not valid.
@@ -97,7 +100,7 @@ func (x *StrState) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var _StrStateErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrStrStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *StrState) Scan(value interface{}) (err error) {
@@ -117,14 +120,15 @@ func (x *StrState) Scan(value interface{}) (err error) {
 		*x = v
 	case *StrState:
 		if v == nil {
-			return _StrStateErrNilPtr
+			return ErrStrStateNilPtr
 		}
 		*x = *v
 	case *string:
 		if v == nil {
-			return _StrStateErrNilPtr
+			return ErrStrStateNilPtr
 		}
 		*x, err = ParseStrState(*v)
+
 	default:
 		return errors.New("invalid type for StrState")
 	}
@@ -134,7 +138,11 @@ func (x *StrState) Scan(value interface{}) (err error) {
 
 // Value implements the driver Valuer interface.
 func (x StrState) Value() (driver.Value, error) {
-	return x.String(), nil
+	valid, err := ParseStrState(string(x))
+	if err != nil {
+		return nil, err
+	}
+	return string(valid), nil
 }
 
 // Set implements the Golang flag.Value interface func.
@@ -183,7 +191,8 @@ func (x NullStrState) Value() (driver.Value, error) {
 	if !x.Valid {
 		return nil, nil
 	}
-	return x.StrState.String(), nil
+	// return underlying enum's value after null is checked
+	return x.StrState.Value()
 }
 
 // MarshalJSON correctly serializes a NullStrState to JSON.

@@ -12,6 +12,12 @@ const (
 {{- end}}
 )
 
+{{if .names -}}
+var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
+{{- else -}}
+var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
+{{- end}}
+
 {{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
 
 // {{.enum.Name}}Names returns a list of possible string values of {{.enum.Name}}.
@@ -27,7 +33,7 @@ func (x {{.enum.Name}}) String() string {
 	return string(x)
 }
 
-// String implements the Stringer interface.
+// IsValid returns whether the string contained is a valid {{.enum.Name}}.
 func (x {{.enum.Name}}) IsValid() bool {
 	_, err := Parse{{.enum.Name}}(string(x))
 	return err == nil
@@ -44,11 +50,8 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[strings.ToLower(name)]; ok {
 		return x, nil
 	}{{- end}}
-	{{if .names -}}
-	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
-	{{- else -}}
-	return {{.enum.Name}}(""), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
-	{{- end}}
+
+	return {{.enum.Name}}(""), fmt.Errorf("%s is %w", name, ErrInvalid{{.enum.Name}})
 }
 
 {{ if .mustparse }}
@@ -85,8 +88,72 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
-{{ if or .sql .sqlnullint .sqlnullstr}}
-var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+{{ if or .sql .sqlint .sqluint .sqlnullint .sqlnullstr}}
+var Err{{.enum.Name}}NilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
+{{ if or .sqlint .sqluint .sqlnullint }}
+var _{{.enum.Name}}SqlValues = map[{{.enum.Name}}]{{if .enum.Unsigned}}u{{end}}int64{
+{{- $enumName := .enum.Name -}}
+{{- $enumType := .enum.Type -}}
+{{ range $rIndex, $value := .enum.Values }}
+    {{$value.PrefixedName}}: {{$value.Value}},
+{{- end}}
+}
+
+var _{{.enum.Name}}SqlScan = map[{{if .enum.Unsigned}}u{{end}}int64]{{.enum.Name}}{
+{{- $enumName := .enum.Name -}}
+{{- $enumType := .enum.Type -}}
+{{ range $rIndex, $value := .enum.Values }}
+    {{$value.Value}}: {{$value.PrefixedName}},
+{{- end}}
+}
+{{end}}
+
+{{- if or .sqluint .sqlint .sqlnullint }}
+func (x *{{.enum.Name}}) parseSqlInt(v int64) error{
+	val, ok := _{{.enum.Name}}SqlScan[{{if .enum.Unsigned}}uint64({{end}}v{{if .enum.Unsigned}}){{end}}]
+	if !ok{
+		return ErrInvalid{{.enum.Name}}
+	}
+	*x = val
+	return nil
+}
+
+func (x *{{.enum.Name}}) parseSqlUInt(v uint64) error{
+	val, ok := _{{.enum.Name}}SqlScan[{{if not .enum.Unsigned}}int64({{end}}v{{if not .enum.Unsigned}}){{end}}]
+	if !ok{
+		return ErrInvalid{{.enum.Name}}
+	}
+	*x = val
+	return nil
+}
+
+func (x *{{.enum.Name}}) parseSqlFloat64(v float64) error{
+	val, ok := _{{.enum.Name}}SqlScan[{{if .enum.Unsigned}}u{{end}}int64(v)]
+	if !ok{
+		return ErrInvalid{{.enum.Name}}
+	}
+	*x = val
+	return nil
+}
+
+func (x *{{.enum.Name}}) parseSqlString(v string)error{
+	// Assume enum first
+	parsed, err := Parse{{.enum.Name}}(v)
+	if err != nil{
+		// Assume integer
+		parsedVal, err := strconv.Parse{{if .enum.Unsigned}}Ui{{else}}I{{end}}nt(v, 10, 64)
+		if err != nil{
+			return err
+		}
+		return x.parseSql{{if .enum.Unsigned}}U{{end}}Int(parsedVal)
+	}
+	*x = parsed
+	return nil
+}
+{{end}}
+
+
 
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
@@ -98,6 +165,59 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	// A wider range of scannable types.
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
+	{{- if or .sqlint .sqluint .sqlnullint}}
+	case int64:
+		err = x.parseSqlInt(v)
+	case string:
+		err = x.parseSqlString(v)
+	case []byte:
+		err = x.parseSqlString(string(v))
+	case {{.enum.Name}}:
+		*x = v
+	case int:
+		err = x.parseSqlInt(int64(v))
+	case *{{.enum.Name}}:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		*x = *v
+	case uint:
+		err = x.parseSqlUInt(uint64(v))
+	case uint64:
+		err = x.parseSqlUInt(v)
+	case *int:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlInt(int64(*v))
+	case *int64:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlInt(*v)
+	case float64: // json marshals everything as a float64 if it's a number
+		err = x.parseSqlFloat64(v)
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlFloat64(*v)
+	case *uint:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlUInt(uint64(*v))
+	case *uint64:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlUInt(*v)
+	case *string:
+		if v == nil{
+			return Err{{.enum.Name}}NilPtr
+		}
+		err = x.parseSqlString(*v)
+	{{else}}
 	case string:
 		*x, err = Parse{{.enum.Name}}(v)
 	case []byte:
@@ -106,14 +226,15 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		*x = v
 	case *{{.enum.Name}}:
 		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
+			return Err{{.enum.Name}}NilPtr
 		}
 		*x = *v
 	case *string:
 		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
+			return Err{{.enum.Name}}NilPtr
 		}
 		*x, err = Parse{{.enum.Name}}(*v)
+	{{end}}
 	default:
 		return errors.New("invalid type for {{.enum.Name}}")
 	}
@@ -121,15 +242,27 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	return 
 }
 
-{{ if or .sql .sqlnullstr }}
+{{ if or .sqlint .sqluint .sqlnullint }}
 // Value implements the driver Valuer interface.
 func (x {{.enum.Name}}) Value() (driver.Value, error) {
-	return x.String(), nil
+	valid, err := Parse{{.enum.Name}}(string(x))
+	if err != nil{
+		return nil, err
+	}
+	val, ok := _{{.enum.Name}}SqlValues[valid]
+	if !ok{
+		return nil, fmt.Errorf("%s is %w", string(x), ErrInvalid{{.enum.Name}})
+	}
+	return {{ if .enum.Unsigned}}int64(val){{else}}val{{end}}, nil
 }
 {{ else }}
 // Value implements the driver Valuer interface.
 func (x {{.enum.Name}}) Value() (driver.Value, error) {
-	return string(x), nil
+	valid, err := Parse{{.enum.Name}}(string(x))
+	if err != nil{
+		return nil, err
+	}
+	return string(valid), nil
 }
 {{end}}
 
@@ -156,6 +289,7 @@ func (x *{{.enum.Name}}) Type() string {
 {{end}}
 
 {{ if or .sqlnullint .sqlnullstr }}
+
 type Null{{.enum.Name}} struct{
 	{{.enum.Name}}	{{.enum.Name}}
 	Valid 					bool{{/* Add some info as to whether this value was set during unmarshalling or not */}}{{if .marshal }}
@@ -180,24 +314,14 @@ func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
 	return
 }
 
-{{ if .sqlnullint }}
 // Value implements the driver Valuer interface.
 func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 	if !x.Valid{
 		return nil, nil
 	}
-	// driver.Value accepts int64 for int values.
-	return string(x.{{.enum.Name}}), nil
+	// return underlying enum's value after null is checked
+	return x.{{.enum.Name}}.Value()
 }
-{{ else }}
-// Value implements the driver Valuer interface.
-func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
-	if !x.Valid{
-		return nil, nil
-	}
-	return x.{{.enum.Name}}.String(), nil
-}
-{{ end }}
 
 {{ if .marshal }}
 // MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.

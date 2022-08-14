@@ -2,5 +2,5 @@
 
 package example
 
-// ENUM(pending, running, completed, failed)
+// ENUM(pending=1, running, completed, failed)
 type StrState string

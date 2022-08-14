@@ -89,7 +89,8 @@ phony: clean tc build
 
 .PHONY: example
 example:
-	$(GO) generate ./_example/...
+	$(GO) generate ./_example
+	$(GO) generate ./_example/globs
 
 bin/goimports: go.sum
 	$(call goinstall,golang.org/x/tools/cmd/goimports)
@@ -104,7 +105,9 @@ bin/go-bindata: go.sum
 	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
 
 assets: generator/enum.tmpl generator/enum_string.tmpl
+ifndef IN_DOCKER
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
+endif
 
 snapshots: snapshots_1.17
 snapshots: snapshots_1.18
@@ -122,4 +125,4 @@ ci: docker_1.18
 
 docker_%:
 	echo "##### testing golang $* #####"
-	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
+	docker run -e IN_DOCKER=true -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
