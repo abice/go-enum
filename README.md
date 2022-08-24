@@ -120,6 +120,7 @@ GLOBAL OPTIONS:
    --flag                      Adds golang flag functions. (default: false)
    --prefix value              Replaces the prefix with a user one.
    --names                     Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
+   --nolower                   Remove the UPPERCASE to lowercase name change (default: false)
    --nocamel                   Removes the snake_case to CamelCase name changing (default: false)
    --ptr                       Adds a pointer method to get a pointer from const values (default: false)
    --sqlnullint                Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)

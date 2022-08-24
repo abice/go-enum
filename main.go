@@ -30,6 +30,7 @@ type rootT struct {
 	Flag              bool
 	Prefix            string
 	Names             bool
+	LeaveLowerCase    bool
 	LeaveSnakeCase    bool
 	SQLNullStr        bool
 	SQLNullInt        bool
@@ -100,6 +101,11 @@ func main() {
 				Name:        "names",
 				Usage:       "Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing",
 				Destination: &argv.Names,
+			},
+			&cli.BoolFlag{
+				Name:        "nolower",
+				Usage:       "Remove the UPPERCASE to lowercase name change",
+				Destination: &argv.LeaveLowerCase,
 			},
 			&cli.BoolFlag{
 				Name:        "nocamel",
@@ -176,6 +182,9 @@ func main() {
 				}
 				if argv.Names {
 					g.WithNames()
+				}
+				if argv.LeaveLowerCase {
+					g.WithoutUpperToLower()
 				}
 				if argv.LeaveSnakeCase {
 					g.WithoutSnakeToCamel()

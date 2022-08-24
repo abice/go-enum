@@ -44,6 +44,7 @@ type Generator struct {
 	sql               bool
 	flag              bool
 	names             bool
+	leaveLowerCase    bool
 	leaveSnakeCase    bool
 	prefix            string
 	sqlNullInt        bool
@@ -145,7 +146,13 @@ func (g *Generator) WithNames() *Generator {
 	return g
 }
 
-// WithoutSnakeToCamel is used to add flag methods to the enum
+// WithoutUpperToLower is used to remove the UPPERCASE to lowercase name changing
+func (g *Generator) WithoutUpperToLower() *Generator {
+	g.leaveLowerCase = true
+	return g
+}
+
+// WithoutSnakeToCamel is used to remove the snake_case to CamelCase name changing
 func (g *Generator) WithoutSnakeToCamel() *Generator {
 	g.leaveSnakeCase = true
 	return g
@@ -413,6 +420,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
 				prefixedName = sanitizeValue(prefixedName)
+				if !g.leaveLowerCase {
+					prefixedName = upperToLowerCase(prefixedName)
+				}
 				if !g.leaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
@@ -488,6 +498,10 @@ func snakeToCamelCase(value string) string {
 	value = strings.Join(parts, "")
 
 	return value
+}
+
+func upperToLowerCase(value string) string{
+	return strings.Lowercase(value)
 }
 
 // getEnumDeclFromComments parses the array of comment strings and creates a single Enum Declaration statement
