@@ -109,6 +109,27 @@ func TestNoPrefixExampleFile(t *testing.T) {
 }
 
 // TestExampleFile
+func TestReplacePrefixExampleFile(t *testing.T) {
+	g := NewGenerator().
+		WithMarshal().
+		WithLowercaseVariant().
+		WithNoPrefix().
+		WithPrefix("MyPrefix_").
+		WithFlag().
+		WithoutSnakeToCamel()
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	cupaloy.SnapshotT(t, outputLines)
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
+// TestExampleFile
 func TestNoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
 	g := NewGenerator().
 		WithMarshal().
