@@ -15,11 +15,12 @@ jobs:
         go:
           # Drop support of go 1.12
           # Drop support of go 1.13
-          - "1.14"
-          - "1.15"
-          - "1.16"
+          # Drop support of go 1.14
+          # Drop support of go 1.15
+          # Drop support of go 1.16
           - "1.17"
           - "1.18"
+          - "1.19"
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
@@ -48,4 +49,5 @@ jobs:
           path: coverage.*
 
       - name: Assert no changes
+        if: ${{ matrix.go }} > '1.16'
         run: make assert-no-changes

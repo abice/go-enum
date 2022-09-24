@@ -93,7 +93,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "prefix",
-				Usage:       "Replaces the prefix with a user one.",
+				Usage:       "Adds a prefix with a user one. If you would like to replace the prefix, then combine this option with --noprefix.",
 				Destination: &argv.Prefix,
 			},
 			&cli.BoolFlag{
