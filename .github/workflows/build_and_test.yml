@@ -15,9 +15,9 @@ jobs:
         go:
           # Drop support of go 1.12
           # Drop support of go 1.13
-          # Drop support of go "1.14"
-          # Drop support of go "1.15"
-          - "1.16"
+          # Drop support of go 1.14
+          # Drop support of go 1.15
+          # Drop support of go 1.16
           - "1.17"
           - "1.18"
           - "1.19"
