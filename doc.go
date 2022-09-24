@@ -9,21 +9,23 @@
 // to skip a value in the enum that won't be an allowed value.
 //
 // Installation
-//  go get github.com/abice/go-enum
+//
+//	go get github.com/abice/go-enum
 //
 // Usage:
 // Sample File
-//  //go:generate go-enum -f=myenum.go --marshal --
 //
-//  package mypackage
+//	//go:generate go-enum -f=myenum.go --marshal --
 //
-//  // MyEnum docs here
-//  // ENUM(Value1, Value2
-//  // Value3,_,
-//  // Value4)
-//  type MyEnum int
+//	package mypackage
+//
+//	// MyEnum docs here
+//	// ENUM(Value1, Value2
+//	// Value3,_,
+//	// Value4)
+//	type MyEnum int
 //
 // Command to generate your enum
-//  go generate ./
 //
+//	go generate ./
 package main

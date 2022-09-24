@@ -24,37 +24,45 @@ type Animal int32
 // Model x ENUM(Toyota,_,Chevy,_,Ford).
 type Model int32
 
-/* ENUM(
- Coke
- Pepsi
- MtnDew
+/*
+	ENUM(
+	Coke
+	Pepsi
+	MtnDew
+
 ).
 */
 type Soda int64
 
-/* ENUM(
- test_lower
- Test_capital
- anotherLowerCaseStart
+/*
+	ENUM(
+	test_lower
+	Test_capital
+	anotherLowerCaseStart
+
 )
 */
 type Cases int64
 
-/* ENUM(
- test-Hyphen
- -hyphenStart
- _underscoreFirst
- 0numberFirst
- 123456789a
- 123123-asdf
- ending-hyphen-
+/*
+	ENUM(
+	test-Hyphen
+	-hyphenStart
+	_underscoreFirst
+	0numberFirst
+	123456789a
+	123123-asdf
+	ending-hyphen-
+
 )
 */
 type Sanitizing int64
 
-/* ENUM(
- startWithNum=23
- nextNum
+/*
+	ENUM(
+	startWithNum=23
+	nextNum
+
 )
 */
 type StartNotZero int64
@@ -68,13 +76,15 @@ type StartNotZero int64
 // )
 type ColorWithComment int
 
-/*ENUM(
+/*
+ENUM(
 Black, White, Red
 Green
 Blue=33 // Blue starts with 33
 grey=
 yellow
-)*/
+)
+*/
 type ColorWithComment2 int
 
 /* ENUM(
@@ -103,7 +113,9 @@ Green = 33 // Green starts with 33
 // )
 type ColorWithComment4 int
 
-/* ENUM(
+/*
+	ENUM(
+
 Unknown= 0
 E2P15					= 32768
 E2P16					= 65536

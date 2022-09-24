@@ -5,7 +5,7 @@ else
 .SILENT:
 endif
 
-GO ?= GO111MODULE=on go
+GO ?= go
 COVERAGEDIR= coverage
 SERVICE=local
 
@@ -29,18 +29,16 @@ define goinstall
 	GOBIN=$(shell pwd)/bin go install $(1)
 endef
 
-GOBINDATA=bin/go-bindata
 GOIMPORTS=bin/goimports
 GOVERALLS=bin/goveralls
 MOCKGEN=bin/mockgen
 deps: $(MOCKGEN)
-deps: $(GOBINDATA)
 deps: $(GOIMPORTS)
 
 PACKAGES='./generator' './_example'
 
 .PHONY: all
-all: build fmt test example cover install assets
+all: build fmt test example cover install
 
 build: deps
 	$(GO) generate ./generator
@@ -100,12 +98,6 @@ bin/mockgen: go.sum
 bin/goveralls: go.sum
 	$(call goinstall,github.com/mattn/goveralls)
 
-bin/go-bindata: go.sum
-	$(call goinstall,github.com/kevinburke/go-bindata/go-bindata)
-
-assets: generator/enum.tmpl generator/enum_string.tmpl
-	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:1.15 -c 'make clean $(GOBINDATA) && $(GO) generate ./generator && make clean'
-
 snapshots: snapshots_1.17
 snapshots: snapshots_1.18
 
@@ -114,12 +106,19 @@ snapshots_%:
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c './update-snapshots.sh || true'
 
 .PHONY: ci
-ci: docker_1.14
-ci: docker_1.15
-ci: docker_1.16
+# ci: docker_1.16
 ci: docker_1.17
 ci: docker_1.18
+ci: docker_1.19
 
 docker_%:
 	echo "##### testing golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
+
+.PHONY: pullimages
+pullimages: pullimage_1.17
+pullimages: pullimage_1.18
+pullimages: pullimage_1.19
+
+pullimage_%:
+	docker pull golang:$*
