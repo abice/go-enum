@@ -97,7 +97,7 @@ func (x *StrState) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var _StrStateErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var errStrStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *StrState) Scan(value interface{}) (err error) {
@@ -117,12 +117,12 @@ func (x *StrState) Scan(value interface{}) (err error) {
 		*x = v
 	case *StrState:
 		if v == nil {
-			return _StrStateErrNilPtr
+			return errStrStateNilPtr
 		}
 		*x = *v
 	case *string:
 		if v == nil {
-			return _StrStateErrNilPtr
+			return errStrStateNilPtr
 		}
 		*x, err = ParseStrState(*v)
 	default:

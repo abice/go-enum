@@ -77,7 +77,7 @@ func (x *ProjectStatus) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var _ProjectStatusErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var errProjectStatusNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *ProjectStatus) Scan(value interface{}) (err error) {
@@ -113,7 +113,7 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 		*x = ProjectStatus(v)
 	case *ProjectStatus:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = *v
 	case uint:
@@ -122,34 +122,34 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 		*x = ProjectStatus(v)
 	case *int:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *int64:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = ProjectStatus(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *uint:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *uint64:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *string:
 		if v == nil {
-			return _ProjectStatusErrNilPtr
+			return errProjectStatusNilPtr
 		}
 		*x, err = ParseProjectStatus(*v)
 		if err != nil {
