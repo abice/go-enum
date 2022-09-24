@@ -55,7 +55,7 @@ func ParseJobState(name string) (JobState, error) {
 	return JobState(0), fmt.Errorf("%s is not a valid JobState", name)
 }
 
-var _JobStateErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var errJobStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *JobState) Scan(value interface{}) (err error) {
@@ -79,7 +79,7 @@ func (x *JobState) Scan(value interface{}) (err error) {
 		*x = JobState(v)
 	case *JobState:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = *v
 	case uint:
@@ -88,34 +88,34 @@ func (x *JobState) Scan(value interface{}) (err error) {
 		*x = JobState(v)
 	case *int:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *int64:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = JobState(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *uint:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *uint64:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *string:
 		if v == nil {
-			return _JobStateErrNilPtr
+			return errJobStateNilPtr
 		}
 		*x, err = ParseJobState(*v)
 	}

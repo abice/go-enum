@@ -86,7 +86,7 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 {{end}}
 
 {{ if or .sql .sqlnullint .sqlnullstr}}
-var _{{.enum.Name}}ErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var err{{.enum.Name}}NilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
@@ -106,12 +106,12 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		*x = v
 	case *{{.enum.Name}}:
 		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
+			return err{{.enum.Name}}NilPtr
 		}
 		*x = *v
 	case *string:
 		if v == nil{
-			return _{{.enum.Name}}ErrNilPtr
+			return err{{.enum.Name}}NilPtr
 		}
 		*x, err = Parse{{.enum.Name}}(*v)
 	default:

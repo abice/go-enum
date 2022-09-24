@@ -60,7 +60,7 @@ func ParseImageType(name string) (ImageType, error) {
 	return ImageType(0), fmt.Errorf("%s is not a valid ImageType", name)
 }
 
-var _ImageTypeErrNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var errImageTypeNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *ImageType) Scan(value interface{}) (err error) {
@@ -96,7 +96,7 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		*x = ImageType(v)
 	case *ImageType:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = *v
 	case uint:
@@ -105,34 +105,34 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		*x = ImageType(v)
 	case *int:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *int64:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = ImageType(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *uint:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *uint64:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *string:
 		if v == nil {
-			return _ImageTypeErrNilPtr
+			return errImageTypeNilPtr
 		}
 		*x, err = ParseImageType(*v)
 		if err != nil {
