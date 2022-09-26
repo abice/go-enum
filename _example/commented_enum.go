@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -21,6 +22,8 @@ const (
 	// Commented value 3
 	CommentedValue3
 )
+
+var ErrInvalidCommented = errors.New("not a valid Commented")
 
 const _CommentedName = "value1value2value3"
 
@@ -52,7 +55,7 @@ func ParseCommented(name string) (Commented, error) {
 	if x, ok := _CommentedValue[name]; ok {
 		return x, nil
 	}
-	return Commented(0), fmt.Errorf("%s is not a valid Commented", name)
+	return Commented(0), fmt.Errorf("%s is %w", name, ErrInvalidCommented)
 }
 
 // MarshalText implements the text marshaller method.
@@ -85,6 +88,8 @@ const (
 	ComplexCommentedValue3
 )
 
+var ErrInvalidComplexCommented = errors.New("not a valid ComplexCommented")
+
 const _ComplexCommentedName = "value1value2value3"
 
 var _ComplexCommentedMap = map[ComplexCommented]string{
@@ -115,7 +120,7 @@ func ParseComplexCommented(name string) (ComplexCommented, error) {
 	if x, ok := _ComplexCommentedValue[name]; ok {
 		return x, nil
 	}
-	return ComplexCommented(0), fmt.Errorf("%s is not a valid ComplexCommented", name)
+	return ComplexCommented(0), fmt.Errorf("%s is %w", name, ErrInvalidComplexCommented)
 }
 
 // MarshalText implements the text marshaller method.

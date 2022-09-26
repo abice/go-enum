@@ -42,6 +42,7 @@ type Generator struct {
 	caseInsensitive   bool
 	marshal           bool
 	sql               bool
+	sqlint            bool
 	flag              bool
 	names             bool
 	leaveSnakeCase    bool
@@ -130,6 +131,12 @@ func (g *Generator) WithMarshal() *Generator {
 // WithSQLDriver is used to add marshalling to the enum
 func (g *Generator) WithSQLDriver() *Generator {
 	g.sql = true
+	return g
+}
+
+// WithSQLInt is used to signal a string to be stored as an int.
+func (g *Generator) WithSQLInt() *Generator {
+	g.sqlint = true
 	return g
 }
 
@@ -278,6 +285,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"nocase":     g.caseInsensitive,
 			"marshal":    g.marshal,
 			"sql":        g.sql,
+			"sqlint":     g.sqlint,
 			"flag":       g.flag,
 			"names":      g.names,
 			"ptr":        g.ptr,

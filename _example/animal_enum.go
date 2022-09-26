@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -22,6 +23,8 @@ const (
 	// AnimalFishSharp is a Animal of type Fish#.
 	AnimalFishSharp
 )
+
+var ErrInvalidAnimal = errors.New("not a valid Animal")
 
 const _AnimalName = "CatDogFishFish++Fish#"
 
@@ -54,5 +57,5 @@ func ParseAnimal(name string) (Animal, error) {
 	if x, ok := _AnimalValue[name]; ok {
 		return x, nil
 	}
-	return Animal(0), fmt.Errorf("%s is not a valid Animal", name)
+	return Animal(0), fmt.Errorf("%s is %w", name, ErrInvalidAnimal)
 }

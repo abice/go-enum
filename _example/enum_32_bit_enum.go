@@ -38,6 +38,8 @@ const (
 	Enum32bitE2P30 Enum32bit = iota + 1073741813
 )
 
+var ErrInvalidEnum32bit = fmt.Errorf("not a valid Enum32bit, try [%s]", strings.Join(_Enum32bitNames, ", "))
+
 const _Enum32bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30"
 
 var _Enum32bitNames = []string{
@@ -105,5 +107,5 @@ func ParseEnum32bit(name string) (Enum32bit, error) {
 	if x, ok := _Enum32bitValue[name]; ok {
 		return x, nil
 	}
-	return Enum32bit(0), fmt.Errorf("%s is not a valid Enum32bit, try [%s]", name, strings.Join(_Enum32bitNames, ", "))
+	return Enum32bit(0), fmt.Errorf("%s is %w", name, ErrInvalidEnum32bit)
 }

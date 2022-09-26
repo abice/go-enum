@@ -50,6 +50,37 @@ func (x *ImageType) UnmarshalText(text []byte) error
 
 If you find that the options given are not adequate for your use case, there is an option to add a custom template (`-t` flag) to the processing engine so that your custom code can be created!
 
+## Now with string typed enums
+
+```go
+// ENUM(pending, running, completed, failed)
+type StrState string
+```
+
+```go
+const (
+ // StrStatePending is a StrState of type pending.
+ StrStatePending StrState = "pending"
+ // StrStateRunning is a StrState of type running.
+ StrStateRunning StrState = "running"
+ // StrStateCompleted is a StrState of type completed.
+ StrStateCompleted StrState = "completed"
+ // StrStateFailed is a StrState of type failed.
+ StrStateFailed StrState = "failed"
+)
+```
+
+If you would like to get integer values in sql, but strings elsewhere, you can assign an int value in the declaration
+like always, and specify the `--sqlint` flag.  Those values will be then used to convey the int value to sql, while allowing you to use only strings elsewhere.
+This might be helpful for things like swagger docs where you want the same type being used on the api layer, as you do in the
+sql layer, and not have swagger assume that your enumerations are integers, but are in fact strings!
+
+```go
+// swagger:enum StrState
+// ENUM(pending, running, completed, failed)
+type StrState string
+```
+
 ## Goal
 
 The goal of go-enum is to create an easy to use enum generator that will take a decorated type declaration like `type EnumName int` and create the associated constant values and funcs that will make life a little easier for adding new values.

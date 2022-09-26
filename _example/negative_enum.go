@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -21,6 +22,8 @@ const (
 	// AllNegativeUgly is a AllNegative of type Ugly.
 	AllNegativeUgly
 )
+
+var ErrInvalidAllNegative = errors.New("not a valid AllNegative")
 
 const _AllNegativeName = "UnknownGoodBadUgly"
 
@@ -59,7 +62,7 @@ func ParseAllNegative(name string) (AllNegative, error) {
 	if x, ok := _AllNegativeValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return AllNegative(0), fmt.Errorf("%s is not a valid AllNegative", name)
+	return AllNegative(0), fmt.Errorf("%s is %w", name, ErrInvalidAllNegative)
 }
 
 const (
@@ -70,6 +73,8 @@ const (
 	// StatusBad is a Status of type Bad.
 	StatusBad
 )
+
+var ErrInvalidStatus = errors.New("not a valid Status")
 
 const _StatusName = "UnknownGoodBad"
 
@@ -105,5 +110,5 @@ func ParseStatus(name string) (Status, error) {
 	if x, ok := _StatusValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return Status(0), fmt.Errorf("%s is not a valid Status", name)
+	return Status(0), fmt.Errorf("%s is %w", name, ErrInvalidStatus)
 }

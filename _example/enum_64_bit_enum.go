@@ -46,6 +46,8 @@ const (
 	Enum64bitE2P63 Enum64bit = iota + 18446744073709551600
 )
 
+var ErrInvalidEnum64bit = fmt.Errorf("not a valid Enum64bit, try [%s]", strings.Join(_Enum64bitNames, ", "))
+
 const _Enum64bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30E2P31E2P32E2P33E2P63"
 
 var _Enum64bitNames = []string{
@@ -125,5 +127,5 @@ func ParseEnum64bit(name string) (Enum64bit, error) {
 	if x, ok := _Enum64bitValue[name]; ok {
 		return x, nil
 	}
-	return Enum64bit(0), fmt.Errorf("%s is not a valid Enum64bit, try [%s]", name, strings.Join(_Enum64bitNames, ", "))
+	return Enum64bit(0), fmt.Errorf("%s is %w", name, ErrInvalidEnum64bit)
 }
