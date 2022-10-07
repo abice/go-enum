@@ -15,6 +15,8 @@ import (
 
 	"github.com/Masterminds/sprig"
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"golang.org/x/tools/imports"
 )
 
@@ -416,7 +418,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				}
 			}
 			rawName := strings.TrimSpace(value)
-			name := strings.Title(rawName)
+			name := cases.Title(language.Und, cases.NoLower).String(rawName)
 			prefixedName := name
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
@@ -490,8 +492,10 @@ func sanitizeValue(value string) string {
 
 func snakeToCamelCase(value string) string {
 	parts := strings.Split(value, "_")
+	title := cases.Title(language.Und, cases.NoLower)
+
 	for i, part := range parts {
-		parts[i] = strings.Title(part)
+		parts[i] = title.String(part)
 	}
 	value = strings.Join(parts, "")
 
