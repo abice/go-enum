@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -245,7 +244,7 @@ func main() {
 					}
 
 					mode := int(0644)
-					err = ioutil.WriteFile(outFilePath, raw, os.FileMode(mode))
+					err = os.WriteFile(outFilePath, raw, os.FileMode(mode))
 					if err != nil {
 						return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))
 					}
