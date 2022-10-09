@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE -t user_template.tmpl -t *user_glob*.tmpl
+//go:generate ../bin/go-enum  -t user_template.tmpl -t *user_glob*.tmpl
 
 package example
 

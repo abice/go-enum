@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --prefix=AcmeInc
+//go:generate ../bin/go-enum  --prefix=AcmeInc
 
 package example
 

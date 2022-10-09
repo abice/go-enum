@@ -102,7 +102,7 @@ I did not specify any overrides on the release binary names, so `uname -s` and `
 
 ### Using go generate
 
-1. Add a go:generate line to your file like so... `//go:generate go-enum -f=$GOFILE --marshal`
+1. Add a go:generate line to your file like so... `//go:generate go-enum --marshal`
 1. Run go generate like so `go generate ./...`
 1. Enjoy your newly created Enumeration!
 

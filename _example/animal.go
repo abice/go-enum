@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE -a "+:Plus,#:Sharp"
+//go:generate ../bin/go-enum -a "+:Plus,#:Sharp"
 
 package example
 
