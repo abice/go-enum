@@ -58,6 +58,7 @@ func main() {
 			&cli.StringSliceFlag{
 				Name:        "file",
 				Aliases:     []string{"f"},
+				EnvVars:     []string{"GOFILE"},
 				Usage:       "The file(s) to generate enums.  Use more than one flag for more files.",
 				Required:    true,
 				Destination: &argv.FileNames,
