@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --marshal --nocase --flag --names
+//go:generate ../bin/go-enum -f=$GOFILE --marshal --nocase --flag --names --nocamel
 
 package example
 

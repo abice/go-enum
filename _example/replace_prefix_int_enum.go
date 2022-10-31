@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// AcmeInt_SOME_PLACE_AWESOME is a IntShop of type SOME_PLACE_AWESOME.
-	AcmeInt_SOME_PLACE_AWESOME IntShop = iota
+	// AcmeInt_SomePlaceAwesome is a IntShop of type SomePlaceAwesome.
+	AcmeInt_SomePlaceAwesome IntShop = iota
 	// AcmeInt_SomewhereElse is a IntShop of type SomewhereElse.
 	AcmeInt_SomewhereElse
 	// AcmeInt_LocationUnknown is a IntShop of type LocationUnknown.
@@ -25,9 +25,9 @@ var ErrInvalidIntShop = fmt.Errorf("not a valid IntShop, try [%s]", strings.Join
 const _IntShopName = "SOME_PLACE_AWESOMESomewhereElseLocationUnknown"
 
 var _IntShopNames = []string{
-	_IntShopName[0:18],
-	_IntShopName[18:31],
-	_IntShopName[31:46],
+	_IntShopName[0:16],
+	_IntShopName[16:29],
+	_IntShopName[29:44],
 }
 
 // IntShopNames returns a list of possible string values of IntShop.
@@ -38,9 +38,9 @@ func IntShopNames() []string {
 }
 
 var _IntShopMap = map[IntShop]string{
-	AcmeInt_SOME_PLACE_AWESOME: _IntShopName[0:18],
-	AcmeInt_SomewhereElse:      _IntShopName[18:31],
-	AcmeInt_LocationUnknown:    _IntShopName[31:46],
+	AcmeInt_SomePlaceAwesome: _IntShopName[0:16],
+	AcmeInt_SomewhereElse:    _IntShopName[16:29],
+	AcmeInt_LocationUnknown:  _IntShopName[29:44],
 }
 
 // String implements the Stringer interface.
@@ -52,9 +52,9 @@ func (x IntShop) String() string {
 }
 
 var _IntShopValue = map[string]IntShop{
-	_IntShopName[0:18]:  AcmeInt_SOME_PLACE_AWESOME,
-	_IntShopName[18:31]: AcmeInt_SomewhereElse,
-	_IntShopName[31:46]: AcmeInt_LocationUnknown,
+	_IntShopName[0:16]:  AcmeInt_SomePlaceAwesome,
+	_IntShopName[16:29]: AcmeInt_SomewhereElse,
+	_IntShopName[29:44]: AcmeInt_LocationUnknown,
 }
 
 // ParseIntShop attempts to convert a string to a IntShop.

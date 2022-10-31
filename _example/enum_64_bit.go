@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --names
+//go:generate ../bin/go-enum -f=$GOFILE --names --nocamel
 
 package example
 

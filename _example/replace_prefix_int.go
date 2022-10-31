@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --marshal --prefix=AcmeInt_ --noprefix --nocamel --names
+//go:generate ../bin/go-enum -f=$GOFILE --marshal --prefix=AcmeInt_ --noprefix --names
 
 package example
 

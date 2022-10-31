@@ -419,11 +419,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			name := strings.Title(rawName)
 			prefixedName := name
 			if name != skipHolder {
+				if !g.leaveSnakeCase {
+					name = snakeToCamelCase(rawName)
+				}
 				prefixedName = enum.Prefix + name
 				prefixedName = sanitizeValue(prefixedName)
-				if !g.leaveSnakeCase {
-					prefixedName = snakeToCamelCase(prefixedName)
-				}
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
@@ -489,6 +489,9 @@ func sanitizeValue(value string) string {
 }
 
 func snakeToCamelCase(value string) string {
+	if value == strings.ToUpper(value) {
+		value = strings.ToLower(value)
+	}
 	parts := strings.Split(value, "_")
 	for i, part := range parts {
 		parts[i] = strings.Title(part)

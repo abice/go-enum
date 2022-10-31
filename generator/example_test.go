@@ -150,3 +150,11 @@ type NonASCII int
 // here  = 1
 // )
 type StringEnum string
+
+// StringEnum.
+// ENUM(
+// UPPER_SNAKE_1 = 1
+// UPPER_SNAKE_3 = 3
+// Already_Not_UpperWithPartialCamel  = 5
+// )
+type UpperSnake string
