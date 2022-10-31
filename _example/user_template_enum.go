@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -18,6 +19,8 @@ const (
 	// OceanColorGreen is a OceanColor of type Green.
 	OceanColorGreen
 )
+
+var ErrInvalidOceanColor = errors.New("not a valid OceanColor")
 
 const _OceanColorName = "CeruleanBlueGreen"
 
@@ -46,7 +49,7 @@ func ParseOceanColor(name string) (OceanColor, error) {
 	if x, ok := _OceanColorValue[name]; ok {
 		return x, nil
 	}
-	return OceanColor(0), fmt.Errorf("%s is not a valid OceanColor", name)
+	return OceanColor(0), fmt.Errorf("%s is %w", name, ErrInvalidOceanColor)
 }
 
 func ParseOceanColorGlobbedExample() bool {

@@ -26,6 +26,11 @@ const (
     {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{ if ne "0" $offset }} + {{ $offset }}{{end}}{{else if ne $lastOffset $offset }}{{$enumName}} = iota + {{ $offset }}{{end}}{{$_ := set $vars "lastoffset" $offset}}
 {{- end}}
 )
+{{if .names -}}
+var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
+{{- else -}}
+var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
+{{- end}}
 
 {{ template "stringer" . }}
 
@@ -50,11 +55,7 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[strings.ToLower(name)]; ok {
 		return x, nil
 	}{{- end}}
-	{{if .names -}}
-	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}, try [%s]", name, strings.Join(_{{.enum.Name}}Names, ", "))
-	{{- else -}}
-	return {{.enum.Name}}(0), fmt.Errorf("%s is not a valid {{.enum.Name}}", name)
-	{{- end}}
+	return {{.enum.Name}}(0), fmt.Errorf("%s is %w", name, ErrInvalid{{.enum.Name}})
 }
 
 {{ if .mustparse }}

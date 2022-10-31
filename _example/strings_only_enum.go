@@ -25,6 +25,8 @@ const (
 	StrStateFailed StrState = "failed"
 )
 
+var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
+
 var _StrStateNames = []string{
 	string(StrStatePending),
 	string(StrStateRunning),
@@ -66,7 +68,7 @@ func ParseStrState(name string) (StrState, error) {
 	if x, ok := _StrStateValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return StrState(""), fmt.Errorf("%s is not a valid StrState, try [%s]", name, strings.Join(_StrStateNames, ", "))
+	return StrState(""), fmt.Errorf("%s is %w", name, ErrInvalidStrState)
 }
 
 // MustParseStrState converts a string to a StrState, and panics if is not valid.

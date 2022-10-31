@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -36,6 +37,8 @@ const (
 	// ColorRedOrangeBlue is a Color of type Red-Orange-Blue.
 	ColorRedOrangeBlue
 )
+
+var ErrInvalidColor = errors.New("not a valid Color")
 
 const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_greenred-orange-blue"
 
@@ -91,7 +94,7 @@ func ParseColor(name string) (Color, error) {
 	if x, ok := _ColorValue[name]; ok {
 		return x, nil
 	}
-	return Color(0), fmt.Errorf("%s is not a valid Color", name)
+	return Color(0), fmt.Errorf("%s is %w", name, ErrInvalidColor)
 }
 
 // MustParseColor converts a string to a Color, and panics if is not valid.

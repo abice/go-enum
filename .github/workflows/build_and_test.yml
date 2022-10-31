@@ -24,12 +24,12 @@ jobs:
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
 
       - name: checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build
         run: make build
@@ -43,11 +43,10 @@ jobs:
             make coveralls
           fi
       - name: Upload coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: coverage.*
 
       - name: Assert no changes
-        if: ${{ matrix.go }} > '1.16'
         run: make assert-no-changes

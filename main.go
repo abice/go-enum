@@ -27,6 +27,7 @@ type rootT struct {
 	NoCase            bool
 	Marshal           bool
 	SQL               bool
+	SQLInt            bool
 	Flag              bool
 	Prefix            string
 	Names             bool
@@ -85,6 +86,11 @@ func main() {
 				Name:        "sql",
 				Usage:       "Adds SQL database scan and value functions.",
 				Destination: &argv.SQL,
+			},
+			&cli.BoolFlag{
+				Name:        "sqlint",
+				Usage:       "Tells the generator that a string typed enum should be stored in sql as an integer value.",
+				Destination: &argv.SQLInt,
 			},
 			&cli.BoolFlag{
 				Name:        "flag",
@@ -170,6 +176,9 @@ func main() {
 				}
 				if argv.SQL {
 					g.WithSQLDriver()
+				}
+				if argv.SQLInt {
+					g.WithSQLInt()
 				}
 				if argv.Flag {
 					g.WithFlag()

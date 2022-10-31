@@ -101,7 +101,7 @@ bin/goveralls: go.sum
 snapshots: snapshots_1.17
 snapshots: snapshots_1.18
 
-snapshots_%:
+snapshots_%: clean
 	echo "##### updating snapshots for golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c './update-snapshots.sh || true'
 

@@ -20,6 +20,8 @@ const (
 	AcmeInt_LocationUnknown
 )
 
+var ErrInvalidIntShop = fmt.Errorf("not a valid IntShop, try [%s]", strings.Join(_IntShopNames, ", "))
+
 const _IntShopName = "SOME_PLACE_AWESOMESomewhereElseLocationUnknown"
 
 var _IntShopNames = []string{
@@ -60,7 +62,7 @@ func ParseIntShop(name string) (IntShop, error) {
 	if x, ok := _IntShopValue[name]; ok {
 		return x, nil
 	}
-	return IntShop(0), fmt.Errorf("%s is not a valid IntShop, try [%s]", name, strings.Join(_IntShopNames, ", "))
+	return IntShop(0), fmt.Errorf("%s is %w", name, ErrInvalidIntShop)
 }
 
 // MarshalText implements the text marshaller method.

@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -16,6 +17,8 @@ const (
 	// ForceLowerTypeBootNode is a ForceLowerType of type BootNode.
 	ForceLowerTypeBootNode
 )
+
+var ErrInvalidForceLowerType = errors.New("not a valid ForceLowerType")
 
 const _ForceLowerTypeName = "dataswapbootnode"
 
@@ -42,5 +45,5 @@ func ParseForceLowerType(name string) (ForceLowerType, error) {
 	if x, ok := _ForceLowerTypeValue[name]; ok {
 		return x, nil
 	}
-	return ForceLowerType(0), fmt.Errorf("%s is not a valid ForceLowerType", name)
+	return ForceLowerType(0), fmt.Errorf("%s is %w", name, ErrInvalidForceLowerType)
 }

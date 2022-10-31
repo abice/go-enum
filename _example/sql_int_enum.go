@@ -26,6 +26,8 @@ const (
 	ImageTypeGif
 )
 
+var ErrInvalidImageType = errors.New("not a valid ImageType")
+
 const _ImageTypeName = "jpegjpgpngtiffgif"
 
 var _ImageTypeMap = map[ImageType]string{
@@ -57,7 +59,7 @@ func ParseImageType(name string) (ImageType, error) {
 	if x, ok := _ImageTypeValue[name]; ok {
 		return x, nil
 	}
-	return ImageType(0), fmt.Errorf("%s is not a valid ImageType", name)
+	return ImageType(0), fmt.Errorf("%s is %w", name, ErrInvalidImageType)
 }
 
 var errImageTypeNilPtr = errors.New("value pointer is nil") // one per type for package clashes

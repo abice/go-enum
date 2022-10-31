@@ -25,6 +25,8 @@ const (
 	ProjectStatusRejected
 )
 
+var ErrInvalidProjectStatus = errors.New("not a valid ProjectStatus")
+
 const _ProjectStatusName = "pendinginWorkcompletedrejected"
 
 var _ProjectStatusMap = map[ProjectStatus]string{
@@ -54,7 +56,7 @@ func ParseProjectStatus(name string) (ProjectStatus, error) {
 	if x, ok := _ProjectStatusValue[name]; ok {
 		return x, nil
 	}
-	return ProjectStatus(0), fmt.Errorf("%s is not a valid ProjectStatus", name)
+	return ProjectStatus(0), fmt.Errorf("%s is %w", name, ErrInvalidProjectStatus)
 }
 
 func (x ProjectStatus) Ptr() *ProjectStatus {

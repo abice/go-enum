@@ -23,6 +23,8 @@ const (
 	JobStateFailed
 )
 
+var ErrInvalidJobState = errors.New("not a valid JobState")
+
 const _JobStateName = "pendingprocessingcompletedfailed"
 
 var _JobStateMap = map[JobState]string{
@@ -52,7 +54,7 @@ func ParseJobState(name string) (JobState, error) {
 	if x, ok := _JobStateValue[name]; ok {
 		return x, nil
 	}
-	return JobState(0), fmt.Errorf("%s is not a valid JobState", name)
+	return JobState(0), fmt.Errorf("%s is %w", name, ErrInvalidJobState)
 }
 
 var errJobStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes

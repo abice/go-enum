@@ -56,6 +56,8 @@ const (
 	MakeVolkswagon
 )
 
+var ErrInvalidMake = fmt.Errorf("not a valid Make, try [%s]", strings.Join(_MakeNames, ", "))
+
 const _MakeName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedes-BenzVolkswagon"
 
 var _MakeNames = []string{
@@ -135,7 +137,7 @@ func ParseMake(name string) (Make, error) {
 	if x, ok := _MakeValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return Make(0), fmt.Errorf("%s is not a valid Make, try [%s]", name, strings.Join(_MakeNames, ", "))
+	return Make(0), fmt.Errorf("%s is %w", name, ErrInvalidMake)
 }
 
 // MarshalText implements the text marshaller method.
@@ -185,6 +187,8 @@ const (
 	// NoZerosPpps is a NoZeros of type Ppps.
 	NoZerosPpps
 )
+
+var ErrInvalidNoZeros = fmt.Errorf("not a valid NoZeros, try [%s]", strings.Join(_NoZerosNames, ", "))
 
 const _NoZerosName = "startmiddleendpsppsppps"
 
@@ -245,7 +249,7 @@ func ParseNoZeros(name string) (NoZeros, error) {
 	if x, ok := _NoZerosValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
-	return NoZeros(0), fmt.Errorf("%s is not a valid NoZeros, try [%s]", name, strings.Join(_NoZerosNames, ", "))
+	return NoZeros(0), fmt.Errorf("%s is %w", name, ErrInvalidNoZeros)
 }
 
 // MarshalText implements the text marshaller method.

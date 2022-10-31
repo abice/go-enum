@@ -7,6 +7,7 @@
 package example
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -18,6 +19,8 @@ const (
 	// AcmeIncProductGlue is a Product of type Glue.
 	AcmeIncProductGlue
 )
+
+var ErrInvalidProduct = errors.New("not a valid Product")
 
 const _ProductName = "AnvilDynamiteGlue"
 
@@ -46,5 +49,5 @@ func ParseProduct(name string) (Product, error) {
 	if x, ok := _ProductValue[name]; ok {
 		return x, nil
 	}
-	return Product(0), fmt.Errorf("%s is not a valid Product", name)
+	return Product(0), fmt.Errorf("%s is %w", name, ErrInvalidProduct)
 }
