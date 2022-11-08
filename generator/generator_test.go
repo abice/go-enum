@@ -307,7 +307,7 @@ func TestAliasing(t *testing.T) {
 	`
 	g := NewGenerator().
 		WithoutSnakeToCamel()
-	ParseAliases([]string{"CDEF:C"})
+	_ = ParseAliases([]string{"CDEF:C"})
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
