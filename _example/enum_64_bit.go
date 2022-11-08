@@ -1,10 +1,10 @@
-//go:generate ../bin/go-enum -f=$GOFILE --names
+//go:generate ../bin/go-enum  --names
 
 package example
 
-/* ENUM(
-
-Unkno 				= 0
+/*
+ENUM(
+Unkno					= 0
 E2P15					= 32768
 E2P16					= 65536
 E2P17					= 131072
@@ -21,6 +21,5 @@ E2P32					= 4294967296
 E2P33					= 8454967296
 E2P63					= 18446744073709551615
 )
-
 */
 type Enum64bit uint64

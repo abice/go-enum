@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --forcelower
+//go:generate ../bin/go-enum  --forcelower
 
 package example
 

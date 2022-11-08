@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum -f=$GOFILE --sqlnullint
+//go:generate ../bin/go-enum  --sqlnullint
 
 package example
 

@@ -1,8 +1,9 @@
-//go:generate ../bin/go-enum -f=$GOFILE --nocase
+//go:generate ../bin/go-enum  --nocase
 
 package example
 
-/* ENUM(
+/*
+ENUM(
 Unknown = -1,
 Good,
 Bad
@@ -10,7 +11,8 @@ Bad
 */
 type Status int
 
-/* ENUM(
+/*
+ENUM(
 Unknown = -5,
 Good,
 Bad,
