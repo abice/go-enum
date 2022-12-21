@@ -230,6 +230,9 @@ func main() {
 					out("go-enum started. file: %s\n", color.Cyan(originalName))
 					fileName, _ = filepath.Abs(fileName)
 					outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
+					if strings.HasSuffix(fileName, "_test.go") {
+						outFilePath = strings.Replace(outFilePath, "_test_enum.go", "_enum_test.go", 1)
+					}
 
 					// Parse the file given in arguments
 					raw, err := g.GenerateFromFile(fileName)
