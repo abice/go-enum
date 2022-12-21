@@ -506,59 +506,73 @@ func snakeToCamelCase(value string) string {
 // that is easier to deal with for the remainder of parsing.  It turns multi line declarations and makes a single
 // string declaration.
 func getEnumDeclFromComments(comments []*ast.Comment) string {
-	parts := []string{}
-	store := false
-
-	lines := []string{}
+	const EnumPrefix = "ENUM("
+	var (
+		parts          []string
+		lines          []string
+		store          bool
+		enumParamLevel int
+		filteredLines  []string
+	)
 
 	for _, comment := range comments {
 		lines = append(lines, breakCommentIntoLines(comment)...)
 	}
 
-	enumParamLevel := 0
-	// Go over all the lines in this comment block
-	for _, line := range lines {
-		if store {
-			paramLevel, trimmed := parseLinePart(line)
-			if trimmed != "" {
-				parts = append(parts, trimmed)
-			}
-			enumParamLevel += paramLevel
-			if enumParamLevel == 0 {
-				// End ENUM Declaration
-				if trimmed != "" {
-					end := strings.Index(trimmed, ")")
-					if end >= 0 {
-						parts[len(parts)-1] = trimmed[:end]
+	filteredLines = make([]string, 0, len(lines))
+	for idx := range lines {
+		line := lines[idx]
+		// If we're not in the enum, and this line doesn't contain the
+		// start string, then move along
+		if !store && !strings.Contains(line, EnumPrefix) {
+			continue
+		}
+		if !store {
+			// We must have had the start value in here
+			store = true
+			enumParamLevel = 1
+			start := strings.Index(line, EnumPrefix)
+			line = line[start+len(EnumPrefix):]
+		}
+		lineParamLevel := strings.Count(line, "(")
+		lineParamLevel = lineParamLevel - strings.Count(line, ")")
+
+		if enumParamLevel+lineParamLevel < 1 {
+			// We've ended, either with more than we need, or with just enough.  Now we need to find the end.
+			for lineIdx, ch := range line {
+				if ch == '(' {
+					enumParamLevel = enumParamLevel + 1
+					continue
+				}
+				if ch == ')' {
+					enumParamLevel = enumParamLevel - 1
+					if enumParamLevel == 0 {
+						// We've found the end of the ENUM() definition,
+						// Cut off the suffix and break out of the loop
+						line = line[:lineIdx]
+						store = false
+						break
 					}
 				}
-				break
 			}
 		}
-		if strings.Contains(line, `ENUM(`) {
-			enumParamLevel = 1
-			startIndex := strings.Index(line, `ENUM(`)
-			if startIndex >= 0 {
-				line = line[startIndex+len(`ENUM(`):]
-			}
-			paramLevel, trimmed := parseLinePart(line)
-			if trimmed != "" {
-				parts = append(parts, trimmed)
-			}
-			enumParamLevel += paramLevel
 
-			// Start ENUM Declaration
-			if enumParamLevel > 0 {
-				// Store other lines
-				store = true
-			}
-		}
+		filteredLines = append(filteredLines, line)
 	}
 
 	if enumParamLevel > 0 {
 		fmt.Println("ENUM Parse error, there is a dangling '(' in your comment.")
 		return ""
 	}
+
+	// Go over all the lines in this comment block
+	for _, line := range filteredLines {
+		_, trimmed := parseLinePart(line)
+		if trimmed != "" {
+			parts = append(parts, trimmed)
+		}
+	}
+
 	joined := fmt.Sprintf("ENUM(%s)", strings.Join(parts, `,`))
 	return joined
 }
@@ -599,15 +613,11 @@ func breakCommentIntoLines(comment *ast.Comment) []string {
 }
 
 // trimAllTheThings takes off all the cruft of a line that we don't need.
+// These lines should be pre-filtered so that we don't have to worry about
+// the `ENUM(` prefix and the `)` suffix... those should already be removed.
 func trimAllTheThings(thing string) string {
 	preTrimmed := strings.TrimSuffix(strings.TrimSpace(thing), `,`)
-	end := strings.Index(preTrimmed, `)`)
-
-	if end < 0 {
-		end = len(preTrimmed)
-	}
-
-	return strings.TrimSpace(preTrimmed[:end])
+	return strings.TrimSpace(preTrimmed)
 }
 
 // inspect will walk the ast and fill a map of names and their struct information
