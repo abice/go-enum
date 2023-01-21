@@ -406,7 +406,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					if unsigned {
+					if enum.Type == "string" {
+						data = dataVal
+					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
 							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
@@ -428,6 +430,8 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					value = strings.TrimSuffix(value, `=`)
 					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", value)
 				}
+			} else if enum.Type == "string" {
+				data = value
 			}
 			rawName := strings.TrimSpace(value)
 			name := cases.Title(language.Und, cases.NoLower).String(rawName)

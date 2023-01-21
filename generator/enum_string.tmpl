@@ -10,7 +10,7 @@ const (
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
-    {{$value.PrefixedName}} {{$enumName}} = "{{$value.RawName}}"
+    {{$value.PrefixedName}} {{$enumName}} = "{{$value.Value}}"
 {{- end}}
 )
 {{if .names -}}
@@ -136,8 +136,8 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	default:
 		return errors.New("invalid type for {{.enum.Name}}")
 	}
-	
-	return 
+
+	return
 }
 
 // Value implements the driver Valuer interface.
