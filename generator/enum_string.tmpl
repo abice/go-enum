@@ -10,7 +10,7 @@ const (
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
-    {{$value.PrefixedName}} {{$enumName}} = "{{$value.Value}}"
+    {{$value.PrefixedName}} {{$enumName}} = "{{$value.ValueStr}}"
 {{- end}}
 )
 {{if .names -}}
@@ -149,12 +149,12 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 {{/* SQL stored as an integer value */}}
 {{ if or .sqlint .sqlnullint }}
 var sqlInt{{.enum.Name}}Map = map[int64]{{.enum.Name}}{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
-{{ $value.Value }}: {{ $value.PrefixedName }},{{end}}
+{{ $value.ValueInt }}: {{ $value.PrefixedName }},{{end}}
 {{- end}}
 }
 
 var sqlInt{{.enum.Name}}Value = map[{{.enum.Name}}]int64{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
-	{{ $value.PrefixedName }}: {{ $value.Value }},{{end}}
+	{{ $value.PrefixedName }}: {{ $value.ValueInt }},{{end}}
 {{- end}}
 }
 
@@ -170,7 +170,7 @@ func lookupSqlInt{{.enum.Name}}(val int64) ({{.enum.Name}}, error){
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	if value == nil {
 		*x = {{.enum.Name}}("")
-		return 
+		return
 	}
 
 	// A wider range of scannable types.
@@ -235,8 +235,8 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	default:
 		return errors.New("invalid type for {{.enum.Name}}")
 	}
-	
-	return 
+
+	return
 }
 
 // Value implements the driver Valuer interface.

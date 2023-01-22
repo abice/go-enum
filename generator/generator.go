@@ -69,7 +69,8 @@ type EnumValue struct {
 	RawName      string
 	Name         string
 	PrefixedName string
-	Value        interface{}
+	ValueStr     interface{}
+	ValueInt     interface{}
 	Comment      string
 }
 
@@ -401,13 +402,19 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 		// Make sure to leave out any empty parts
 		if value != "" {
+			rawName := value
+			valueStr := value
+
 			if strings.Contains(value, `=`) {
 				// Get the value specified and set the data to that value.
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
+					valueStr = dataVal
 					if enum.Type == "string" {
-						data = dataVal
+						if parsed, err := strconv.ParseInt(dataVal, 10, 64); err == nil {
+							data = parsed
+						}
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
@@ -425,15 +432,14 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						data = newData
 					}
-					value = value[:equalIndex]
+					rawName = value[:equalIndex]
 				} else {
-					value = strings.TrimSuffix(value, `=`)
-					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", value)
+					rawName = strings.TrimSuffix(rawName, `=`)
+					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", rawName)
 				}
-			} else if enum.Type == "string" {
-				data = value
 			}
-			rawName := strings.TrimSpace(value)
+			rawName = strings.TrimSpace(rawName)
+			valueStr = strings.TrimSpace(valueStr)
 			name := cases.Title(language.Und, cases.NoLower).String(rawName)
 			prefixedName := name
 			if name != skipHolder {
@@ -444,7 +450,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				}
 			}
 
-			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
+			if enum.Type == "string" {
+				valueStr = rawName
+			}
+
+			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}
 			enum.Values = append(enum.Values, ev)
 			data = increment(data)
 		}
