@@ -69,7 +69,7 @@ type EnumValue struct {
 	RawName      string
 	Name         string
 	PrefixedName string
-	ValueStr     interface{}
+	ValueStr     string
 	ValueInt     interface{}
 	Comment      string
 }
@@ -209,6 +209,10 @@ func (g *Generator) WithNoComments() *Generator {
 	return g
 }
 
+func (g *Generator) anySQLEnabled() bool {
+	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
+}
+
 // ParseAliases is used to add aliases to replace during name sanitization.
 func ParseAliases(aliases []string) error {
 	aliasMap := map[string]string{}
@@ -293,22 +297,23 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 
 		created++
 		data := map[string]interface{}{
-			"enum":       enum,
-			"name":       name,
-			"lowercase":  g.lowercaseLookup,
-			"nocase":     g.caseInsensitive,
-			"nocomments": g.noComments,
-			"marshal":    g.marshal,
-			"sql":        g.sql,
-			"sqlint":     g.sqlint,
-			"flag":       g.flag,
-			"names":      g.names,
-			"values":     g.values,
-			"ptr":        g.ptr,
-			"sqlnullint": g.sqlNullInt,
-			"sqlnullstr": g.sqlNullStr,
-			"mustparse":  g.mustParse,
-			"forcelower": g.forceLower,
+			"enum":          enum,
+			"name":          name,
+			"lowercase":     g.lowercaseLookup,
+			"nocase":        g.caseInsensitive,
+			"nocomments":    g.noComments,
+			"marshal":       g.marshal,
+			"sql":           g.sql,
+			"sqlint":        g.sqlint,
+			"flag":          g.flag,
+			"names":         g.names,
+			"values":        g.values,
+			"ptr":           g.ptr,
+			"anySQLEnabled": g.anySQLEnabled(),
+			"sqlnullint":    g.sqlNullInt,
+			"sqlnullstr":    g.sqlNullStr,
+			"mustparse":     g.mustParse,
+			"forcelower":    g.forceLower,
 		}
 
 		templateName := "enum"
@@ -411,9 +416,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
 					valueStr = dataVal
+					rawName = value[:equalIndex]
 					if enum.Type == "string" {
 						if parsed, err := strconv.ParseInt(dataVal, 10, 64); err == nil {
 							data = parsed
+							valueStr = rawName
 						}
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
@@ -432,7 +439,6 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						data = newData
 					}
-					rawName = value[:equalIndex]
 				} else {
 					rawName = strings.TrimSuffix(rawName, `=`)
 					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", rawName)
@@ -448,10 +454,6 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				if !g.leaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
-			}
-
-			if enum.Type == "string" {
-				valueStr = rawName
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}

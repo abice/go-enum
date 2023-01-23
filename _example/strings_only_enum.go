@@ -18,7 +18,8 @@ const (
 	StrStatePending   StrState = "pending"
 	StrStateRunning   StrState = "running"
 	StrStateCompleted StrState = "completed"
-	StrStateFailed    StrState = "failed"
+	// StrStateFailed is a StrState of type failed.
+	StrStateFailed StrState = "error"
 )
 
 var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
@@ -62,7 +63,7 @@ var _StrStateValue = map[string]StrState{
 	"pending":   StrStatePending,
 	"running":   StrStateRunning,
 	"completed": StrStateCompleted,
-	"failed":    StrStateFailed,
+	"error":     StrStateFailed,
 }
 
 // ParseStrState attempts to convert a string to a StrState.

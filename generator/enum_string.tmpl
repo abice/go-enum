@@ -100,7 +100,7 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
-{{ if or .sql .sqlnullstr .sqlint .sqlnullint }}
+{{ if .anySQLEnabled }}
 var err{{.enum.Name}}NilPtr = errors.New("value pointer is nil") // one per type for package clashes
 {{ end }}
 
