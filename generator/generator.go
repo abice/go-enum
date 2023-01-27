@@ -96,6 +96,7 @@ func NewGenerator() *Generator {
 	funcs["unmapify"] = Unmapify
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
+	funcs["symbol"] = symbol
 
 	g.t.Funcs(funcs)
 
@@ -393,6 +394,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	} else {
 		data = int64(0)
 	}
+
+	titleCaser := newTitleCaser()
+
 	for _, value := range values {
 		var comment string
 
@@ -449,11 +453,10 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			}
 			rawName = strings.TrimSpace(rawName)
 			valueStr = strings.TrimSpace(valueStr)
-			name := cases.Title(language.Und, cases.NoLower).String(rawName)
+			name := titleCaser.String(rawName)
 			prefixedName := name
 			if name != skipHolder {
-				prefixedName = enum.Prefix + name
-				prefixedName = sanitizeValue(prefixedName)
+				prefixedName = sanitizeValue(enum.Prefix + name)
 				if !g.leaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
@@ -535,16 +538,79 @@ func sanitizeValue(value string) string {
 	return nameBuilder.String()
 }
 
+// symbol returns a properly capitalized symbol name.
+//
+// - `prefix`'s case is copied from `caseSrc`
+// - `caseSrc` is capitalized
+// - `rest` is concatenated and appended without case changes
+func symbol(prefix, caseSrc string, rest ...string) string {
+	suffix := strings.Join(rest, "")
+
+	if prefix == "" {
+		return caseSrc + suffix
+	}
+
+	if strings.HasPrefix(prefix, "_") {
+		middle := caseSrc
+		if prefix == "_" {
+			middle = copyLeadCase(middle, "lower")
+		}
+
+		return prefix + middle + suffix
+	}
+
+	prefix = copyLeadCase(prefix, caseSrc)
+
+	middle := newTitleCaser().String(caseSrc)
+
+	return prefix + middle + suffix
+}
+
+// copyLeadCase returns `s` with its first rune capitalization matching the first rune of `caseSrc`.
+func copyLeadCase(s, caseSrc string) string {
+	if s == "" || caseSrc == "" {
+		return s
+	}
+
+	sRunes := []rune(s)
+	srcRunes := []rune(caseSrc)
+
+	var sLead string
+
+	src := string(srcRunes[0])
+	if strings.ToLower(src) == src {
+		sLead = strings.ToLower(string(sRunes[0]))
+	} else {
+		sLead = strings.ToUpper(string(sRunes[0]))
+	}
+
+	return sLead + string(sRunes[1:])
+}
+
+func newTitleCaser() cases.Caser {
+	return cases.Title(language.Und, cases.NoLower)
+}
+
 func snakeToCamelCase(value string) string {
 	parts := strings.Split(value, "_")
-	title := cases.Title(language.Und, cases.NoLower)
+	caser := newTitleCaser()
 
 	for i, part := range parts {
-		parts[i] = title.String(part)
-	}
-	value = strings.Join(parts, "")
+		if i == 0 {
+			continue
+		}
 
-	return value
+		title := caser.String(part)
+
+		// Don't change the case of the first part to not change symbol visibility
+		if i == 0 && len(title) != 0 {
+			title = string([]rune(part)[0]) + string([]rune(title)[1:])
+		}
+
+		parts[i] = title
+	}
+
+	return strings.Join(parts, "")
 }
 
 // getEnumDeclFromComments parses the array of comment strings and creates a single Enum Declaration statement

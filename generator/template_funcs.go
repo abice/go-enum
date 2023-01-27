@@ -20,9 +20,13 @@ func Stringify(e Enum, forceLower bool) (ret string, err error) {
 	return
 }
 
+func strName(e Enum) string {
+	return symbol("_", e.Name, "Name")
+}
+
 // Mapify returns a map that is all of the indexes for a string value lookup
 func Mapify(e Enum) (ret string, err error) {
-	strName := fmt.Sprintf(`_%sName`, e.Name)
+	strName := strName(e)
 	ret = fmt.Sprintf("map[%s]string{\n", e.Name)
 	index := 0
 	for _, val := range e.Values {
@@ -41,7 +45,7 @@ func Unmapify(e Enum, lowercase bool) (ret string, err error) {
 	if e.Type == "string" {
 		return UnmapifyStringEnum(e, lowercase)
 	}
-	strName := fmt.Sprintf(`_%sName`, e.Name)
+	strName := strName(e)
 	ret = fmt.Sprintf("map[string]%s{\n", e.Name)
 	index := 0
 	for _, val := range e.Values {
@@ -89,7 +93,7 @@ func Namify(e Enum) (ret string, err error) {
 	if e.Type == "string" {
 		return namifyStringEnum(e)
 	}
-	strName := fmt.Sprintf(`_%sName`, e.Name)
+	strName := strName(e)
 	ret = "[]string{\n"
 	index := 0
 	for _, val := range e.Values {

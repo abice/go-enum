@@ -28,42 +28,69 @@ const (
     {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{ if ne "0" $offset }} + {{ $offset }}{{end}}{{else if ne $lastOffset $offset }}{{$enumName}} = iota + {{ $offset }}{{end}}{{$_ := set $vars "lastoffset" $offset}}
 {{- end}}
 )
+{{ $errInvalidVar := symbol "ErrInvalid" .enum.Name }}
 {{if .names -}}
-var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
+{{ $namesVar := symbol "_" .enum.Name "Names" }}
+var {{$namesVar}} = {{namify .enum}}
+
+{{ $namesFunc := symbol "" .enum.Name "Names" }}
+// {{$namesFunc}} returns a list of possible string values of {{.enum.Name}}.
+func {{$namesFunc}}() []string {
+	tmp := make([]string, len({{$namesVar}}))
+	copy(tmp, {{$namesVar}})
+	return tmp
+}
+var {{$errInvalidVar}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join({{$namesVar}}, ", "))
 {{- else -}}
-var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
+var {{$errInvalidVar}} = errors.New("not a valid {{.enum.Name}}")
 {{- end}}
 
-{{ template "stringer" . }}
+{{ if .values -}}
+{{ $valuesFunc := symbol "" .enum.Name "Values" }}
+// {{$valuesFunc}} returns a list of the values for {{.enum.Name}}
+func {{$valuesFunc}}() []{{.enum.Name}} {
+    return []{{.enum.Name}}{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
+		{{$value.PrefixedName}},{{ end }}
+{{- end}}
+    }
+}
+{{ end -}}
 
-var _{{.enum.Name}}Map = {{ mapify .enum }}
+{{ $nameConst := symbol "_" .enum.Name "Name" }}
+const {{$nameConst}} = "{{ stringify .enum .forcelower }}"
+
+{{ $mapVar := symbol "_" .enum.Name "Map" }}
+var {{$mapVar}} = {{ mapify .enum }}
 
 // String implements the Stringer interface.
 func (x {{.enum.Name}}) String() string {
-	if str, ok := _{{.enum.Name}}Map[x]; ok {
+	if str, ok := {{$mapVar}}[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
 }
 
-var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
+{{ $valueVar := symbol "_" .enum.Name "Value" }}
+var {{$valueVar}} = {{ unmapify .enum .lowercase }}
 
-// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
-func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
-	if x, ok := _{{.enum.Name}}Value[name]; ok {
+{{ $parseFunc := symbol "Parse" .enum.Name }}
+// {{$parseFunc}} attempts to convert a string to a {{.enum.Name}}.
+func {{$parseFunc}}(name string) ({{.enum.Name}}, error) {
+	if x, ok := {{$valueVar}}[name]; ok {
 		return x, nil
 	}{{if .nocase }}
 	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
-	if x, ok := _{{.enum.Name}}Value[strings.ToLower(name)]; ok {
+	if x, ok := {{$valueVar}}[strings.ToLower(name)]; ok {
 		return x, nil
 	}{{- end}}
-	return {{.enum.Name}}(0), fmt.Errorf("%s is %w", name, ErrInvalid{{.enum.Name}})
+	return {{.enum.Name}}(0), fmt.Errorf("%s is %w", name, {{$errInvalidVar}})
 }
 
 {{ if .mustparse }}
-// MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
-func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
-	val, err := Parse{{.enum.Name}}(name)
+{{ $mustParseFunc := symbol "MustParse" .enum.Name }}
+// {{$mustParseFunc}} converts a string to a {{.enum.Name}}, and panics if is not valid.
+func {{$mustParseFunc}}(name string) {{.enum.Name}} {
+	val, err := {{$parseFunc}}(name)
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +113,7 @@ func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 // UnmarshalText implements the text unmarshaller method.
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := Parse{{.enum.Name}}(name)
+	tmp, err := {{$parseFunc}}(name)
 	if err != nil {
 		return err
 	}
@@ -95,8 +122,9 @@ func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 }
 {{end}}
 
-{{ if or .sql .sqlnullint .sqlnullstr}}
-var err{{.enum.Name}}NilPtr = errors.New("value pointer is nil") // one per type for package clashes
+{{ if or .sql .sqlnullint .sqlnullstr }}
+{{ $errNilPtrVar := symbol "err" .enum.Name "NilPtr" }}
+var {{$errNilPtrVar}} = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
@@ -111,7 +139,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	case int64:
 		*x = {{.enum.Name}}(v)
 	case string:
-		*x, err = Parse{{.enum.Name}}(v){{if .sqlnullint }}
+		*x, err = {{$parseFunc}}(v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(v); verr == nil {
@@ -119,7 +147,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 			}
 		}{{end}}
 	case []byte:
-		*x, err = Parse{{.enum.Name}}(string(v)){{if .sqlnullint }}
+		*x, err = {{$parseFunc}}(string(v)){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
@@ -132,7 +160,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		*x = {{.enum.Name}}(v)
 	case *{{.enum.Name}}:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = *v
 	case uint:
@@ -141,36 +169,36 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		*x = {{.enum.Name}}(v)
 	case *int:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = {{.enum.Name}}(*v)
 	case *int64:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = {{.enum.Name}}(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = {{.enum.Name}}(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = {{.enum.Name}}(*v)
 	case *uint:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = {{.enum.Name}}(*v)
 	case *uint64:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
 		*x = {{.enum.Name}}(*v)
 	case *string:
 		if v == nil{
-			return err{{.enum.Name}}NilPtr
+			return {{$errNilPtrVar}}
 		}
-		*x, err = Parse{{.enum.Name}}(*v){{if .sqlnullint }}
+		*x, err = {{$parseFunc}}(*v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(*v); verr == nil {
@@ -178,8 +206,8 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 			}
 		}{{end}}
 	}
-	
-	return 
+
+	return
 }
 
 {{ if or .sql .sqlnullstr }}
@@ -200,7 +228,7 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
 func (x *{{.enum.Name}}) Set(val string) error {
-	v, err := Parse{{.enum.Name}}(val)
+	v, err := {{$parseFunc}}(val)
 	*x = v
 	return err
 }
@@ -217,19 +245,21 @@ func (x *{{.enum.Name}}) Type() string {
 {{end}}
 
 {{ if or .sqlnullint .sqlnullstr }}
-type Null{{.enum.Name}} struct{
+{{ $nullType := symbol "Null" .enum.Name }}
+{{ $newNullFunc := symbol "New" $nullType }}
+type {{$nullType}} struct{
 	{{.enum.Name}}	{{.enum.Name}}
 	Valid 					bool{{/* Add some info as to whether this value was set during unmarshalling or not */}}{{if .marshal }}
 	Set							bool{{ end }}
 }
 
-func NewNull{{.enum.Name}}(val interface{}) (x Null{{.enum.Name}}) {
+func {{$newNullFunc}}(val interface{}) (x {{$nullType}}) {
 	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
 	return
 }
 
 // Scan implements the Scanner interface.
-func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
+func (x *{{$nullType}}) Scan(value interface{}) (err error) {
 	{{- if .marshal }}x.Set = true{{ end }}
 	if value == nil {
 		x.{{.enum.Name}}, x.Valid = {{.enum.Name}}(0), false
@@ -243,7 +273,7 @@ func (x *Null{{.enum.Name}}) Scan(value interface{}) (err error) {
 
 {{ if .sqlnullint }}
 // Value implements the driver Valuer interface.
-func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+func (x {{$nullType}}) Value() (driver.Value, error) {
 	if !x.Valid{
 		return nil, nil
 	}
@@ -252,7 +282,7 @@ func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 }
 {{ else }}
 // Value implements the driver Valuer interface.
-func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
+func (x {{$nullType}}) Value() (driver.Value, error) {
 	if !x.Valid{
 		return nil, nil
 	}
@@ -261,8 +291,8 @@ func (x Null{{.enum.Name}}) Value() (driver.Value, error) {
 {{ end }}
 
 {{ if .marshal }}
-// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
-func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
+// MarshalJSON correctly serializes a {{$nullType}} to JSON.
+func (n {{$nullType}}) MarshalJSON() ([]byte, error) {
 	const nullStr = "null"
 	if n.Valid {
 		return json.Marshal(n.{{.enum.Name}})
@@ -270,8 +300,8 @@ func (n Null{{.enum.Name}}) MarshalJSON() ([]byte, error) {
 	return []byte(nullStr), nil
 }
 
-// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
-func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON correctly deserializes a {{$nullType}} from JSON.
+func (n *{{$nullType}}) UnmarshalJSON(b []byte) error {
 	n.Set = true
 	var x interface{}
 	err := json.Unmarshal(b, &x)
@@ -283,28 +313,28 @@ func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
 }
 {{ end }}
 
-{{ end }}
-
 {{ if and .sqlnullint .sqlnullstr }}
-type Null{{.enum.Name}}Str struct {
-	Null{{.enum.Name}}
+{{ $nullStrType := symbol "" $nullType "Str" }}
+type {{$nullStrType}} struct {
+	{{$nullType}}
 }
 
-func NewNull{{.enum.Name}}Str(val interface{}) (x Null{{.enum.Name}}Str) {
+{{ $newNullStrFunc := symbol "New" $nullStrType }}
+func {{$newNullStrFunc}}(val interface{}) (x {{$nullStrType}}) {
 	x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
 	return
 }
 
 // Value implements the driver Valuer interface.
-func (x Null{{.enum.Name}}Str) Value() (driver.Value, error) {
+func (x {{$nullStrType}}) Value() (driver.Value, error) {
 	if !x.Valid{
 		return nil, nil
 	}
 	return x.{{.enum.Name}}.String(), nil
 }
 {{ if .marshal }}
-// MarshalJSON correctly serializes a Null{{.enum.Name}} to JSON.
-func (n Null{{.enum.Name}}Str) MarshalJSON() ([]byte, error) {
+// MarshalJSON correctly serializes a {{$nullType}} to JSON.
+func (n {{$nullStrType}}) MarshalJSON() ([]byte, error) {
 	const nullStr = "null"
 	if n.Valid {
 		return json.Marshal(n.{{.enum.Name}})
@@ -312,8 +342,8 @@ func (n Null{{.enum.Name}}Str) MarshalJSON() ([]byte, error) {
 	return []byte(nullStr), nil
 }
 
-// UnmarshalJSON correctly deserializes a Null{{.enum.Name}} from JSON.
-func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON correctly deserializes a {{$nullType}} from JSON.
+func (n *{{$nullStrType}}) UnmarshalJSON(b []byte) error {
 	n.Set = true
 	var x interface{}
 	err := json.Unmarshal(b, &x)
@@ -325,32 +355,5 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 }
 {{ end }}
 {{ end }}
-
-{{end}}
-
-
-{{- define "stringer"}}
-const _{{.enum.Name}}Name = "{{ stringify .enum .forcelower }}"
-
-{{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
-
-// {{.enum.Name}}Names returns a list of possible string values of {{.enum.Name}}.
-func {{.enum.Name}}Names() []string {
-	tmp := make([]string, len(_{{.enum.Name}}Names))
-	copy(tmp, _{{.enum.Name}}Names)
-	return tmp
-}
-{{ end -}}
-
-{{ if .values }}
-
-// {{.enum.Name}}Values returns a list of the values for {{.enum.Name}}
-func {{.enum.Name}}Values() []{{.enum.Name}} {
-    return []{{.enum.Name}}{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
-		{{$value.PrefixedName}},{{ end }}
-{{- end}}
-    }
-}
-{{ end -}}
-
-{{end}}
+{{ end }}
+{{ end }}
