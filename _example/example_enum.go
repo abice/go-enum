@@ -81,6 +81,23 @@ func MakeNames() []string {
 	return tmp
 }
 
+// MakeValues returns a list of the values for Make
+func MakeValues() []Make {
+	return []Make{
+		MakeToyota,
+		MakeChevy,
+		MakeFord,
+		MakeTesla,
+		MakeHyundai,
+		MakeNissan,
+		MakeJaguar,
+		MakeAudi,
+		MakeBMW,
+		MakeMercedesBenz,
+		MakeVolkswagon,
+	}
+}
+
 var _MakeMap = map[Make]string{
 	MakeToyota:       _MakeName[0:6],
 	MakeChevy:        _MakeName[6:11],
@@ -206,6 +223,18 @@ func NoZerosNames() []string {
 	tmp := make([]string, len(_NoZerosNames))
 	copy(tmp, _NoZerosNames)
 	return tmp
+}
+
+// NoZerosValues returns a list of the values for NoZeros
+func NoZerosValues() []NoZeros {
+	return []NoZeros{
+		NoZerosStart,
+		NoZerosMiddle,
+		NoZerosEnd,
+		NoZerosPs,
+		NoZerosPps,
+		NoZerosPpps,
+	}
 }
 
 var _NoZerosMap = map[NoZeros]string{

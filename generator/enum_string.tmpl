@@ -27,6 +27,18 @@ func {{.enum.Name}}Names() []string {
 }
 {{ end -}}
 
+
+{{ if .values }}
+
+// {{.enum.Name}}Values returns a list of the values for {{.enum.Name}}
+func {{.enum.Name}}Values() []{{.enum.Name}} {
+    return []{{.enum.Name}}{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
+		{{$value.PrefixedName}},{{ end }}
+{{- end}}
+    }
+}
+{{ end -}}
+
 // String implements the Stringer interface.
 func (x {{.enum.Name}}) String() string {
 	return string(x)

@@ -30,6 +30,7 @@ type rootT struct {
 	Flag              bool
 	Prefix            string
 	Names             bool
+	Values            bool
 	LeaveSnakeCase    bool
 	SQLNullStr        bool
 	SQLNullInt        bool
@@ -106,6 +107,11 @@ func main() {
 				Name:        "names",
 				Usage:       "Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing",
 				Destination: &argv.Names,
+			},
+			&cli.BoolFlag{
+				Name:        "values",
+				Usage:       "Generates a 'Values() []{{ENUM}}' function.",
+				Destination: &argv.Values,
 			},
 			&cli.BoolFlag{
 				Name:        "nocamel",
@@ -186,6 +192,9 @@ func main() {
 				if argv.Names {
 					g.WithNames()
 				}
+				if argv.Values {
+					g.WithValues()
+				}
 				if argv.LeaveSnakeCase {
 					g.WithoutSnakeToCamel()
 				}
@@ -246,7 +255,7 @@ func main() {
 						continue
 					}
 
-					mode := int(0644)
+					mode := int(0o644)
 					err = os.WriteFile(outFilePath, raw, os.FileMode(mode))
 					if err != nil {
 						return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))

@@ -41,6 +41,16 @@ func StrStateNames() []string {
 	return tmp
 }
 
+// StrStateValues returns a list of the values for StrState
+func StrStateValues() []StrState {
+	return []StrState{
+		StrStatePending,
+		StrStateRunning,
+		StrStateCompleted,
+		StrStateFailed,
+	}
+}
+
 // String implements the Stringer interface.
 func (x StrState) String() string {
 	return string(x)
