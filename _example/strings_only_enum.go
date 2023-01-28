@@ -15,14 +15,10 @@ import (
 )
 
 const (
-	// StrStatePending is a StrState of type pending.
-	StrStatePending StrState = "pending"
-	// StrStateRunning is a StrState of type running.
-	StrStateRunning StrState = "running"
-	// StrStateCompleted is a StrState of type completed.
+	StrStatePending   StrState = "pending"
+	StrStateRunning   StrState = "running"
 	StrStateCompleted StrState = "completed"
-	// StrStateFailed is a StrState of type failed.
-	StrStateFailed StrState = "failed"
+	StrStateFailed    StrState = "failed"
 )
 
 var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))

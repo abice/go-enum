@@ -53,6 +53,7 @@ type Generator struct {
 	ptr               bool
 	mustParse         bool
 	forceLower        bool
+	noComments        bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -201,6 +202,12 @@ func (g *Generator) WithForceLower() *Generator {
 	return g
 }
 
+// WithNoComments is used to remove auto generated comments from the enum.
+func (g *Generator) WithNoComments() *Generator {
+	g.noComments = true
+	return g
+}
+
 // ParseAliases is used to add aliases to replace during name sanitization.
 func ParseAliases(aliases []string) error {
 	aliasMap := map[string]string{}
@@ -289,6 +296,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"name":       name,
 			"lowercase":  g.lowercaseLookup,
 			"nocase":     g.caseInsensitive,
+			"nocomments": g.noComments,
 			"marshal":    g.marshal,
 			"sql":        g.sql,
 			"sqlint":     g.sqlint,

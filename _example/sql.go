@@ -1,4 +1,4 @@
-//go:generate ../bin/go-enum  --sql --sqlnullstr --sqlnullint --ptr --marshal
+//go:generate ../bin/go-enum  --sql --sqlnullstr --sqlnullint --ptr --marshal --nocomments
 
 package example
 

@@ -39,6 +39,7 @@ type rootT struct {
 	Aliases           cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
+	NoComments        bool
 }
 
 func main() {
@@ -155,6 +156,11 @@ func main() {
 				Usage:       "Forces a camel cased comment to generate lowercased names.",
 				Destination: &argv.ForceLower,
 			},
+			&cli.BoolFlag{
+				Name:        "nocomments",
+				Usage:       "Removes auto generated comments.  If you add your own comments, these will still be created.",
+				Destination: &argv.NoComments,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
@@ -215,6 +221,9 @@ func main() {
 				}
 				if argv.ForceLower {
 					g.WithForceLower()
+				}
+				if argv.NoComments {
+					g.WithNoComments()
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
 					for _, t := range templates {
