@@ -15,14 +15,10 @@ import (
 )
 
 const (
-	// StrStatePending is a StrState of type pending.
-	StrStatePending StrState = "pending"
-	// StrStateRunning is a StrState of type running.
-	StrStateRunning StrState = "running"
-	// StrStateCompleted is a StrState of type completed.
+	StrStatePending   StrState = "pending"
+	StrStateRunning   StrState = "running"
 	StrStateCompleted StrState = "completed"
-	// StrStateFailed is a StrState of type failed.
-	StrStateFailed StrState = "failed"
+	StrStateFailed    StrState = "failed"
 )
 
 var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
@@ -39,6 +35,16 @@ func StrStateNames() []string {
 	tmp := make([]string, len(_StrStateNames))
 	copy(tmp, _StrStateNames)
 	return tmp
+}
+
+// StrStateValues returns a list of the values for StrState
+func StrStateValues() []StrState {
+	return []StrState{
+		StrStatePending,
+		StrStateRunning,
+		StrStateCompleted,
+		StrStateFailed,
+	}
 }
 
 // String implements the Stringer interface.

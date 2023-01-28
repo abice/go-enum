@@ -30,6 +30,7 @@ type rootT struct {
 	Flag              bool
 	Prefix            string
 	Names             bool
+	Values            bool
 	LeaveSnakeCase    bool
 	SQLNullStr        bool
 	SQLNullInt        bool
@@ -38,6 +39,7 @@ type rootT struct {
 	Aliases           cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
+	NoComments        bool
 }
 
 func main() {
@@ -108,6 +110,11 @@ func main() {
 				Destination: &argv.Names,
 			},
 			&cli.BoolFlag{
+				Name:        "values",
+				Usage:       "Generates a 'Values() []{{ENUM}}' function.",
+				Destination: &argv.Values,
+			},
+			&cli.BoolFlag{
 				Name:        "nocamel",
 				Usage:       "Removes the snake_case to CamelCase name changing",
 				Destination: &argv.LeaveSnakeCase,
@@ -149,6 +156,11 @@ func main() {
 				Usage:       "Forces a camel cased comment to generate lowercased names.",
 				Destination: &argv.ForceLower,
 			},
+			&cli.BoolFlag{
+				Name:        "nocomments",
+				Usage:       "Removes auto generated comments.  If you add your own comments, these will still be created.",
+				Destination: &argv.NoComments,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
@@ -186,6 +198,9 @@ func main() {
 				if argv.Names {
 					g.WithNames()
 				}
+				if argv.Values {
+					g.WithValues()
+				}
 				if argv.LeaveSnakeCase {
 					g.WithoutSnakeToCamel()
 				}
@@ -206,6 +221,9 @@ func main() {
 				}
 				if argv.ForceLower {
 					g.WithForceLower()
+				}
+				if argv.NoComments {
+					g.WithNoComments()
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
 					for _, t := range templates {
@@ -246,7 +264,7 @@ func main() {
 						continue
 					}
 
-					mode := int(0644)
+					mode := int(0o644)
 					err = os.WriteFile(outFilePath, raw, os.FileMode(mode))
 					if err != nil {
 						return fmt.Errorf("failed writing to file %s: %s", color.Cyan(outFilePath), color.Red(err))

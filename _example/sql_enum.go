@@ -15,13 +15,9 @@ import (
 )
 
 const (
-	// ProjectStatusPending is a ProjectStatus of type Pending.
 	ProjectStatusPending ProjectStatus = iota
-	// ProjectStatusInWork is a ProjectStatus of type InWork.
 	ProjectStatusInWork
-	// ProjectStatusCompleted is a ProjectStatus of type Completed.
 	ProjectStatusCompleted
-	// ProjectStatusRejected is a ProjectStatus of type Rejected.
 	ProjectStatusRejected
 )
 

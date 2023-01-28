@@ -2,9 +2,11 @@
 const (
 {{- $enumName := .enum.Name -}}
 {{- $enumType := .enum.Type -}}
+{{- $noComments := .nocomments -}}
 {{- $vars := dict "lastoffset" "0" -}}
 {{ range $rIndex, $value := .enum.Values }}
-	{{ if eq $value.Name "_"}}// Skipped value.{{else}}// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.RawName}}.{{end}}
+	{{- if $noComments }}{{else}}
+	{{ if eq $value.Name "_"}}// Skipped value.{{else}}// {{$value.PrefixedName}} is a {{$enumName}} of type {{$value.RawName}}.{{end}}{{end}}
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
@@ -24,6 +26,18 @@ func {{.enum.Name}}Names() []string {
 	tmp := make([]string, len(_{{.enum.Name}}Names))
 	copy(tmp, _{{.enum.Name}}Names)
 	return tmp
+}
+{{ end -}}
+
+
+{{ if .values }}
+
+// {{.enum.Name}}Values returns a list of the values for {{.enum.Name}}
+func {{.enum.Name}}Values() []{{.enum.Name}} {
+    return []{{.enum.Name}}{ {{ range $rIndex, $value := .enum.Values }}{{ if ne $value.Name "_"}}
+		{{$value.PrefixedName}},{{ end }}
+{{- end}}
+    }
 }
 {{ end -}}
 

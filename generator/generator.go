@@ -25,9 +25,7 @@ const (
 	parseCommentPrefix = `//`
 )
 
-var (
-	replacementNames = map[string]string{}
-)
+var replacementNames = map[string]string{}
 
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
@@ -47,6 +45,7 @@ type Generator struct {
 	sqlint            bool
 	flag              bool
 	names             bool
+	values            bool
 	leaveSnakeCase    bool
 	prefix            string
 	sqlNullInt        bool
@@ -54,6 +53,7 @@ type Generator struct {
 	ptr               bool
 	mustParse         bool
 	forceLower        bool
+	noComments        bool
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -154,6 +154,12 @@ func (g *Generator) WithNames() *Generator {
 	return g
 }
 
+// WithValues is used to add Values methods to the enum
+func (g *Generator) WithValues() *Generator {
+	g.values = true
+	return g
+}
+
 // WithoutSnakeToCamel is used to add flag methods to the enum
 func (g *Generator) WithoutSnakeToCamel() *Generator {
 	g.leaveSnakeCase = true
@@ -193,6 +199,12 @@ func (g *Generator) WithMustParse() *Generator {
 // WithForceLower is used to force enums names to lower case while keeping variable names the same.
 func (g *Generator) WithForceLower() *Generator {
 	g.forceLower = true
+	return g
+}
+
+// WithNoComments is used to remove auto generated comments from the enum.
+func (g *Generator) WithNoComments() *Generator {
+	g.noComments = true
 	return g
 }
 
@@ -238,7 +250,6 @@ func (g *Generator) GenerateFromFile(inputFile string) ([]byte, error) {
 		return nil, fmt.Errorf("generate: error parsing input file '%s': %s", inputFile, err)
 	}
 	return g.Generate(f)
-
 }
 
 // Generate does the heavy lifting for the code generation starting from the parsed AST file.
@@ -285,11 +296,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"name":       name,
 			"lowercase":  g.lowercaseLookup,
 			"nocase":     g.caseInsensitive,
+			"nocomments": g.noComments,
 			"marshal":    g.marshal,
 			"sql":        g.sql,
 			"sqlint":     g.sqlint,
 			"flag":       g.flag,
 			"names":      g.names,
+			"values":     g.values,
 			"ptr":        g.ptr,
 			"sqlnullint": g.sqlNullInt,
 			"sqlnullstr": g.sqlNullStr,
@@ -343,7 +356,6 @@ func (g *Generator) parseFile(fileName string) (*ast.File, error) {
 
 // parseEnum looks for the ENUM(x,y,z) formatted documentation from the type definition
 func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
-
 	if ts.Doc == nil {
 		return nil, errors.New("No Doc on Enum")
 	}
@@ -674,7 +686,6 @@ func copyGenDeclCommentsToSpecs(x *ast.GenDecl) {
 			}
 		}
 	}
-
 }
 
 // isTypeSpecEnum checks the comments on the type spec to determine if there is an enum
