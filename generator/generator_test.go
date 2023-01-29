@@ -341,3 +341,28 @@ func TestParenthesesParsing(t *testing.T) {
 		fmt.Println(string(output))
 	}
 }
+
+// TestQuotedStrings
+func TestQuotedStrings(t *testing.T) {
+	input := `package test
+	// This is a pre-enum comment that needs (to be handled properly)
+	// ENUM(
+	//	abc (x),
+	//  ghi = "20",
+	//). This is an extra string comment (With parentheses of it's own)
+	// And (another line) with Parentheses
+	type Animal string
+	`
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "// AnimalAbcX is a Animal of type abc (x).")
+	assert.Contains(t, string(output), "AnimalGhi Animal = \"20\"")
+	assert.NotContains(t, string(output), "// AnimalAnd")
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}

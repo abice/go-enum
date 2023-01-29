@@ -422,6 +422,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 							data = parsed
 							valueStr = rawName
 						}
+						if isQuoted(dataVal) {
+							valueStr = trimQuotes(dataVal)
+						}
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
@@ -465,6 +468,20 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
 
 	return enum, nil
+}
+
+func isQuoted(s string) bool {
+	s = strings.TrimSpace(s)
+	return (strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`)) || (strings.HasPrefix(s, `'`) && strings.HasSuffix(s, `'`))
+}
+
+func trimQuotes(s string) string {
+	s = strings.TrimSpace(s)
+	for _, quote := range []string{`"`, `'`} {
+		s = strings.TrimPrefix(s, quote)
+		s = strings.TrimSuffix(s, quote)
+	}
+	return s
 }
 
 func increment(d interface{}) interface{} {
