@@ -206,3 +206,198 @@ func (x NullGreekGod) Value() (driver.Value, error) {
 	// driver.Value accepts int64 for int values.
 	return string(x.GreekGod), nil
 }
+
+const (
+	// Skipped value.
+	_ GreekGodCustom = "_"
+	// GreekGodCustomZeus is a GreekGodCustom of type zeus.
+	GreekGodCustomZeus GreekGodCustom = "zeus"
+	// GreekGodCustomApollo is a GreekGodCustom of type apollo.
+	GreekGodCustomApollo GreekGodCustom = "apollo"
+	// Skipped value.
+	_ GreekGodCustom = "_"
+	// GreekGodCustomAthena is a GreekGodCustom of type athena.
+	GreekGodCustomAthena GreekGodCustom = "20"
+	// GreekGodCustomAres is a GreekGodCustom of type ares.
+	GreekGodCustomAres GreekGodCustom = "ares"
+)
+
+var ErrInvalidGreekGodCustom = fmt.Errorf("not a valid GreekGodCustom, try [%s]", strings.Join(_GreekGodCustomNames, ", "))
+
+var _GreekGodCustomNames = []string{
+	string(GreekGodCustomZeus),
+	string(GreekGodCustomApollo),
+	string(GreekGodCustomAthena),
+	string(GreekGodCustomAres),
+}
+
+// GreekGodCustomNames returns a list of possible string values of GreekGodCustom.
+func GreekGodCustomNames() []string {
+	tmp := make([]string, len(_GreekGodCustomNames))
+	copy(tmp, _GreekGodCustomNames)
+	return tmp
+}
+
+// String implements the Stringer interface.
+func (x GreekGodCustom) String() string {
+	return string(x)
+}
+
+// String implements the Stringer interface.
+func (x GreekGodCustom) IsValid() bool {
+	_, err := ParseGreekGodCustom(string(x))
+	return err == nil
+}
+
+var _GreekGodCustomValue = map[string]GreekGodCustom{
+	"zeus":   GreekGodCustomZeus,
+	"apollo": GreekGodCustomApollo,
+	"20":     GreekGodCustomAthena,
+	"ares":   GreekGodCustomAres,
+}
+
+// ParseGreekGodCustom attempts to convert a string to a GreekGodCustom.
+func ParseGreekGodCustom(name string) (GreekGodCustom, error) {
+	if x, ok := _GreekGodCustomValue[name]; ok {
+		return x, nil
+	}
+	return GreekGodCustom(""), fmt.Errorf("%s is %w", name, ErrInvalidGreekGodCustom)
+}
+
+var errGreekGodCustomNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+
+var sqlIntGreekGodCustomMap = map[int64]GreekGodCustom{
+	1:  GreekGodCustomZeus,
+	2:  GreekGodCustomApollo,
+	20: GreekGodCustomAthena,
+	21: GreekGodCustomAres,
+}
+
+var sqlIntGreekGodCustomValue = map[GreekGodCustom]int64{
+	GreekGodCustomZeus:   1,
+	GreekGodCustomApollo: 2,
+	GreekGodCustomAthena: 20,
+	GreekGodCustomAres:   21,
+}
+
+func lookupSqlIntGreekGodCustom(val int64) (GreekGodCustom, error) {
+	x, ok := sqlIntGreekGodCustomMap[val]
+	if !ok {
+		return x, fmt.Errorf("%v is not %w", val, ErrInvalidGreekGodCustom)
+	}
+	return x, nil
+}
+
+// Scan implements the Scanner interface.
+func (x *GreekGodCustom) Scan(value interface{}) (err error) {
+	if value == nil {
+		*x = GreekGodCustom("")
+		return
+	}
+
+	// A wider range of scannable types.
+	// driver.Value values at the top of the list for expediency
+	switch v := value.(type) {
+	case int64:
+		*x, err = lookupSqlIntGreekGodCustom(v)
+	case string:
+		*x, err = ParseGreekGodCustom(v)
+	case []byte:
+		if val, verr := strconv.ParseInt(string(v), 10, 64); verr == nil {
+			*x, err = lookupSqlIntGreekGodCustom(val)
+		} else {
+			// try parsing the value as a string
+			*x, err = ParseGreekGodCustom(string(v))
+		}
+	case GreekGodCustom:
+		*x = v
+	case int:
+		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+	case *GreekGodCustom:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x = *v
+	case uint:
+		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+	case uint64:
+		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+	case *int:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+	case *int64:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+	case float64: // json marshals everything as a float64 if it's a number
+		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+	case *float64: // json marshals everything as a float64 if it's a number
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+	case *uint:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+	case *uint64:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+	case *string:
+		if v == nil {
+			return errGreekGodCustomNilPtr
+		}
+		*x, err = ParseGreekGodCustom(*v)
+	default:
+		return errors.New("invalid type for GreekGodCustom")
+	}
+
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x GreekGodCustom) Value() (driver.Value, error) {
+	val, ok := sqlIntGreekGodCustomValue[x]
+	if !ok {
+		return nil, ErrInvalidGreekGodCustom
+	}
+	return int64(val), nil
+}
+
+type NullGreekGodCustom struct {
+	GreekGodCustom GreekGodCustom
+	Valid          bool
+}
+
+func NewNullGreekGodCustom(val interface{}) (x NullGreekGodCustom) {
+	err := x.Scan(val) // yes, we ignore this error, it will just be an invalid value.
+	_ = err            // make any errcheck linters happy
+	return
+}
+
+// Scan implements the Scanner interface.
+func (x *NullGreekGodCustom) Scan(value interface{}) (err error) {
+	if value == nil {
+		x.GreekGodCustom, x.Valid = GreekGodCustom(""), false
+		return
+	}
+
+	err = x.GreekGodCustom.Scan(value)
+	x.Valid = (err == nil)
+	return
+}
+
+// Value implements the driver Valuer interface.
+func (x NullGreekGodCustom) Value() (driver.Value, error) {
+	if !x.Valid {
+		return nil, nil
+	}
+	// driver.Value accepts int64 for int values.
+	return string(x.GreekGodCustom), nil
+}

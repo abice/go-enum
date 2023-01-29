@@ -18,8 +18,7 @@ const (
 	StrStatePending   StrState = "pending"
 	StrStateRunning   StrState = "running"
 	StrStateCompleted StrState = "completed"
-	// StrStateFailed is a StrState of type failed.
-	StrStateFailed StrState = "error"
+	StrStateFailed    StrState = "error"
 )
 
 var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
