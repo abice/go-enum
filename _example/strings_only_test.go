@@ -20,7 +20,7 @@ func TestStrState(t *testing.T) {
 func TestStrStateMustParse(t *testing.T) {
 	x := `avocado`
 
-	assert.PanicsWithError(t, x+" is not a valid StrState, try [pending, running, completed, failed]", func() { MustParseStrState(x) })
+	assert.PanicsWithError(t, x+" is not a valid StrState, try [pending, running, completed, error]", func() { MustParseStrState(x) })
 	assert.NotPanics(t, func() { MustParseStrState(StrStateFailed.String()) })
 }
 
@@ -78,14 +78,14 @@ func TestStrStateUnmarshal(t *testing.T) {
 		},
 		{
 			name:          "failed",
-			input:         `{"state":"Failed"}`,
+			input:         `{"state":"Error"}`,
 			output:        &testData{StrStateX: StrStateFailed},
 			errorExpected: false,
 			err:           nil,
 		},
 		{
 			name:          "failedlower",
-			input:         `{"state":"failed"}`,
+			input:         `{"state":"error"}`,
 			output:        &testData{StrStateX: StrStateFailed},
 			errorExpected: false,
 			err:           nil,
@@ -141,7 +141,7 @@ func TestStrStateMarshal(t *testing.T) {
 		},
 		{
 			name:          "green",
-			output:        `{"state":"failed"}`,
+			output:        `{"state":"error"}`,
 			input:         &testData{StrStateX: StrStateFailed},
 			errorExpected: false,
 			err:           nil,

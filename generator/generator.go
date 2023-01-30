@@ -69,7 +69,8 @@ type EnumValue struct {
 	RawName      string
 	Name         string
 	PrefixedName string
-	Value        interface{}
+	ValueStr     string
+	ValueInt     interface{}
 	Comment      string
 }
 
@@ -208,6 +209,10 @@ func (g *Generator) WithNoComments() *Generator {
 	return g
 }
 
+func (g *Generator) anySQLEnabled() bool {
+	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
+}
+
 // ParseAliases is used to add aliases to replace during name sanitization.
 func ParseAliases(aliases []string) error {
 	aliasMap := map[string]string{}
@@ -292,22 +297,23 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 
 		created++
 		data := map[string]interface{}{
-			"enum":       enum,
-			"name":       name,
-			"lowercase":  g.lowercaseLookup,
-			"nocase":     g.caseInsensitive,
-			"nocomments": g.noComments,
-			"marshal":    g.marshal,
-			"sql":        g.sql,
-			"sqlint":     g.sqlint,
-			"flag":       g.flag,
-			"names":      g.names,
-			"values":     g.values,
-			"ptr":        g.ptr,
-			"sqlnullint": g.sqlNullInt,
-			"sqlnullstr": g.sqlNullStr,
-			"mustparse":  g.mustParse,
-			"forcelower": g.forceLower,
+			"enum":          enum,
+			"name":          name,
+			"lowercase":     g.lowercaseLookup,
+			"nocase":        g.caseInsensitive,
+			"nocomments":    g.noComments,
+			"marshal":       g.marshal,
+			"sql":           g.sql,
+			"sqlint":        g.sqlint,
+			"flag":          g.flag,
+			"names":         g.names,
+			"ptr":           g.ptr,
+			"values":        g.values,
+			"anySQLEnabled": g.anySQLEnabled(),
+			"sqlnullint":    g.sqlNullInt,
+			"sqlnullstr":    g.sqlNullStr,
+			"mustparse":     g.mustParse,
+			"forcelower":    g.forceLower,
 		}
 
 		templateName := "enum"
@@ -401,12 +407,25 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 		// Make sure to leave out any empty parts
 		if value != "" {
+			rawName := value
+			valueStr := value
+
 			if strings.Contains(value, `=`) {
 				// Get the value specified and set the data to that value.
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])
 				if dataVal != "" {
-					if unsigned {
+					valueStr = dataVal
+					rawName = value[:equalIndex]
+					if enum.Type == "string" {
+						if parsed, err := strconv.ParseInt(dataVal, 10, 64); err == nil {
+							data = parsed
+							valueStr = rawName
+						}
+						if isQuoted(dataVal) {
+							valueStr = trimQuotes(dataVal)
+						}
+					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
 							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
@@ -423,13 +442,13 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						data = newData
 					}
-					value = value[:equalIndex]
 				} else {
-					value = strings.TrimSuffix(value, `=`)
-					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", value)
+					rawName = strings.TrimSuffix(rawName, `=`)
+					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", rawName)
 				}
 			}
-			rawName := strings.TrimSpace(value)
+			rawName = strings.TrimSpace(rawName)
+			valueStr = strings.TrimSpace(valueStr)
 			name := cases.Title(language.Und, cases.NoLower).String(rawName)
 			prefixedName := name
 			if name != skipHolder {
@@ -440,7 +459,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				}
 			}
 
-			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, Value: data, Comment: comment}
+			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}
 			enum.Values = append(enum.Values, ev)
 			data = increment(data)
 		}
@@ -449,6 +468,20 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	// fmt.Printf("###\nENUM: %+v\n###\n", enum)
 
 	return enum, nil
+}
+
+func isQuoted(s string) bool {
+	s = strings.TrimSpace(s)
+	return (strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`)) || (strings.HasPrefix(s, `'`) && strings.HasSuffix(s, `'`))
+}
+
+func trimQuotes(s string) string {
+	s = strings.TrimSpace(s)
+	for _, quote := range []string{`"`, `'`} {
+		s = strings.TrimPrefix(s, quote)
+		s = strings.TrimSuffix(s, quote)
+	}
+	return s
 }
 
 func increment(d interface{}) interface{} {

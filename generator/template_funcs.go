@@ -67,12 +67,12 @@ func UnmapifyStringEnum(e Enum, lowercase bool) (ret string, err error) {
 	}
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
-			_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", val.RawName, val.PrefixedName))
+			_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", val.ValueStr, val.PrefixedName))
 			if err != nil {
 				return
 			}
-			if lowercase && strings.ToLower(val.RawName) != val.RawName {
-				_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", strings.ToLower(val.RawName), val.PrefixedName))
+			if lowercase && strings.ToLower(val.ValueStr) != val.ValueStr {
+				_, err = builder.WriteString(fmt.Sprintf("%q:%s,\n", strings.ToLower(val.ValueStr), val.PrefixedName))
 				if err != nil {
 					return
 				}
@@ -118,9 +118,9 @@ func namifyStringEnum(e Enum) (ret string, err error) {
 func Offset(index int, enumType string, val EnumValue) (strResult string) {
 	if strings.HasPrefix(enumType, "u") {
 		// Unsigned
-		return strconv.FormatUint(val.Value.(uint64)-uint64(index), 10)
+		return strconv.FormatUint(val.ValueInt.(uint64)-uint64(index), 10)
 	} else {
 		// Signed
-		return strconv.FormatInt(val.Value.(int64)-int64(index), 10)
+		return strconv.FormatInt(val.ValueInt.(int64)-int64(index), 10)
 	}
 }
