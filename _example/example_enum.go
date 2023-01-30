@@ -56,30 +56,28 @@ const (
 	MakeVolkswagon
 )
 
-var ErrInvalidMake = fmt.Errorf("not a valid Make, try [%s]", strings.Join(_MakeNames, ", "))
-
-const _MakeName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedes-BenzVolkswagon"
-
-var _MakeNames = []string{
-	_MakeName[0:6],
-	_MakeName[6:11],
-	_MakeName[11:15],
-	_MakeName[15:20],
-	_MakeName[20:27],
-	_MakeName[27:33],
-	_MakeName[33:39],
-	_MakeName[39:43],
-	_MakeName[43:46],
-	_MakeName[46:59],
-	_MakeName[59:69],
+var _makeNames = []string{
+	_makeName[0:6],
+	_makeName[6:11],
+	_makeName[11:15],
+	_makeName[15:20],
+	_makeName[20:27],
+	_makeName[27:33],
+	_makeName[33:39],
+	_makeName[39:43],
+	_makeName[43:46],
+	_makeName[46:59],
+	_makeName[59:69],
 }
 
 // MakeNames returns a list of possible string values of Make.
 func MakeNames() []string {
-	tmp := make([]string, len(_MakeNames))
-	copy(tmp, _MakeNames)
+	tmp := make([]string, len(_makeNames))
+	copy(tmp, _makeNames)
 	return tmp
 }
+
+var ErrInvalidMake = fmt.Errorf("not a valid Make, try [%s]", strings.Join(_makeNames, ", "))
 
 // MakeValues returns a list of the values for Make
 func MakeValues() []Make {
@@ -98,60 +96,62 @@ func MakeValues() []Make {
 	}
 }
 
-var _MakeMap = map[Make]string{
-	MakeToyota:       _MakeName[0:6],
-	MakeChevy:        _MakeName[6:11],
-	MakeFord:         _MakeName[11:15],
-	MakeTesla:        _MakeName[15:20],
-	MakeHyundai:      _MakeName[20:27],
-	MakeNissan:       _MakeName[27:33],
-	MakeJaguar:       _MakeName[33:39],
-	MakeAudi:         _MakeName[39:43],
-	MakeBMW:          _MakeName[43:46],
-	MakeMercedesBenz: _MakeName[46:59],
-	MakeVolkswagon:   _MakeName[59:69],
+const _makeName = "ToyotaChevyFordTeslaHyundaiNissanJaguarAudiBMWMercedes-BenzVolkswagon"
+
+var _makeMap = map[Make]string{
+	MakeToyota:       _makeName[0:6],
+	MakeChevy:        _makeName[6:11],
+	MakeFord:         _makeName[11:15],
+	MakeTesla:        _makeName[15:20],
+	MakeHyundai:      _makeName[20:27],
+	MakeNissan:       _makeName[27:33],
+	MakeJaguar:       _makeName[33:39],
+	MakeAudi:         _makeName[39:43],
+	MakeBMW:          _makeName[43:46],
+	MakeMercedesBenz: _makeName[46:59],
+	MakeVolkswagon:   _makeName[59:69],
 }
 
 // String implements the Stringer interface.
 func (x Make) String() string {
-	if str, ok := _MakeMap[x]; ok {
+	if str, ok := _makeMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Make(%d)", x)
 }
 
-var _MakeValue = map[string]Make{
-	_MakeName[0:6]:                    MakeToyota,
-	strings.ToLower(_MakeName[0:6]):   MakeToyota,
-	_MakeName[6:11]:                   MakeChevy,
-	strings.ToLower(_MakeName[6:11]):  MakeChevy,
-	_MakeName[11:15]:                  MakeFord,
-	strings.ToLower(_MakeName[11:15]): MakeFord,
-	_MakeName[15:20]:                  MakeTesla,
-	strings.ToLower(_MakeName[15:20]): MakeTesla,
-	_MakeName[20:27]:                  MakeHyundai,
-	strings.ToLower(_MakeName[20:27]): MakeHyundai,
-	_MakeName[27:33]:                  MakeNissan,
-	strings.ToLower(_MakeName[27:33]): MakeNissan,
-	_MakeName[33:39]:                  MakeJaguar,
-	strings.ToLower(_MakeName[33:39]): MakeJaguar,
-	_MakeName[39:43]:                  MakeAudi,
-	strings.ToLower(_MakeName[39:43]): MakeAudi,
-	_MakeName[43:46]:                  MakeBMW,
-	strings.ToLower(_MakeName[43:46]): MakeBMW,
-	_MakeName[46:59]:                  MakeMercedesBenz,
-	strings.ToLower(_MakeName[46:59]): MakeMercedesBenz,
-	_MakeName[59:69]:                  MakeVolkswagon,
-	strings.ToLower(_MakeName[59:69]): MakeVolkswagon,
+var _makeValue = map[string]Make{
+	_makeName[0:6]:                    MakeToyota,
+	strings.ToLower(_makeName[0:6]):   MakeToyota,
+	_makeName[6:11]:                   MakeChevy,
+	strings.ToLower(_makeName[6:11]):  MakeChevy,
+	_makeName[11:15]:                  MakeFord,
+	strings.ToLower(_makeName[11:15]): MakeFord,
+	_makeName[15:20]:                  MakeTesla,
+	strings.ToLower(_makeName[15:20]): MakeTesla,
+	_makeName[20:27]:                  MakeHyundai,
+	strings.ToLower(_makeName[20:27]): MakeHyundai,
+	_makeName[27:33]:                  MakeNissan,
+	strings.ToLower(_makeName[27:33]): MakeNissan,
+	_makeName[33:39]:                  MakeJaguar,
+	strings.ToLower(_makeName[33:39]): MakeJaguar,
+	_makeName[39:43]:                  MakeAudi,
+	strings.ToLower(_makeName[39:43]): MakeAudi,
+	_makeName[43:46]:                  MakeBMW,
+	strings.ToLower(_makeName[43:46]): MakeBMW,
+	_makeName[46:59]:                  MakeMercedesBenz,
+	strings.ToLower(_makeName[46:59]): MakeMercedesBenz,
+	_makeName[59:69]:                  MakeVolkswagon,
+	strings.ToLower(_makeName[59:69]): MakeVolkswagon,
 }
 
 // ParseMake attempts to convert a string to a Make.
 func ParseMake(name string) (Make, error) {
-	if x, ok := _MakeValue[name]; ok {
+	if x, ok := _makeValue[name]; ok {
 		return x, nil
 	}
 	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
-	if x, ok := _MakeValue[strings.ToLower(name)]; ok {
+	if x, ok := _makeValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
 	return Make(0), fmt.Errorf("%s is %w", name, ErrInvalidMake)
@@ -205,25 +205,23 @@ const (
 	NoZerosPpps
 )
 
-var ErrInvalidNoZeros = fmt.Errorf("not a valid NoZeros, try [%s]", strings.Join(_NoZerosNames, ", "))
-
-const _NoZerosName = "startmiddleendpsppsppps"
-
-var _NoZerosNames = []string{
-	_NoZerosName[0:5],
-	_NoZerosName[5:11],
-	_NoZerosName[11:14],
-	_NoZerosName[14:16],
-	_NoZerosName[16:19],
-	_NoZerosName[19:23],
+var _noZerosNames = []string{
+	_noZerosName[0:5],
+	_noZerosName[5:11],
+	_noZerosName[11:14],
+	_noZerosName[14:16],
+	_noZerosName[16:19],
+	_noZerosName[19:23],
 }
 
 // NoZerosNames returns a list of possible string values of NoZeros.
 func NoZerosNames() []string {
-	tmp := make([]string, len(_NoZerosNames))
-	copy(tmp, _NoZerosNames)
+	tmp := make([]string, len(_noZerosNames))
+	copy(tmp, _noZerosNames)
 	return tmp
 }
+
+var ErrInvalidNoZeros = fmt.Errorf("not a valid NoZeros, try [%s]", strings.Join(_noZerosNames, ", "))
 
 // NoZerosValues returns a list of the values for NoZeros
 func NoZerosValues() []NoZeros {
@@ -237,45 +235,47 @@ func NoZerosValues() []NoZeros {
 	}
 }
 
-var _NoZerosMap = map[NoZeros]string{
-	NoZerosStart:  _NoZerosName[0:5],
-	NoZerosMiddle: _NoZerosName[5:11],
-	NoZerosEnd:    _NoZerosName[11:14],
-	NoZerosPs:     _NoZerosName[14:16],
-	NoZerosPps:    _NoZerosName[16:19],
-	NoZerosPpps:   _NoZerosName[19:23],
+const _noZerosName = "startmiddleendpsppsppps"
+
+var _noZerosMap = map[NoZeros]string{
+	NoZerosStart:  _noZerosName[0:5],
+	NoZerosMiddle: _noZerosName[5:11],
+	NoZerosEnd:    _noZerosName[11:14],
+	NoZerosPs:     _noZerosName[14:16],
+	NoZerosPps:    _noZerosName[16:19],
+	NoZerosPpps:   _noZerosName[19:23],
 }
 
 // String implements the Stringer interface.
 func (x NoZeros) String() string {
-	if str, ok := _NoZerosMap[x]; ok {
+	if str, ok := _noZerosMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("NoZeros(%d)", x)
 }
 
-var _NoZerosValue = map[string]NoZeros{
-	_NoZerosName[0:5]:                    NoZerosStart,
-	strings.ToLower(_NoZerosName[0:5]):   NoZerosStart,
-	_NoZerosName[5:11]:                   NoZerosMiddle,
-	strings.ToLower(_NoZerosName[5:11]):  NoZerosMiddle,
-	_NoZerosName[11:14]:                  NoZerosEnd,
-	strings.ToLower(_NoZerosName[11:14]): NoZerosEnd,
-	_NoZerosName[14:16]:                  NoZerosPs,
-	strings.ToLower(_NoZerosName[14:16]): NoZerosPs,
-	_NoZerosName[16:19]:                  NoZerosPps,
-	strings.ToLower(_NoZerosName[16:19]): NoZerosPps,
-	_NoZerosName[19:23]:                  NoZerosPpps,
-	strings.ToLower(_NoZerosName[19:23]): NoZerosPpps,
+var _noZerosValue = map[string]NoZeros{
+	_noZerosName[0:5]:                    NoZerosStart,
+	strings.ToLower(_noZerosName[0:5]):   NoZerosStart,
+	_noZerosName[5:11]:                   NoZerosMiddle,
+	strings.ToLower(_noZerosName[5:11]):  NoZerosMiddle,
+	_noZerosName[11:14]:                  NoZerosEnd,
+	strings.ToLower(_noZerosName[11:14]): NoZerosEnd,
+	_noZerosName[14:16]:                  NoZerosPs,
+	strings.ToLower(_noZerosName[14:16]): NoZerosPs,
+	_noZerosName[16:19]:                  NoZerosPps,
+	strings.ToLower(_noZerosName[16:19]): NoZerosPps,
+	_noZerosName[19:23]:                  NoZerosPpps,
+	strings.ToLower(_noZerosName[19:23]): NoZerosPpps,
 }
 
 // ParseNoZeros attempts to convert a string to a NoZeros.
 func ParseNoZeros(name string) (NoZeros, error) {
-	if x, ok := _NoZerosValue[name]; ok {
+	if x, ok := _noZerosValue[name]; ok {
 		return x, nil
 	}
 	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
-	if x, ok := _NoZerosValue[strings.ToLower(name)]; ok {
+	if x, ok := _noZerosValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
 	return NoZeros(0), fmt.Errorf("%s is %w", name, ErrInvalidNoZeros)

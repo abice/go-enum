@@ -38,73 +38,73 @@ const (
 	Enum32bitE2P30 Enum32bit = iota + 1073741813
 )
 
-var ErrInvalidEnum32bit = fmt.Errorf("not a valid Enum32bit, try [%s]", strings.Join(_Enum32bitNames, ", "))
-
-const _Enum32bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30"
-
-var _Enum32bitNames = []string{
-	_Enum32bitName[0:5],
-	_Enum32bitName[5:10],
-	_Enum32bitName[10:15],
-	_Enum32bitName[15:20],
-	_Enum32bitName[20:25],
-	_Enum32bitName[25:30],
-	_Enum32bitName[30:35],
-	_Enum32bitName[35:40],
-	_Enum32bitName[40:45],
-	_Enum32bitName[45:50],
-	_Enum32bitName[50:55],
-	_Enum32bitName[55:60],
+var _enum32bitNames = []string{
+	_enum32bitName[0:5],
+	_enum32bitName[5:10],
+	_enum32bitName[10:15],
+	_enum32bitName[15:20],
+	_enum32bitName[20:25],
+	_enum32bitName[25:30],
+	_enum32bitName[30:35],
+	_enum32bitName[35:40],
+	_enum32bitName[40:45],
+	_enum32bitName[45:50],
+	_enum32bitName[50:55],
+	_enum32bitName[55:60],
 }
 
 // Enum32bitNames returns a list of possible string values of Enum32bit.
 func Enum32bitNames() []string {
-	tmp := make([]string, len(_Enum32bitNames))
-	copy(tmp, _Enum32bitNames)
+	tmp := make([]string, len(_enum32bitNames))
+	copy(tmp, _enum32bitNames)
 	return tmp
 }
 
-var _Enum32bitMap = map[Enum32bit]string{
-	Enum32bitUnkno: _Enum32bitName[0:5],
-	Enum32bitE2P15: _Enum32bitName[5:10],
-	Enum32bitE2P16: _Enum32bitName[10:15],
-	Enum32bitE2P17: _Enum32bitName[15:20],
-	Enum32bitE2P18: _Enum32bitName[20:25],
-	Enum32bitE2P19: _Enum32bitName[25:30],
-	Enum32bitE2P20: _Enum32bitName[30:35],
-	Enum32bitE2P21: _Enum32bitName[35:40],
-	Enum32bitE2P22: _Enum32bitName[40:45],
-	Enum32bitE2P23: _Enum32bitName[45:50],
-	Enum32bitE2P28: _Enum32bitName[50:55],
-	Enum32bitE2P30: _Enum32bitName[55:60],
+var ErrInvalidEnum32bit = fmt.Errorf("not a valid Enum32bit, try [%s]", strings.Join(_enum32bitNames, ", "))
+
+const _enum32bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30"
+
+var _enum32bitMap = map[Enum32bit]string{
+	Enum32bitUnkno: _enum32bitName[0:5],
+	Enum32bitE2P15: _enum32bitName[5:10],
+	Enum32bitE2P16: _enum32bitName[10:15],
+	Enum32bitE2P17: _enum32bitName[15:20],
+	Enum32bitE2P18: _enum32bitName[20:25],
+	Enum32bitE2P19: _enum32bitName[25:30],
+	Enum32bitE2P20: _enum32bitName[30:35],
+	Enum32bitE2P21: _enum32bitName[35:40],
+	Enum32bitE2P22: _enum32bitName[40:45],
+	Enum32bitE2P23: _enum32bitName[45:50],
+	Enum32bitE2P28: _enum32bitName[50:55],
+	Enum32bitE2P30: _enum32bitName[55:60],
 }
 
 // String implements the Stringer interface.
 func (x Enum32bit) String() string {
-	if str, ok := _Enum32bitMap[x]; ok {
+	if str, ok := _enum32bitMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Enum32bit(%d)", x)
 }
 
-var _Enum32bitValue = map[string]Enum32bit{
-	_Enum32bitName[0:5]:   Enum32bitUnkno,
-	_Enum32bitName[5:10]:  Enum32bitE2P15,
-	_Enum32bitName[10:15]: Enum32bitE2P16,
-	_Enum32bitName[15:20]: Enum32bitE2P17,
-	_Enum32bitName[20:25]: Enum32bitE2P18,
-	_Enum32bitName[25:30]: Enum32bitE2P19,
-	_Enum32bitName[30:35]: Enum32bitE2P20,
-	_Enum32bitName[35:40]: Enum32bitE2P21,
-	_Enum32bitName[40:45]: Enum32bitE2P22,
-	_Enum32bitName[45:50]: Enum32bitE2P23,
-	_Enum32bitName[50:55]: Enum32bitE2P28,
-	_Enum32bitName[55:60]: Enum32bitE2P30,
+var _enum32bitValue = map[string]Enum32bit{
+	_enum32bitName[0:5]:   Enum32bitUnkno,
+	_enum32bitName[5:10]:  Enum32bitE2P15,
+	_enum32bitName[10:15]: Enum32bitE2P16,
+	_enum32bitName[15:20]: Enum32bitE2P17,
+	_enum32bitName[20:25]: Enum32bitE2P18,
+	_enum32bitName[25:30]: Enum32bitE2P19,
+	_enum32bitName[30:35]: Enum32bitE2P20,
+	_enum32bitName[35:40]: Enum32bitE2P21,
+	_enum32bitName[40:45]: Enum32bitE2P22,
+	_enum32bitName[45:50]: Enum32bitE2P23,
+	_enum32bitName[50:55]: Enum32bitE2P28,
+	_enum32bitName[55:60]: Enum32bitE2P30,
 }
 
 // ParseEnum32bit attempts to convert a string to a Enum32bit.
 func ParseEnum32bit(name string) (Enum32bit, error) {
-	if x, ok := _Enum32bitValue[name]; ok {
+	if x, ok := _enum32bitValue[name]; ok {
 		return x, nil
 	}
 	return Enum32bit(0), fmt.Errorf("%s is %w", name, ErrInvalidEnum32bit)

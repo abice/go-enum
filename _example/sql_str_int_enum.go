@@ -27,9 +27,7 @@ const (
 	GreekGodAres GreekGod = "ares"
 )
 
-var ErrInvalidGreekGod = fmt.Errorf("not a valid GreekGod, try [%s]", strings.Join(_GreekGodNames, ", "))
-
-var _GreekGodNames = []string{
+var _greekGodNames = []string{
 	string(GreekGodZeus),
 	string(GreekGodApollo),
 	string(GreekGodAthena),
@@ -38,10 +36,12 @@ var _GreekGodNames = []string{
 
 // GreekGodNames returns a list of possible string values of GreekGod.
 func GreekGodNames() []string {
-	tmp := make([]string, len(_GreekGodNames))
-	copy(tmp, _GreekGodNames)
+	tmp := make([]string, len(_greekGodNames))
+	copy(tmp, _greekGodNames)
 	return tmp
 }
+
+var ErrInvalidGreekGod = fmt.Errorf("not a valid GreekGod, try [%s]", strings.Join(_greekGodNames, ", "))
 
 // String implements the Stringer interface.
 func (x GreekGod) String() string {
@@ -54,7 +54,7 @@ func (x GreekGod) IsValid() bool {
 	return err == nil
 }
 
-var _GreekGodValue = map[string]GreekGod{
+var _greekGodValue = map[string]GreekGod{
 	"zeus":   GreekGodZeus,
 	"apollo": GreekGodApollo,
 	"athena": GreekGodAthena,
@@ -63,30 +63,30 @@ var _GreekGodValue = map[string]GreekGod{
 
 // ParseGreekGod attempts to convert a string to a GreekGod.
 func ParseGreekGod(name string) (GreekGod, error) {
-	if x, ok := _GreekGodValue[name]; ok {
+	if x, ok := _greekGodValue[name]; ok {
 		return x, nil
 	}
 	return GreekGod(""), fmt.Errorf("%s is %w", name, ErrInvalidGreekGod)
 }
 
-var errGreekGodNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrGreekGodNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
-var sqlIntGreekGodMap = map[int64]GreekGod{
+var _sqlIntGreekGodMap = map[int64]GreekGod{
 	1:  GreekGodZeus,
 	2:  GreekGodApollo,
 	20: GreekGodAthena,
 	21: GreekGodAres,
 }
 
-var sqlIntGreekGodValue = map[GreekGod]int64{
+var _sqlIntGreekGodValue = map[GreekGod]int64{
 	GreekGodZeus:   1,
 	GreekGodApollo: 2,
 	GreekGodAthena: 20,
 	GreekGodAres:   21,
 }
 
-func lookupSqlIntGreekGod(val int64) (GreekGod, error) {
-	x, ok := sqlIntGreekGodMap[val]
+func _lookupSqlIntGreekGod(val int64) (GreekGod, error) {
+	x, ok := _sqlIntGreekGodMap[val]
 	if !ok {
 		return x, fmt.Errorf("%v is not %w", val, ErrInvalidGreekGod)
 	}
@@ -104,12 +104,12 @@ func (x *GreekGod) Scan(value interface{}) (err error) {
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
 	case int64:
-		*x, err = lookupSqlIntGreekGod(v)
+		*x, err = _lookupSqlIntGreekGod(v)
 	case string:
 		*x, err = ParseGreekGod(v)
 	case []byte:
 		if val, verr := strconv.ParseInt(string(v), 10, 64); verr == nil {
-			*x, err = lookupSqlIntGreekGod(val)
+			*x, err = _lookupSqlIntGreekGod(val)
 		} else {
 			// try parsing the value as a string
 			*x, err = ParseGreekGod(string(v))
@@ -117,46 +117,46 @@ func (x *GreekGod) Scan(value interface{}) (err error) {
 	case GreekGod:
 		*x = v
 	case int:
-		*x, err = lookupSqlIntGreekGod(int64(v))
+		*x, err = _lookupSqlIntGreekGod(int64(v))
 	case *GreekGod:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
 		*x = *v
 	case uint:
-		*x, err = lookupSqlIntGreekGod(int64(v))
+		*x, err = _lookupSqlIntGreekGod(int64(v))
 	case uint64:
-		*x, err = lookupSqlIntGreekGod(int64(v))
+		*x, err = _lookupSqlIntGreekGod(int64(v))
 	case *int:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
-		*x, err = lookupSqlIntGreekGod(int64(*v))
+		*x, err = _lookupSqlIntGreekGod(int64(*v))
 	case *int64:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
-		*x, err = lookupSqlIntGreekGod(int64(*v))
+		*x, err = _lookupSqlIntGreekGod(int64(*v))
 	case float64: // json marshals everything as a float64 if it's a number
-		*x, err = lookupSqlIntGreekGod(int64(v))
+		*x, err = _lookupSqlIntGreekGod(int64(v))
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
-		*x, err = lookupSqlIntGreekGod(int64(*v))
+		*x, err = _lookupSqlIntGreekGod(int64(*v))
 	case *uint:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
-		*x, err = lookupSqlIntGreekGod(int64(*v))
+		*x, err = _lookupSqlIntGreekGod(int64(*v))
 	case *uint64:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
-		*x, err = lookupSqlIntGreekGod(int64(*v))
+		*x, err = _lookupSqlIntGreekGod(int64(*v))
 	case *string:
 		if v == nil {
-			return errGreekGodNilPtr
+			return ErrGreekGodNilPtr
 		}
 		*x, err = ParseGreekGod(*v)
 	default:
@@ -168,7 +168,7 @@ func (x *GreekGod) Scan(value interface{}) (err error) {
 
 // Value implements the driver Valuer interface.
 func (x GreekGod) Value() (driver.Value, error) {
-	val, ok := sqlIntGreekGodValue[x]
+	val, ok := _sqlIntGreekGodValue[x]
 	if !ok {
 		return nil, ErrInvalidGreekGod
 	}
@@ -222,9 +222,7 @@ const (
 	GreekGodCustomAres GreekGodCustom = "ares"
 )
 
-var ErrInvalidGreekGodCustom = fmt.Errorf("not a valid GreekGodCustom, try [%s]", strings.Join(_GreekGodCustomNames, ", "))
-
-var _GreekGodCustomNames = []string{
+var _greekGodCustomNames = []string{
 	string(GreekGodCustomZeus),
 	string(GreekGodCustomApollo),
 	string(GreekGodCustomAthena),
@@ -233,10 +231,12 @@ var _GreekGodCustomNames = []string{
 
 // GreekGodCustomNames returns a list of possible string values of GreekGodCustom.
 func GreekGodCustomNames() []string {
-	tmp := make([]string, len(_GreekGodCustomNames))
-	copy(tmp, _GreekGodCustomNames)
+	tmp := make([]string, len(_greekGodCustomNames))
+	copy(tmp, _greekGodCustomNames)
 	return tmp
 }
+
+var ErrInvalidGreekGodCustom = fmt.Errorf("not a valid GreekGodCustom, try [%s]", strings.Join(_greekGodCustomNames, ", "))
 
 // String implements the Stringer interface.
 func (x GreekGodCustom) String() string {
@@ -249,7 +249,7 @@ func (x GreekGodCustom) IsValid() bool {
 	return err == nil
 }
 
-var _GreekGodCustomValue = map[string]GreekGodCustom{
+var _greekGodCustomValue = map[string]GreekGodCustom{
 	"zeus":   GreekGodCustomZeus,
 	"apollo": GreekGodCustomApollo,
 	"20":     GreekGodCustomAthena,
@@ -258,30 +258,30 @@ var _GreekGodCustomValue = map[string]GreekGodCustom{
 
 // ParseGreekGodCustom attempts to convert a string to a GreekGodCustom.
 func ParseGreekGodCustom(name string) (GreekGodCustom, error) {
-	if x, ok := _GreekGodCustomValue[name]; ok {
+	if x, ok := _greekGodCustomValue[name]; ok {
 		return x, nil
 	}
 	return GreekGodCustom(""), fmt.Errorf("%s is %w", name, ErrInvalidGreekGodCustom)
 }
 
-var errGreekGodCustomNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrGreekGodCustomNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
-var sqlIntGreekGodCustomMap = map[int64]GreekGodCustom{
+var _sqlIntGreekGodCustomMap = map[int64]GreekGodCustom{
 	1:  GreekGodCustomZeus,
 	2:  GreekGodCustomApollo,
 	20: GreekGodCustomAthena,
 	21: GreekGodCustomAres,
 }
 
-var sqlIntGreekGodCustomValue = map[GreekGodCustom]int64{
+var _sqlIntGreekGodCustomValue = map[GreekGodCustom]int64{
 	GreekGodCustomZeus:   1,
 	GreekGodCustomApollo: 2,
 	GreekGodCustomAthena: 20,
 	GreekGodCustomAres:   21,
 }
 
-func lookupSqlIntGreekGodCustom(val int64) (GreekGodCustom, error) {
-	x, ok := sqlIntGreekGodCustomMap[val]
+func _lookupSqlIntGreekGodCustom(val int64) (GreekGodCustom, error) {
+	x, ok := _sqlIntGreekGodCustomMap[val]
 	if !ok {
 		return x, fmt.Errorf("%v is not %w", val, ErrInvalidGreekGodCustom)
 	}
@@ -299,12 +299,12 @@ func (x *GreekGodCustom) Scan(value interface{}) (err error) {
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
 	case int64:
-		*x, err = lookupSqlIntGreekGodCustom(v)
+		*x, err = _lookupSqlIntGreekGodCustom(v)
 	case string:
 		*x, err = ParseGreekGodCustom(v)
 	case []byte:
 		if val, verr := strconv.ParseInt(string(v), 10, 64); verr == nil {
-			*x, err = lookupSqlIntGreekGodCustom(val)
+			*x, err = _lookupSqlIntGreekGodCustom(val)
 		} else {
 			// try parsing the value as a string
 			*x, err = ParseGreekGodCustom(string(v))
@@ -312,46 +312,46 @@ func (x *GreekGodCustom) Scan(value interface{}) (err error) {
 	case GreekGodCustom:
 		*x = v
 	case int:
-		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(v))
 	case *GreekGodCustom:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
 		*x = *v
 	case uint:
-		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(v))
 	case uint64:
-		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(v))
 	case *int:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
-		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(*v))
 	case *int64:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
-		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(*v))
 	case float64: // json marshals everything as a float64 if it's a number
-		*x, err = lookupSqlIntGreekGodCustom(int64(v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(v))
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
-		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(*v))
 	case *uint:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
-		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(*v))
 	case *uint64:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
-		*x, err = lookupSqlIntGreekGodCustom(int64(*v))
+		*x, err = _lookupSqlIntGreekGodCustom(int64(*v))
 	case *string:
 		if v == nil {
-			return errGreekGodCustomNilPtr
+			return ErrGreekGodCustomNilPtr
 		}
 		*x, err = ParseGreekGodCustom(*v)
 	default:
@@ -363,7 +363,7 @@ func (x *GreekGodCustom) Scan(value interface{}) (err error) {
 
 // Value implements the driver Valuer interface.
 func (x GreekGodCustom) Value() (driver.Value, error) {
-	val, ok := sqlIntGreekGodCustomValue[x]
+	val, ok := _sqlIntGreekGodCustomValue[x]
 	if !ok {
 		return nil, ErrInvalidGreekGodCustom
 	}

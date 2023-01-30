@@ -26,35 +26,35 @@ const (
 
 var ErrInvalidAnimal = errors.New("not a valid Animal")
 
-const _AnimalName = "CatDogFishFish++Fish#"
+const _animalName = "CatDogFishFish++Fish#"
 
-var _AnimalMap = map[Animal]string{
-	AnimalCat:          _AnimalName[0:3],
-	AnimalDog:          _AnimalName[3:6],
-	AnimalFish:         _AnimalName[6:10],
-	AnimalFishPlusPlus: _AnimalName[10:16],
-	AnimalFishSharp:    _AnimalName[16:21],
+var _animalMap = map[Animal]string{
+	AnimalCat:          _animalName[0:3],
+	AnimalDog:          _animalName[3:6],
+	AnimalFish:         _animalName[6:10],
+	AnimalFishPlusPlus: _animalName[10:16],
+	AnimalFishSharp:    _animalName[16:21],
 }
 
 // String implements the Stringer interface.
 func (x Animal) String() string {
-	if str, ok := _AnimalMap[x]; ok {
+	if str, ok := _animalMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Animal(%d)", x)
 }
 
-var _AnimalValue = map[string]Animal{
-	_AnimalName[0:3]:   AnimalCat,
-	_AnimalName[3:6]:   AnimalDog,
-	_AnimalName[6:10]:  AnimalFish,
-	_AnimalName[10:16]: AnimalFishPlusPlus,
-	_AnimalName[16:21]: AnimalFishSharp,
+var _animalValue = map[string]Animal{
+	_animalName[0:3]:   AnimalCat,
+	_animalName[3:6]:   AnimalDog,
+	_animalName[6:10]:  AnimalFish,
+	_animalName[10:16]: AnimalFishPlusPlus,
+	_animalName[16:21]: AnimalFishSharp,
 }
 
 // ParseAnimal attempts to convert a string to a Animal.
 func ParseAnimal(name string) (Animal, error) {
-	if x, ok := _AnimalValue[name]; ok {
+	if x, ok := _animalValue[name]; ok {
 		return x, nil
 	}
 	return Animal(0), fmt.Errorf("%s is %w", name, ErrInvalidAnimal)

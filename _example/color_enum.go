@@ -40,58 +40,58 @@ const (
 
 var ErrInvalidColor = errors.New("not a valid Color")
 
-const _ColorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_greenred-orange-blue"
+const _colorName = "BlackWhiteRedGreenBluegreyyellowblue-greenred-orangeyellow_greenred-orange-blue"
 
-var _ColorMap = map[Color]string{
-	ColorBlack:         _ColorName[0:5],
-	ColorWhite:         _ColorName[5:10],
-	ColorRed:           _ColorName[10:13],
-	ColorGreen:         _ColorName[13:18],
-	ColorBlue:          _ColorName[18:22],
-	ColorGrey:          _ColorName[22:26],
-	ColorYellow:        _ColorName[26:32],
-	ColorBlueGreen:     _ColorName[32:42],
-	ColorRedOrange:     _ColorName[42:52],
-	ColorYellowGreen:   _ColorName[52:64],
-	ColorRedOrangeBlue: _ColorName[64:79],
+var _colorMap = map[Color]string{
+	ColorBlack:         _colorName[0:5],
+	ColorWhite:         _colorName[5:10],
+	ColorRed:           _colorName[10:13],
+	ColorGreen:         _colorName[13:18],
+	ColorBlue:          _colorName[18:22],
+	ColorGrey:          _colorName[22:26],
+	ColorYellow:        _colorName[26:32],
+	ColorBlueGreen:     _colorName[32:42],
+	ColorRedOrange:     _colorName[42:52],
+	ColorYellowGreen:   _colorName[52:64],
+	ColorRedOrangeBlue: _colorName[64:79],
 }
 
 // String implements the Stringer interface.
 func (x Color) String() string {
-	if str, ok := _ColorMap[x]; ok {
+	if str, ok := _colorMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Color(%d)", x)
 }
 
-var _ColorValue = map[string]Color{
-	_ColorName[0:5]:                    ColorBlack,
-	strings.ToLower(_ColorName[0:5]):   ColorBlack,
-	_ColorName[5:10]:                   ColorWhite,
-	strings.ToLower(_ColorName[5:10]):  ColorWhite,
-	_ColorName[10:13]:                  ColorRed,
-	strings.ToLower(_ColorName[10:13]): ColorRed,
-	_ColorName[13:18]:                  ColorGreen,
-	strings.ToLower(_ColorName[13:18]): ColorGreen,
-	_ColorName[18:22]:                  ColorBlue,
-	strings.ToLower(_ColorName[18:22]): ColorBlue,
-	_ColorName[22:26]:                  ColorGrey,
-	strings.ToLower(_ColorName[22:26]): ColorGrey,
-	_ColorName[26:32]:                  ColorYellow,
-	strings.ToLower(_ColorName[26:32]): ColorYellow,
-	_ColorName[32:42]:                  ColorBlueGreen,
-	strings.ToLower(_ColorName[32:42]): ColorBlueGreen,
-	_ColorName[42:52]:                  ColorRedOrange,
-	strings.ToLower(_ColorName[42:52]): ColorRedOrange,
-	_ColorName[52:64]:                  ColorYellowGreen,
-	strings.ToLower(_ColorName[52:64]): ColorYellowGreen,
-	_ColorName[64:79]:                  ColorRedOrangeBlue,
-	strings.ToLower(_ColorName[64:79]): ColorRedOrangeBlue,
+var _colorValue = map[string]Color{
+	_colorName[0:5]:                    ColorBlack,
+	strings.ToLower(_colorName[0:5]):   ColorBlack,
+	_colorName[5:10]:                   ColorWhite,
+	strings.ToLower(_colorName[5:10]):  ColorWhite,
+	_colorName[10:13]:                  ColorRed,
+	strings.ToLower(_colorName[10:13]): ColorRed,
+	_colorName[13:18]:                  ColorGreen,
+	strings.ToLower(_colorName[13:18]): ColorGreen,
+	_colorName[18:22]:                  ColorBlue,
+	strings.ToLower(_colorName[18:22]): ColorBlue,
+	_colorName[22:26]:                  ColorGrey,
+	strings.ToLower(_colorName[22:26]): ColorGrey,
+	_colorName[26:32]:                  ColorYellow,
+	strings.ToLower(_colorName[26:32]): ColorYellow,
+	_colorName[32:42]:                  ColorBlueGreen,
+	strings.ToLower(_colorName[32:42]): ColorBlueGreen,
+	_colorName[42:52]:                  ColorRedOrange,
+	strings.ToLower(_colorName[42:52]): ColorRedOrange,
+	_colorName[52:64]:                  ColorYellowGreen,
+	strings.ToLower(_colorName[52:64]): ColorYellowGreen,
+	_colorName[64:79]:                  ColorRedOrangeBlue,
+	strings.ToLower(_colorName[64:79]): ColorRedOrangeBlue,
 }
 
 // ParseColor attempts to convert a string to a Color.
 func ParseColor(name string) (Color, error) {
-	if x, ok := _ColorValue[name]; ok {
+	if x, ok := _colorValue[name]; ok {
 		return x, nil
 	}
 	return Color(0), fmt.Errorf("%s is %w", name, ErrInvalidColor)

@@ -20,29 +20,29 @@ const (
 
 var ErrInvalidForceLowerType = errors.New("not a valid ForceLowerType")
 
-const _ForceLowerTypeName = "dataswapbootnode"
+const _forceLowerTypeName = "dataswapbootnode"
 
-var _ForceLowerTypeMap = map[ForceLowerType]string{
-	ForceLowerTypeDataSwap: _ForceLowerTypeName[0:8],
-	ForceLowerTypeBootNode: _ForceLowerTypeName[8:16],
+var _forceLowerTypeMap = map[ForceLowerType]string{
+	ForceLowerTypeDataSwap: _forceLowerTypeName[0:8],
+	ForceLowerTypeBootNode: _forceLowerTypeName[8:16],
 }
 
 // String implements the Stringer interface.
 func (x ForceLowerType) String() string {
-	if str, ok := _ForceLowerTypeMap[x]; ok {
+	if str, ok := _forceLowerTypeMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("ForceLowerType(%d)", x)
 }
 
-var _ForceLowerTypeValue = map[string]ForceLowerType{
-	_ForceLowerTypeName[0:8]:  ForceLowerTypeDataSwap,
-	_ForceLowerTypeName[8:16]: ForceLowerTypeBootNode,
+var _forceLowerTypeValue = map[string]ForceLowerType{
+	_forceLowerTypeName[0:8]:  ForceLowerTypeDataSwap,
+	_forceLowerTypeName[8:16]: ForceLowerTypeBootNode,
 }
 
 // ParseForceLowerType attempts to convert a string to a ForceLowerType.
 func ParseForceLowerType(name string) (ForceLowerType, error) {
-	if x, ok := _ForceLowerTypeValue[name]; ok {
+	if x, ok := _forceLowerTypeValue[name]; ok {
 		return x, nil
 	}
 	return ForceLowerType(0), fmt.Errorf("%s is %w", name, ErrInvalidForceLowerType)

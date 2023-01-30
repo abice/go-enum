@@ -28,41 +28,41 @@ const (
 
 var ErrInvalidImageType = errors.New("not a valid ImageType")
 
-const _ImageTypeName = "jpegjpgpngtiffgif"
+const _imageTypeName = "jpegjpgpngtiffgif"
 
-var _ImageTypeMap = map[ImageType]string{
-	ImageTypeJpeg: _ImageTypeName[0:4],
-	ImageTypeJpg:  _ImageTypeName[4:7],
-	ImageTypePng:  _ImageTypeName[7:10],
-	ImageTypeTiff: _ImageTypeName[10:14],
-	ImageTypeGif:  _ImageTypeName[14:17],
+var _imageTypeMap = map[ImageType]string{
+	ImageTypeJpeg: _imageTypeName[0:4],
+	ImageTypeJpg:  _imageTypeName[4:7],
+	ImageTypePng:  _imageTypeName[7:10],
+	ImageTypeTiff: _imageTypeName[10:14],
+	ImageTypeGif:  _imageTypeName[14:17],
 }
 
 // String implements the Stringer interface.
 func (x ImageType) String() string {
-	if str, ok := _ImageTypeMap[x]; ok {
+	if str, ok := _imageTypeMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("ImageType(%d)", x)
 }
 
-var _ImageTypeValue = map[string]ImageType{
-	_ImageTypeName[0:4]:   ImageTypeJpeg,
-	_ImageTypeName[4:7]:   ImageTypeJpg,
-	_ImageTypeName[7:10]:  ImageTypePng,
-	_ImageTypeName[10:14]: ImageTypeTiff,
-	_ImageTypeName[14:17]: ImageTypeGif,
+var _imageTypeValue = map[string]ImageType{
+	_imageTypeName[0:4]:   ImageTypeJpeg,
+	_imageTypeName[4:7]:   ImageTypeJpg,
+	_imageTypeName[7:10]:  ImageTypePng,
+	_imageTypeName[10:14]: ImageTypeTiff,
+	_imageTypeName[14:17]: ImageTypeGif,
 }
 
 // ParseImageType attempts to convert a string to a ImageType.
 func ParseImageType(name string) (ImageType, error) {
-	if x, ok := _ImageTypeValue[name]; ok {
+	if x, ok := _imageTypeValue[name]; ok {
 		return x, nil
 	}
 	return ImageType(0), fmt.Errorf("%s is %w", name, ErrInvalidImageType)
 }
 
-var errImageTypeNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrImageTypeNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *ImageType) Scan(value interface{}) (err error) {
@@ -98,7 +98,7 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		*x = ImageType(v)
 	case *ImageType:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = *v
 	case uint:
@@ -107,34 +107,34 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		*x = ImageType(v)
 	case *int:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *int64:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = ImageType(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *uint:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *uint64:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x = ImageType(*v)
 	case *string:
 		if v == nil {
-			return errImageTypeNilPtr
+			return ErrImageTypeNilPtr
 		}
 		*x, err = ParseImageType(*v)
 		if err != nil {

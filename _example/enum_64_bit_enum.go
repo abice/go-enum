@@ -46,85 +46,85 @@ const (
 	Enum64bitE2P63 Enum64bit = iota + 18446744073709551600
 )
 
-var ErrInvalidEnum64bit = fmt.Errorf("not a valid Enum64bit, try [%s]", strings.Join(_Enum64bitNames, ", "))
-
-const _Enum64bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30E2P31E2P32E2P33E2P63"
-
-var _Enum64bitNames = []string{
-	_Enum64bitName[0:5],
-	_Enum64bitName[5:10],
-	_Enum64bitName[10:15],
-	_Enum64bitName[15:20],
-	_Enum64bitName[20:25],
-	_Enum64bitName[25:30],
-	_Enum64bitName[30:35],
-	_Enum64bitName[35:40],
-	_Enum64bitName[40:45],
-	_Enum64bitName[45:50],
-	_Enum64bitName[50:55],
-	_Enum64bitName[55:60],
-	_Enum64bitName[60:65],
-	_Enum64bitName[65:70],
-	_Enum64bitName[70:75],
-	_Enum64bitName[75:80],
+var _enum64bitNames = []string{
+	_enum64bitName[0:5],
+	_enum64bitName[5:10],
+	_enum64bitName[10:15],
+	_enum64bitName[15:20],
+	_enum64bitName[20:25],
+	_enum64bitName[25:30],
+	_enum64bitName[30:35],
+	_enum64bitName[35:40],
+	_enum64bitName[40:45],
+	_enum64bitName[45:50],
+	_enum64bitName[50:55],
+	_enum64bitName[55:60],
+	_enum64bitName[60:65],
+	_enum64bitName[65:70],
+	_enum64bitName[70:75],
+	_enum64bitName[75:80],
 }
 
 // Enum64bitNames returns a list of possible string values of Enum64bit.
 func Enum64bitNames() []string {
-	tmp := make([]string, len(_Enum64bitNames))
-	copy(tmp, _Enum64bitNames)
+	tmp := make([]string, len(_enum64bitNames))
+	copy(tmp, _enum64bitNames)
 	return tmp
 }
 
-var _Enum64bitMap = map[Enum64bit]string{
-	Enum64bitUnkno: _Enum64bitName[0:5],
-	Enum64bitE2P15: _Enum64bitName[5:10],
-	Enum64bitE2P16: _Enum64bitName[10:15],
-	Enum64bitE2P17: _Enum64bitName[15:20],
-	Enum64bitE2P18: _Enum64bitName[20:25],
-	Enum64bitE2P19: _Enum64bitName[25:30],
-	Enum64bitE2P20: _Enum64bitName[30:35],
-	Enum64bitE2P21: _Enum64bitName[35:40],
-	Enum64bitE2P22: _Enum64bitName[40:45],
-	Enum64bitE2P23: _Enum64bitName[45:50],
-	Enum64bitE2P28: _Enum64bitName[50:55],
-	Enum64bitE2P30: _Enum64bitName[55:60],
-	Enum64bitE2P31: _Enum64bitName[60:65],
-	Enum64bitE2P32: _Enum64bitName[65:70],
-	Enum64bitE2P33: _Enum64bitName[70:75],
-	Enum64bitE2P63: _Enum64bitName[75:80],
+var ErrInvalidEnum64bit = fmt.Errorf("not a valid Enum64bit, try [%s]", strings.Join(_enum64bitNames, ", "))
+
+const _enum64bitName = "UnknoE2P15E2P16E2P17E2P18E2P19E2P20E2P21E2P22E2P23E2P28E2P30E2P31E2P32E2P33E2P63"
+
+var _enum64bitMap = map[Enum64bit]string{
+	Enum64bitUnkno: _enum64bitName[0:5],
+	Enum64bitE2P15: _enum64bitName[5:10],
+	Enum64bitE2P16: _enum64bitName[10:15],
+	Enum64bitE2P17: _enum64bitName[15:20],
+	Enum64bitE2P18: _enum64bitName[20:25],
+	Enum64bitE2P19: _enum64bitName[25:30],
+	Enum64bitE2P20: _enum64bitName[30:35],
+	Enum64bitE2P21: _enum64bitName[35:40],
+	Enum64bitE2P22: _enum64bitName[40:45],
+	Enum64bitE2P23: _enum64bitName[45:50],
+	Enum64bitE2P28: _enum64bitName[50:55],
+	Enum64bitE2P30: _enum64bitName[55:60],
+	Enum64bitE2P31: _enum64bitName[60:65],
+	Enum64bitE2P32: _enum64bitName[65:70],
+	Enum64bitE2P33: _enum64bitName[70:75],
+	Enum64bitE2P63: _enum64bitName[75:80],
 }
 
 // String implements the Stringer interface.
 func (x Enum64bit) String() string {
-	if str, ok := _Enum64bitMap[x]; ok {
+	if str, ok := _enum64bitMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Enum64bit(%d)", x)
 }
 
-var _Enum64bitValue = map[string]Enum64bit{
-	_Enum64bitName[0:5]:   Enum64bitUnkno,
-	_Enum64bitName[5:10]:  Enum64bitE2P15,
-	_Enum64bitName[10:15]: Enum64bitE2P16,
-	_Enum64bitName[15:20]: Enum64bitE2P17,
-	_Enum64bitName[20:25]: Enum64bitE2P18,
-	_Enum64bitName[25:30]: Enum64bitE2P19,
-	_Enum64bitName[30:35]: Enum64bitE2P20,
-	_Enum64bitName[35:40]: Enum64bitE2P21,
-	_Enum64bitName[40:45]: Enum64bitE2P22,
-	_Enum64bitName[45:50]: Enum64bitE2P23,
-	_Enum64bitName[50:55]: Enum64bitE2P28,
-	_Enum64bitName[55:60]: Enum64bitE2P30,
-	_Enum64bitName[60:65]: Enum64bitE2P31,
-	_Enum64bitName[65:70]: Enum64bitE2P32,
-	_Enum64bitName[70:75]: Enum64bitE2P33,
-	_Enum64bitName[75:80]: Enum64bitE2P63,
+var _enum64bitValue = map[string]Enum64bit{
+	_enum64bitName[0:5]:   Enum64bitUnkno,
+	_enum64bitName[5:10]:  Enum64bitE2P15,
+	_enum64bitName[10:15]: Enum64bitE2P16,
+	_enum64bitName[15:20]: Enum64bitE2P17,
+	_enum64bitName[20:25]: Enum64bitE2P18,
+	_enum64bitName[25:30]: Enum64bitE2P19,
+	_enum64bitName[30:35]: Enum64bitE2P20,
+	_enum64bitName[35:40]: Enum64bitE2P21,
+	_enum64bitName[40:45]: Enum64bitE2P22,
+	_enum64bitName[45:50]: Enum64bitE2P23,
+	_enum64bitName[50:55]: Enum64bitE2P28,
+	_enum64bitName[55:60]: Enum64bitE2P30,
+	_enum64bitName[60:65]: Enum64bitE2P31,
+	_enum64bitName[65:70]: Enum64bitE2P32,
+	_enum64bitName[70:75]: Enum64bitE2P33,
+	_enum64bitName[75:80]: Enum64bitE2P63,
 }
 
 // ParseEnum64bit attempts to convert a string to a Enum64bit.
 func ParseEnum64bit(name string) (Enum64bit, error) {
-	if x, ok := _Enum64bitValue[name]; ok {
+	if x, ok := _enum64bitValue[name]; ok {
 		return x, nil
 	}
 	return Enum64bit(0), fmt.Errorf("%s is %w", name, ErrInvalidEnum64bit)

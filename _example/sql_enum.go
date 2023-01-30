@@ -23,33 +23,33 @@ const (
 
 var ErrInvalidProjectStatus = errors.New("not a valid ProjectStatus")
 
-const _ProjectStatusName = "pendinginWorkcompletedrejected"
+const _projectStatusName = "pendinginWorkcompletedrejected"
 
-var _ProjectStatusMap = map[ProjectStatus]string{
-	ProjectStatusPending:   _ProjectStatusName[0:7],
-	ProjectStatusInWork:    _ProjectStatusName[7:13],
-	ProjectStatusCompleted: _ProjectStatusName[13:22],
-	ProjectStatusRejected:  _ProjectStatusName[22:30],
+var _projectStatusMap = map[ProjectStatus]string{
+	ProjectStatusPending:   _projectStatusName[0:7],
+	ProjectStatusInWork:    _projectStatusName[7:13],
+	ProjectStatusCompleted: _projectStatusName[13:22],
+	ProjectStatusRejected:  _projectStatusName[22:30],
 }
 
 // String implements the Stringer interface.
 func (x ProjectStatus) String() string {
-	if str, ok := _ProjectStatusMap[x]; ok {
+	if str, ok := _projectStatusMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("ProjectStatus(%d)", x)
 }
 
-var _ProjectStatusValue = map[string]ProjectStatus{
-	_ProjectStatusName[0:7]:   ProjectStatusPending,
-	_ProjectStatusName[7:13]:  ProjectStatusInWork,
-	_ProjectStatusName[13:22]: ProjectStatusCompleted,
-	_ProjectStatusName[22:30]: ProjectStatusRejected,
+var _projectStatusValue = map[string]ProjectStatus{
+	_projectStatusName[0:7]:   ProjectStatusPending,
+	_projectStatusName[7:13]:  ProjectStatusInWork,
+	_projectStatusName[13:22]: ProjectStatusCompleted,
+	_projectStatusName[22:30]: ProjectStatusRejected,
 }
 
 // ParseProjectStatus attempts to convert a string to a ProjectStatus.
 func ParseProjectStatus(name string) (ProjectStatus, error) {
-	if x, ok := _ProjectStatusValue[name]; ok {
+	if x, ok := _projectStatusValue[name]; ok {
 		return x, nil
 	}
 	return ProjectStatus(0), fmt.Errorf("%s is %w", name, ErrInvalidProjectStatus)
@@ -75,7 +75,7 @@ func (x *ProjectStatus) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var errProjectStatusNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrProjectStatusNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *ProjectStatus) Scan(value interface{}) (err error) {
@@ -111,7 +111,7 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 		*x = ProjectStatus(v)
 	case *ProjectStatus:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = *v
 	case uint:
@@ -120,34 +120,34 @@ func (x *ProjectStatus) Scan(value interface{}) (err error) {
 		*x = ProjectStatus(v)
 	case *int:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *int64:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = ProjectStatus(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *uint:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *uint64:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x = ProjectStatus(*v)
 	case *string:
 		if v == nil {
-			return errProjectStatusNilPtr
+			return ErrProjectStatusNilPtr
 		}
 		*x, err = ParseProjectStatus(*v)
 		if err != nil {

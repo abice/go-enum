@@ -31,14 +31,14 @@ func (x TestOnlyEnum) IsValid() bool {
 	return err == nil
 }
 
-var _TestOnlyEnumValue = map[string]TestOnlyEnum{
+var _testOnlyEnumValue = map[string]TestOnlyEnum{
 	"ABCD (x)": TestOnlyEnumABCDX,
 	"EFGH (y)": TestOnlyEnumEFGHY,
 }
 
 // ParseTestOnlyEnum attempts to convert a string to a TestOnlyEnum.
 func ParseTestOnlyEnum(name string) (TestOnlyEnum, error) {
-	if x, ok := _TestOnlyEnumValue[name]; ok {
+	if x, ok := _testOnlyEnumValue[name]; ok {
 		return x, nil
 	}
 	return TestOnlyEnum(""), fmt.Errorf("%s is %w", name, ErrInvalidTestOnlyEnum)

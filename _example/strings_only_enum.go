@@ -21,9 +21,7 @@ const (
 	StrStateFailed    StrState = "error"
 )
 
-var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_StrStateNames, ", "))
-
-var _StrStateNames = []string{
+var _strStateNames = []string{
 	string(StrStatePending),
 	string(StrStateRunning),
 	string(StrStateCompleted),
@@ -32,10 +30,12 @@ var _StrStateNames = []string{
 
 // StrStateNames returns a list of possible string values of StrState.
 func StrStateNames() []string {
-	tmp := make([]string, len(_StrStateNames))
-	copy(tmp, _StrStateNames)
+	tmp := make([]string, len(_strStateNames))
+	copy(tmp, _strStateNames)
 	return tmp
 }
+
+var ErrInvalidStrState = fmt.Errorf("not a valid StrState, try [%s]", strings.Join(_strStateNames, ", "))
 
 // StrStateValues returns a list of the values for StrState
 func StrStateValues() []StrState {
@@ -58,7 +58,7 @@ func (x StrState) IsValid() bool {
 	return err == nil
 }
 
-var _StrStateValue = map[string]StrState{
+var _strStateValue = map[string]StrState{
 	"pending":   StrStatePending,
 	"running":   StrStateRunning,
 	"completed": StrStateCompleted,
@@ -67,11 +67,11 @@ var _StrStateValue = map[string]StrState{
 
 // ParseStrState attempts to convert a string to a StrState.
 func ParseStrState(name string) (StrState, error) {
-	if x, ok := _StrStateValue[name]; ok {
+	if x, ok := _strStateValue[name]; ok {
 		return x, nil
 	}
 	// Case insensitive parse, do a separate lookup to prevent unnecessary cost of lowercasing a string if we don't need to.
-	if x, ok := _StrStateValue[strings.ToLower(name)]; ok {
+	if x, ok := _strStateValue[strings.ToLower(name)]; ok {
 		return x, nil
 	}
 	return StrState(""), fmt.Errorf("%s is %w", name, ErrInvalidStrState)
@@ -105,7 +105,7 @@ func (x *StrState) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var errStrStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrStrStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *StrState) Scan(value interface{}) (err error) {
@@ -125,12 +125,12 @@ func (x *StrState) Scan(value interface{}) (err error) {
 		*x = v
 	case *StrState:
 		if v == nil {
-			return errStrStateNilPtr
+			return ErrStrStateNilPtr
 		}
 		*x = *v
 	case *string:
 		if v == nil {
-			return errStrStateNilPtr
+			return ErrStrStateNilPtr
 		}
 		*x, err = ParseStrState(*v)
 	default:

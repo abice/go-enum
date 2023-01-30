@@ -233,7 +233,7 @@ func TestExampleSQLStrIntOnly(t *testing.T) {
 					// Update value
 					mocks.Conn.EXPECT().Prepare("Update job SET god = ? WHERE id = ?").Return(mocks.Stmt, nil),
 					mocks.Stmt.EXPECT().NumInput().Return(2),
-					mocks.Stmt.EXPECT().Exec(MatchesValues(sqlIntGreekGodValue[GreekGodAres], hardcodedProjectID)).Return(mocks.Result, nil),
+					mocks.Stmt.EXPECT().Exec(MatchesValues(_sqlIntGreekGodValue[GreekGodAres], hardcodedProjectID)).Return(mocks.Result, nil),
 					mocks.Stmt.EXPECT().Close().Return(nil),
 				)
 			},
@@ -323,7 +323,7 @@ func setGreekGod(db *sql.DB, state interface{}) error {
 
 func TestSQLStrIntExtras(t *testing.T) {
 
-	assert.Equal(t, sqlIntGreekGodMap[20], GreekGod("athena"), "String value is not correct")
+	assert.Equal(t, _sqlIntGreekGodMap[20], GreekGod("athena"), "String value is not correct")
 
 	_, err := ParseGreekGod(`NotAStatus`)
 	assert.Error(t, err, "Should have had an error parsing a non god")

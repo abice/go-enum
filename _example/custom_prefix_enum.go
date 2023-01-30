@@ -22,31 +22,31 @@ const (
 
 var ErrInvalidProduct = errors.New("not a valid Product")
 
-const _ProductName = "AnvilDynamiteGlue"
+const _productName = "AnvilDynamiteGlue"
 
-var _ProductMap = map[Product]string{
-	AcmeIncProductAnvil:    _ProductName[0:5],
-	AcmeIncProductDynamite: _ProductName[5:13],
-	AcmeIncProductGlue:     _ProductName[13:17],
+var _productMap = map[Product]string{
+	AcmeIncProductAnvil:    _productName[0:5],
+	AcmeIncProductDynamite: _productName[5:13],
+	AcmeIncProductGlue:     _productName[13:17],
 }
 
 // String implements the Stringer interface.
 func (x Product) String() string {
-	if str, ok := _ProductMap[x]; ok {
+	if str, ok := _productMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Product(%d)", x)
 }
 
-var _ProductValue = map[string]Product{
-	_ProductName[0:5]:   AcmeIncProductAnvil,
-	_ProductName[5:13]:  AcmeIncProductDynamite,
-	_ProductName[13:17]: AcmeIncProductGlue,
+var _productValue = map[string]Product{
+	_productName[0:5]:   AcmeIncProductAnvil,
+	_productName[5:13]:  AcmeIncProductDynamite,
+	_productName[13:17]: AcmeIncProductGlue,
 }
 
 // ParseProduct attempts to convert a string to a Product.
 func ParseProduct(name string) (Product, error) {
-	if x, ok := _ProductValue[name]; ok {
+	if x, ok := _productValue[name]; ok {
 		return x, nil
 	}
 	return Product(0), fmt.Errorf("%s is %w", name, ErrInvalidProduct)

@@ -20,9 +20,7 @@ const (
 	AcmeInc_LocationUnknown Shop = "LocationUnknown"
 )
 
-var ErrInvalidShop = fmt.Errorf("not a valid Shop, try [%s]", strings.Join(_ShopNames, ", "))
-
-var _ShopNames = []string{
+var _shopNames = []string{
 	string(AcmeInc_SOME_PLACE_AWESOME),
 	string(AcmeInc_SomewhereElse),
 	string(AcmeInc_LocationUnknown),
@@ -30,10 +28,12 @@ var _ShopNames = []string{
 
 // ShopNames returns a list of possible string values of Shop.
 func ShopNames() []string {
-	tmp := make([]string, len(_ShopNames))
-	copy(tmp, _ShopNames)
+	tmp := make([]string, len(_shopNames))
+	copy(tmp, _shopNames)
 	return tmp
 }
+
+var ErrInvalidShop = fmt.Errorf("not a valid Shop, try [%s]", strings.Join(_shopNames, ", "))
 
 // String implements the Stringer interface.
 func (x Shop) String() string {
@@ -46,7 +46,7 @@ func (x Shop) IsValid() bool {
 	return err == nil
 }
 
-var _ShopValue = map[string]Shop{
+var _shopValue = map[string]Shop{
 	"SOME_PLACE_AWESOME": AcmeInc_SOME_PLACE_AWESOME,
 	"SomewhereElse":      AcmeInc_SomewhereElse,
 	"LocationUnknown":    AcmeInc_LocationUnknown,
@@ -54,7 +54,7 @@ var _ShopValue = map[string]Shop{
 
 // ParseShop attempts to convert a string to a Shop.
 func ParseShop(name string) (Shop, error) {
-	if x, ok := _ShopValue[name]; ok {
+	if x, ok := _shopValue[name]; ok {
 		return x, nil
 	}
 	return Shop(""), fmt.Errorf("%s is %w", name, ErrInvalidShop)

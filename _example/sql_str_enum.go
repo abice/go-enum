@@ -25,39 +25,39 @@ const (
 
 var ErrInvalidJobState = errors.New("not a valid JobState")
 
-const _JobStateName = "pendingprocessingcompletedfailed"
+const _jobStateName = "pendingprocessingcompletedfailed"
 
-var _JobStateMap = map[JobState]string{
-	JobStatePending:    _JobStateName[0:7],
-	JobStateProcessing: _JobStateName[7:17],
-	JobStateCompleted:  _JobStateName[17:26],
-	JobStateFailed:     _JobStateName[26:32],
+var _jobStateMap = map[JobState]string{
+	JobStatePending:    _jobStateName[0:7],
+	JobStateProcessing: _jobStateName[7:17],
+	JobStateCompleted:  _jobStateName[17:26],
+	JobStateFailed:     _jobStateName[26:32],
 }
 
 // String implements the Stringer interface.
 func (x JobState) String() string {
-	if str, ok := _JobStateMap[x]; ok {
+	if str, ok := _jobStateMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("JobState(%d)", x)
 }
 
-var _JobStateValue = map[string]JobState{
-	_JobStateName[0:7]:   JobStatePending,
-	_JobStateName[7:17]:  JobStateProcessing,
-	_JobStateName[17:26]: JobStateCompleted,
-	_JobStateName[26:32]: JobStateFailed,
+var _jobStateValue = map[string]JobState{
+	_jobStateName[0:7]:   JobStatePending,
+	_jobStateName[7:17]:  JobStateProcessing,
+	_jobStateName[17:26]: JobStateCompleted,
+	_jobStateName[26:32]: JobStateFailed,
 }
 
 // ParseJobState attempts to convert a string to a JobState.
 func ParseJobState(name string) (JobState, error) {
-	if x, ok := _JobStateValue[name]; ok {
+	if x, ok := _jobStateValue[name]; ok {
 		return x, nil
 	}
 	return JobState(0), fmt.Errorf("%s is %w", name, ErrInvalidJobState)
 }
 
-var errJobStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
+var ErrJobStateNilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
 func (x *JobState) Scan(value interface{}) (err error) {
@@ -81,7 +81,7 @@ func (x *JobState) Scan(value interface{}) (err error) {
 		*x = JobState(v)
 	case *JobState:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = *v
 	case uint:
@@ -90,34 +90,34 @@ func (x *JobState) Scan(value interface{}) (err error) {
 		*x = JobState(v)
 	case *int:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *int64:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case float64: // json marshals everything as a float64 if it's a number
 		*x = JobState(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *uint:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *uint64:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x = JobState(*v)
 	case *string:
 		if v == nil {
-			return errJobStateNilPtr
+			return ErrJobStateNilPtr
 		}
 		*x, err = ParseJobState(*v)
 	}

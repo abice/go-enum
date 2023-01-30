@@ -25,34 +25,34 @@ const (
 
 var ErrInvalidCommented = errors.New("not a valid Commented")
 
-const _CommentedName = "value1value2value3"
+const _commentedName = "value1value2value3"
 
-var _CommentedMap = map[Commented]string{
-	CommentedValue1: _CommentedName[0:6],
-	CommentedValue2: _CommentedName[6:12],
-	CommentedValue3: _CommentedName[12:18],
+var _commentedMap = map[Commented]string{
+	CommentedValue1: _commentedName[0:6],
+	CommentedValue2: _commentedName[6:12],
+	CommentedValue3: _commentedName[12:18],
 }
 
 // String implements the Stringer interface.
 func (x Commented) String() string {
-	if str, ok := _CommentedMap[x]; ok {
+	if str, ok := _commentedMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("Commented(%d)", x)
 }
 
-var _CommentedValue = map[string]Commented{
-	_CommentedName[0:6]:                    CommentedValue1,
-	strings.ToLower(_CommentedName[0:6]):   CommentedValue1,
-	_CommentedName[6:12]:                   CommentedValue2,
-	strings.ToLower(_CommentedName[6:12]):  CommentedValue2,
-	_CommentedName[12:18]:                  CommentedValue3,
-	strings.ToLower(_CommentedName[12:18]): CommentedValue3,
+var _commentedValue = map[string]Commented{
+	_commentedName[0:6]:                    CommentedValue1,
+	strings.ToLower(_commentedName[0:6]):   CommentedValue1,
+	_commentedName[6:12]:                   CommentedValue2,
+	strings.ToLower(_commentedName[6:12]):  CommentedValue2,
+	_commentedName[12:18]:                  CommentedValue3,
+	strings.ToLower(_commentedName[12:18]): CommentedValue3,
 }
 
 // ParseCommented attempts to convert a string to a Commented.
 func ParseCommented(name string) (Commented, error) {
-	if x, ok := _CommentedValue[name]; ok {
+	if x, ok := _commentedValue[name]; ok {
 		return x, nil
 	}
 	return Commented(0), fmt.Errorf("%s is %w", name, ErrInvalidCommented)
@@ -90,34 +90,34 @@ const (
 
 var ErrInvalidComplexCommented = errors.New("not a valid ComplexCommented")
 
-const _ComplexCommentedName = "value1value2value3"
+const _complexCommentedName = "value1value2value3"
 
-var _ComplexCommentedMap = map[ComplexCommented]string{
-	ComplexCommentedValue1: _ComplexCommentedName[0:6],
-	ComplexCommentedValue2: _ComplexCommentedName[6:12],
-	ComplexCommentedValue3: _ComplexCommentedName[12:18],
+var _complexCommentedMap = map[ComplexCommented]string{
+	ComplexCommentedValue1: _complexCommentedName[0:6],
+	ComplexCommentedValue2: _complexCommentedName[6:12],
+	ComplexCommentedValue3: _complexCommentedName[12:18],
 }
 
 // String implements the Stringer interface.
 func (x ComplexCommented) String() string {
-	if str, ok := _ComplexCommentedMap[x]; ok {
+	if str, ok := _complexCommentedMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("ComplexCommented(%d)", x)
 }
 
-var _ComplexCommentedValue = map[string]ComplexCommented{
-	_ComplexCommentedName[0:6]:                    ComplexCommentedValue1,
-	strings.ToLower(_ComplexCommentedName[0:6]):   ComplexCommentedValue1,
-	_ComplexCommentedName[6:12]:                   ComplexCommentedValue2,
-	strings.ToLower(_ComplexCommentedName[6:12]):  ComplexCommentedValue2,
-	_ComplexCommentedName[12:18]:                  ComplexCommentedValue3,
-	strings.ToLower(_ComplexCommentedName[12:18]): ComplexCommentedValue3,
+var _complexCommentedValue = map[string]ComplexCommented{
+	_complexCommentedName[0:6]:                    ComplexCommentedValue1,
+	strings.ToLower(_complexCommentedName[0:6]):   ComplexCommentedValue1,
+	_complexCommentedName[6:12]:                   ComplexCommentedValue2,
+	strings.ToLower(_complexCommentedName[6:12]):  ComplexCommentedValue2,
+	_complexCommentedName[12:18]:                  ComplexCommentedValue3,
+	strings.ToLower(_complexCommentedName[12:18]): ComplexCommentedValue3,
 }
 
 // ParseComplexCommented attempts to convert a string to a ComplexCommented.
 func ParseComplexCommented(name string) (ComplexCommented, error) {
-	if x, ok := _ComplexCommentedValue[name]; ok {
+	if x, ok := _complexCommentedValue[name]; ok {
 		return x, nil
 	}
 	return ComplexCommented(0), fmt.Errorf("%s is %w", name, ErrInvalidComplexCommented)

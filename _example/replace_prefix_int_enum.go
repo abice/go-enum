@@ -20,46 +20,46 @@ const (
 	AcmeInt_LocationUnknown
 )
 
-var ErrInvalidIntShop = fmt.Errorf("not a valid IntShop, try [%s]", strings.Join(_IntShopNames, ", "))
-
-const _IntShopName = "SOME_PLACE_AWESOMESomewhereElseLocationUnknown"
-
-var _IntShopNames = []string{
-	_IntShopName[0:18],
-	_IntShopName[18:31],
-	_IntShopName[31:46],
+var _intShopNames = []string{
+	_intShopName[0:18],
+	_intShopName[18:31],
+	_intShopName[31:46],
 }
 
 // IntShopNames returns a list of possible string values of IntShop.
 func IntShopNames() []string {
-	tmp := make([]string, len(_IntShopNames))
-	copy(tmp, _IntShopNames)
+	tmp := make([]string, len(_intShopNames))
+	copy(tmp, _intShopNames)
 	return tmp
 }
 
-var _IntShopMap = map[IntShop]string{
-	AcmeInt_SOME_PLACE_AWESOME: _IntShopName[0:18],
-	AcmeInt_SomewhereElse:      _IntShopName[18:31],
-	AcmeInt_LocationUnknown:    _IntShopName[31:46],
+var ErrInvalidIntShop = fmt.Errorf("not a valid IntShop, try [%s]", strings.Join(_intShopNames, ", "))
+
+const _intShopName = "SOME_PLACE_AWESOMESomewhereElseLocationUnknown"
+
+var _intShopMap = map[IntShop]string{
+	AcmeInt_SOME_PLACE_AWESOME: _intShopName[0:18],
+	AcmeInt_SomewhereElse:      _intShopName[18:31],
+	AcmeInt_LocationUnknown:    _intShopName[31:46],
 }
 
 // String implements the Stringer interface.
 func (x IntShop) String() string {
-	if str, ok := _IntShopMap[x]; ok {
+	if str, ok := _intShopMap[x]; ok {
 		return str
 	}
 	return fmt.Sprintf("IntShop(%d)", x)
 }
 
-var _IntShopValue = map[string]IntShop{
-	_IntShopName[0:18]:  AcmeInt_SOME_PLACE_AWESOME,
-	_IntShopName[18:31]: AcmeInt_SomewhereElse,
-	_IntShopName[31:46]: AcmeInt_LocationUnknown,
+var _intShopValue = map[string]IntShop{
+	_intShopName[0:18]:  AcmeInt_SOME_PLACE_AWESOME,
+	_intShopName[18:31]: AcmeInt_SomewhereElse,
+	_intShopName[31:46]: AcmeInt_LocationUnknown,
 }
 
 // ParseIntShop attempts to convert a string to a IntShop.
 func ParseIntShop(name string) (IntShop, error) {
-	if x, ok := _IntShopValue[name]; ok {
+	if x, ok := _intShopValue[name]; ok {
 		return x, nil
 	}
 	return IntShop(0), fmt.Errorf("%s is %w", name, ErrInvalidIntShop)
