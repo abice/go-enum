@@ -120,6 +120,13 @@ func (x Make) String() string {
 	return fmt.Sprintf("Make(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Make) IsValid() bool {
+	_, ok := _MakeMap[x]
+	return ok
+}
+
 var _MakeValue = map[string]Make{
 	_MakeName[0:6]:                    MakeToyota,
 	strings.ToLower(_MakeName[0:6]):   MakeToyota,
@@ -252,6 +259,13 @@ func (x NoZeros) String() string {
 		return str
 	}
 	return fmt.Sprintf("NoZeros(%d)", x)
+}
+
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x NoZeros) IsValid() bool {
+	_, ok := _NoZerosMap[x]
+	return ok
 }
 
 var _NoZerosValue = map[string]NoZeros{

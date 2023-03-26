@@ -42,6 +42,13 @@ func (x AllNegative) String() string {
 	return fmt.Sprintf("AllNegative(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x AllNegative) IsValid() bool {
+	_, ok := _AllNegativeMap[x]
+	return ok
+}
+
 var _AllNegativeValue = map[string]AllNegative{
 	_AllNegativeName[0:7]:                    AllNegativeUnknown,
 	strings.ToLower(_AllNegativeName[0:7]):   AllNegativeUnknown,
@@ -90,6 +97,13 @@ func (x Status) String() string {
 		return str
 	}
 	return fmt.Sprintf("Status(%d)", x)
+}
+
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Status) IsValid() bool {
+	_, ok := _StatusMap[x]
+	return ok
 }
 
 var _StatusValue = map[string]Status{

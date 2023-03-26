@@ -40,6 +40,13 @@ func (x ProjectStatus) String() string {
 	return fmt.Sprintf("ProjectStatus(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x ProjectStatus) IsValid() bool {
+	_, ok := _ProjectStatusMap[x]
+	return ok
+}
+
 var _ProjectStatusValue = map[string]ProjectStatus{
 	_ProjectStatusName[0:7]:   ProjectStatusPending,
 	_ProjectStatusName[7:13]:  ProjectStatusInWork,

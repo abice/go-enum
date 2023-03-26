@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -13,8 +14,7 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/Masterminds/sprig"
-	"github.com/pkg/errors"
+	"github.com/Masterminds/sprig/v3"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/tools/imports"
@@ -275,7 +275,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		"builtBy":   g.BuiltBy,
 	})
 	if err != nil {
-		return nil, errors.WithMessage(err, "Failed writing header")
+		return nil, fmt.Errorf("failed writing header: %w", err)
 	}
 
 	// Make the output more consistent by iterating over sorted keys of map
@@ -323,13 +323,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 
 		err = g.t.ExecuteTemplate(vBuff, templateName, data)
 		if err != nil {
-			return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q", name))
+			return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q: %w", name, err)
 		}
 
 		for _, userTemplateName := range g.userTemplateNames {
 			err = g.t.ExecuteTemplate(vBuff, userTemplateName, data)
 			if err != nil {
-				return vBuff.Bytes(), errors.WithMessage(err, fmt.Sprintf("Failed writing enum data for enum: %q, template: %v", name, userTemplateName))
+				return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q, template: %v: %w", name, userTemplateName, err)
 			}
 		}
 	}
@@ -363,7 +363,7 @@ func (g *Generator) parseFile(fileName string) (*ast.File, error) {
 // parseEnum looks for the ENUM(x,y,z) formatted documentation from the type definition
 func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	if ts.Doc == nil {
-		return nil, errors.New("No Doc on Enum")
+		return nil, errors.New("no doc on enum")
 	}
 
 	enum := &Enum{}
@@ -428,7 +428,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 10, 64)
 						if err != nil {
-							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
 							return nil, err
 						}
@@ -436,7 +436,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					} else {
 						newData, err := strconv.ParseInt(dataVal, 10, 64)
 						if err != nil {
-							err = errors.Wrapf(err, "failed parsing the data part of enum value '%s'", value)
+							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
 							return nil, err
 						}

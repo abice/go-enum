@@ -46,7 +46,8 @@ func (x {{.enum.Name}}) String() string {
 	return string(x)
 }
 
-// String implements the Stringer interface.
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
 func (x {{.enum.Name}}) IsValid() bool {
 	_, err := Parse{{.enum.Name}}(string(x))
 	return err == nil

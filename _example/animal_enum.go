@@ -44,6 +44,13 @@ func (x Animal) String() string {
 	return fmt.Sprintf("Animal(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Animal) IsValid() bool {
+	_, ok := _AnimalMap[x]
+	return ok
+}
+
 var _AnimalValue = map[string]Animal{
 	_AnimalName[0:3]:   AnimalCat,
 	_AnimalName[3:6]:   AnimalDog,

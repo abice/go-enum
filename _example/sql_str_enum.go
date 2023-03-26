@@ -42,6 +42,13 @@ func (x JobState) String() string {
 	return fmt.Sprintf("JobState(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x JobState) IsValid() bool {
+	_, ok := _JobStateMap[x]
+	return ok
+}
+
 var _JobStateValue = map[string]JobState{
 	_JobStateName[0:7]:   JobStatePending,
 	_JobStateName[7:17]:  JobStateProcessing,

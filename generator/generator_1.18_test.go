@@ -9,17 +9,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bradleyjkemp/cupaloy"
+	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	testExampleFiles = map[string]string{
-		"og":   `example_test.go`,
-		"1.18": `example_1.18_test.go`,
-	}
-)
+var testExampleFiles = map[string]string{
+	"og":   `example_test.go`,
+	"1.18": `example_1.18_test.go`,
+}
 
 // TestNoStructInputFile
 func Test118NoStructFile(t *testing.T) {

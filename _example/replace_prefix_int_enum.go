@@ -51,6 +51,13 @@ func (x IntShop) String() string {
 	return fmt.Sprintf("IntShop(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x IntShop) IsValid() bool {
+	_, ok := _IntShopMap[x]
+	return ok
+}
+
 var _IntShopValue = map[string]IntShop{
 	_IntShopName[0:18]:  AcmeInt_SOME_PLACE_AWESOME,
 	_IntShopName[18:31]: AcmeInt_SomewhereElse,

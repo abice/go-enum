@@ -40,7 +40,8 @@ func (x Shop) String() string {
 	return string(x)
 }
 
-// String implements the Stringer interface.
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
 func (x Shop) IsValid() bool {
 	_, err := ParseShop(string(x))
 	return err == nil

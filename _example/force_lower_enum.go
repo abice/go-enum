@@ -35,6 +35,13 @@ func (x ForceLowerType) String() string {
 	return fmt.Sprintf("ForceLowerType(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x ForceLowerType) IsValid() bool {
+	_, ok := _ForceLowerTypeMap[x]
+	return ok
+}
+
 var _ForceLowerTypeValue = map[string]ForceLowerType{
 	_ForceLowerTypeName[0:8]:  ForceLowerTypeDataSwap,
 	_ForceLowerTypeName[8:16]: ForceLowerTypeBootNode,
