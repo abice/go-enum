@@ -13,18 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          # Drop support of go 1.12
-          # Drop support of go 1.13
-          # Drop support of go 1.14
-          # Drop support of go 1.15
-          # Drop support of go 1.16
-          - "1.17"
+          # Drop support of go 1.17
           - "1.18"
           - "1.19"
+          - "1.20"
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
 

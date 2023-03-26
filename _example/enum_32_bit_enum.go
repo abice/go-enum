@@ -87,6 +87,13 @@ func (x Enum32bit) String() string {
 	return fmt.Sprintf("Enum32bit(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Enum32bit) IsValid() bool {
+	_, ok := _Enum32bitMap[x]
+	return ok
+}
+
 var _Enum32bitValue = map[string]Enum32bit{
 	_Enum32bitName[0:5]:   Enum32bitUnkno,
 	_Enum32bitName[5:10]:  Enum32bitE2P15,

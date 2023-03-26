@@ -52,7 +52,8 @@ func (x StrState) String() string {
 	return string(x)
 }
 
-// String implements the Stringer interface.
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
 func (x StrState) IsValid() bool {
 	_, err := ParseStrState(string(x))
 	return err == nil

@@ -103,6 +103,13 @@ func (x Enum64bit) String() string {
 	return fmt.Sprintf("Enum64bit(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Enum64bit) IsValid() bool {
+	_, ok := _Enum64bitMap[x]
+	return ok
+}
+
 var _Enum64bitValue = map[string]Enum64bit{
 	_Enum64bitName[0:5]:   Enum64bitUnkno,
 	_Enum64bitName[5:10]:  Enum64bitE2P15,

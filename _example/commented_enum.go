@@ -41,6 +41,13 @@ func (x Commented) String() string {
 	return fmt.Sprintf("Commented(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Commented) IsValid() bool {
+	_, ok := _CommentedMap[x]
+	return ok
+}
+
 var _CommentedValue = map[string]Commented{
 	_CommentedName[0:6]:                    CommentedValue1,
 	strings.ToLower(_CommentedName[0:6]):   CommentedValue1,
@@ -104,6 +111,13 @@ func (x ComplexCommented) String() string {
 		return str
 	}
 	return fmt.Sprintf("ComplexCommented(%d)", x)
+}
+
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x ComplexCommented) IsValid() bool {
+	_, ok := _ComplexCommentedMap[x]
+	return ok
 }
 
 var _ComplexCommentedValue = map[string]ComplexCommented{

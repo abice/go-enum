@@ -1,13 +1,13 @@
 package generator
 
 import (
+	"errors"
 	"fmt"
 	"go/parser"
 	"strings"
 	"testing"
 
-	"github.com/bradleyjkemp/cupaloy"
-	"github.com/pkg/errors"
+	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

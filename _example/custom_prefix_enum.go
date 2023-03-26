@@ -38,6 +38,13 @@ func (x Product) String() string {
 	return fmt.Sprintf("Product(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Product) IsValid() bool {
+	_, ok := _ProductMap[x]
+	return ok
+}
+
 var _ProductValue = map[string]Product{
 	_ProductName[0:5]:   AcmeIncProductAnvil,
 	_ProductName[5:13]:  AcmeIncProductDynamite,

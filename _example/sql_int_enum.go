@@ -46,6 +46,13 @@ func (x ImageType) String() string {
 	return fmt.Sprintf("ImageType(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x ImageType) IsValid() bool {
+	_, ok := _ImageTypeMap[x]
+	return ok
+}
+
 var _ImageTypeValue = map[string]ImageType{
 	_ImageTypeName[0:4]:   ImageTypeJpeg,
 	_ImageTypeName[4:7]:   ImageTypeJpg,

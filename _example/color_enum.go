@@ -64,6 +64,13 @@ func (x Color) String() string {
 	return fmt.Sprintf("Color(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x Color) IsValid() bool {
+	_, ok := _ColorMap[x]
+	return ok
+}
+
 var _ColorValue = map[string]Color{
 	_ColorName[0:5]:                    ColorBlack,
 	strings.ToLower(_ColorName[0:5]):   ColorBlack,

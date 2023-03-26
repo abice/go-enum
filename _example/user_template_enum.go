@@ -38,6 +38,13 @@ func (x OceanColor) String() string {
 	return fmt.Sprintf("OceanColor(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x OceanColor) IsValid() bool {
+	_, ok := _OceanColorMap[x]
+	return ok
+}
+
 var _OceanColorValue = map[string]OceanColor{
 	_OceanColorName[0:8]:   OceanColorCerulean,
 	_OceanColorName[8:12]:  OceanColorBlue,

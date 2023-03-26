@@ -98,8 +98,8 @@ bin/mockgen: go.sum
 bin/goveralls: go.sum
 	$(call goinstall,github.com/mattn/goveralls)
 
-snapshots: snapshots_1.17
-snapshots: snapshots_1.18
+# snapshots: snapshots_1.17
+snapshots: snapshots_1.20
 
 snapshots_%: clean
 	echo "##### updating snapshots for golang $* #####"
@@ -107,9 +107,10 @@ snapshots_%: clean
 
 .PHONY: ci
 # ci: docker_1.16
-ci: docker_1.17
+# ci: docker_1.17
 ci: docker_1.18
 ci: docker_1.19
+ci: docker_1.20
 
 docker_%:
 	echo "##### testing golang $* #####"
@@ -119,6 +120,7 @@ docker_%:
 pullimages: pullimage_1.17
 pullimages: pullimage_1.18
 pullimages: pullimage_1.19
+pullimages: pullimage_1.20
 
 pullimage_%:
 	docker pull golang:$*

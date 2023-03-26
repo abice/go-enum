@@ -46,6 +46,13 @@ func (x {{.enum.Name}}) String() string {
 	return fmt.Sprintf("{{.enum.Name}}(%d)", x)
 }
 
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x {{.enum.Name}}) IsValid() bool {
+	_, ok := _{{.enum.Name}}Map[x]
+	return ok
+}
+
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
 // Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
