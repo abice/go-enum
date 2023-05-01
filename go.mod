@@ -9,7 +9,7 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/mattn/goveralls v0.0.11
 	github.com/stretchr/testify v1.8.2
-	github.com/urfave/cli/v2 v2.25.1
+	github.com/urfave/cli/v2 v2.25.2
 	golang.org/x/text v0.8.0
 	golang.org/x/tools v0.7.0
 	golang.org/x/tools/cmd/cover v0.1.0-deprecated
@@ -32,7 +32,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/mod v0.9.0 // indirect
