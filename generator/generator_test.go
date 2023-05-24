@@ -75,7 +75,7 @@ func TestExampleFileMoreOptions(t *testing.T) {
 		WithoutSnakeToCamel().
 		WithMustParse().
 		WithForceLower().
-		WithTemplates(`../_example/user_template.tmpl`)
+		WithTemplates(`../example/user_template.tmpl`)
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
 	require.Nil(t, err, "Error generating formatted code")

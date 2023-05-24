@@ -37,6 +37,7 @@ type rootT struct {
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
+	BuildTags         cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
 	NoComments        bool
@@ -161,6 +162,12 @@ func main() {
 				Usage:       "Removes auto generated comments.  If you add your own comments, these will still be created.",
 				Destination: &argv.NoComments,
 			},
+			&cli.StringSliceFlag{
+				Name:        "buildtag",
+				Aliases:     []string{"b"},
+				Usage:       "Adds build tags to a generated enum file.",
+				Destination: &argv.BuildTags,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
@@ -173,6 +180,8 @@ func main() {
 				g.Revision = commit
 				g.BuildDate = date
 				g.BuiltBy = builtBy
+
+				g.WithBuildTags(argv.BuildTags.Value()...)
 
 				if argv.NoPrefix {
 					g.WithNoPrefix()

@@ -4,6 +4,10 @@
 // Revision: {{ .revision }}
 // Build Date: {{ .buildDate }}
 // Built By: {{ .builtBy }}
+{{ range $idx, $tag := .buildTags }}
+//go:build {{$tag}}
+// +build {{$tag}}
+{{- end }}
 
 package {{.package}}
 
