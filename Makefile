@@ -35,7 +35,7 @@ MOCKGEN=bin/mockgen
 deps: $(MOCKGEN)
 deps: $(GOIMPORTS)
 
-PACKAGES='./generator' './_example'
+PACKAGES='./generator' './example'
 
 .PHONY: all
 all: build fmt test example cover install
@@ -50,7 +50,7 @@ fmt:
 
 test: gen-test generate
 	$(GO) test -v -race -coverprofile=coverage.out ./...
-	$(GO) test -v -race ./_example
+	$(GO) test -v -race --tags=example ./example
 
 cover: gen-test test
 	$(GO) tool cover -html=coverage.out -o coverage.html
@@ -75,10 +75,10 @@ assert-no-changes:
 
 .PHONY: generate
 generate:
-	$(GO) generate $(PACKAGES)
+	$(GO) generate --tags=example $(PACKAGES)
 
 gen-test: build
-	$(GO) generate $(PACKAGES)
+	$(GO) generate --tags=example $(PACKAGES)
 
 install:
 	$(GO) install
@@ -87,7 +87,7 @@ phony: clean tc build
 
 .PHONY: example
 example:
-	$(GO) generate ./_example/...
+	$(GO) generate ./example/...
 
 bin/goimports: go.sum
 	$(call goinstall,golang.org/x/tools/cmd/goimports)

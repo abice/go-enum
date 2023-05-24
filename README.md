@@ -139,26 +139,32 @@ USAGE:
    go-enum [global options] [arguments...]
 
 VERSION:
-   x.y.z
+   example
 
 GLOBAL OPTIONS:
-   --file value, -f value      The file(s) to generate enums.  Use more than one flag for more files.
-   --noprefix                  Prevents the constants generated from having the Enum as a prefix. (default: false)
-   --lower                     Adds lowercase variants of the enum strings for lookup. (default: false)
-   --nocase                    Adds case insensitive parsing to the enumeration (forces lower flag). (default: false)
-   --marshal                   Adds text (and inherently json) marshalling functions. (default: false)
-   --sql                       Adds SQL database scan and value functions. (default: false)
-   --flag                      Adds golang flag functions. (default: false)
-   --prefix value              Replaces the prefix with a user one.
-   --names                     Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
-   --nocamel                   Removes the snake_case to CamelCase name changing (default: false)
-   --ptr                       Adds a pointer method to get a pointer from const values (default: false)
-   --sqlnullint                Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)
-   --sqlnullstr                Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
-   --template value, -t value  Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.
-   --alias value, -a value     Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be "key:value,key2:value2", or specify multiple entries, or both!]
-   --help, -h                  show help (default: false)
-   --version, -v               print the version (default: false)
+   --file value, -f value [ --file value, -f value ]          The file(s) to generate enums.  Use more than one flag for more files. [$GOFILE]
+   --noprefix                                                 Prevents the constants generated from having the Enum as a prefix. (default: false)
+   --lower                                                    Adds lowercase variants of the enum strings for lookup. (default: false)
+   --nocase                                                   Adds case insensitive parsing to the enumeration (forces lower flag). (default: false)
+   --marshal                                                  Adds text (and inherently json) marshalling functions. (default: false)
+   --sql                                                      Adds SQL database scan and value functions. (default: false)
+   --sqlint                                                   Tells the generator that a string typed enum should be stored in sql as an integer value. (default: false)
+   --flag                                                     Adds golang flag functions. (default: false)
+   --prefix value                                             Adds a prefix with a user one. If you would like to replace the prefix, then combine this option with --noprefix.
+   --names                                                    Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
+   --values                                                   Generates a 'Values() []{{ENUM}}' function. (default: false)
+   --nocamel                                                  Removes the snake_case to CamelCase name changing (default: false)
+   --ptr                                                      Adds a pointer method to get a pointer from const values (default: false)
+   --sqlnullint                                               Adds a Null{{ENUM}} type for marshalling a nullable int value to sql (default: false)
+   --sqlnullstr                                               Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
+   --template value, -t value [ --template value, -t value ]  Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.
+   --alias value, -a value [ --alias value, -a value ]        Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be "key:value,key2:value2", or specify multiple entries, or both!]
+   --mustparse                                                Adds a Must version of the Parse that will panic on failure. (default: false)
+   --forcelower                                               Forces a camel cased comment to generate lowercased names. (default: false)
+   --nocomments                                               Removes auto generated comments.  If you add your own comments, these will still be created. (default: false)
+   --buildtag value, -b value [ --buildtag value, -b value ]  Adds build tags to a generated enum file.
+   --help, -h                                                 show help
+   --version, -v                                              print the version
 ```
 
 ### Syntax
@@ -166,6 +172,8 @@ GLOBAL OPTIONS:
 The parser looks for comments on your type defs and parse the enum declarations from it.
 The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.\
 If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration.  Keep in mind, this resets the data for all following values.  So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
+
+[Examples can be found in the example folder](./example/)
 
 #### Comments
 

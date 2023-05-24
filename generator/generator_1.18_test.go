@@ -83,7 +83,7 @@ func Test118ExampleFileMoreOptions(t *testing.T) {
 		WithoutSnakeToCamel().
 		WithMustParse().
 		WithForceLower().
-		WithTemplates(`../_example/user_template.tmpl`)
+		WithTemplates(`../example/user_template.tmpl`)
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
 			// Parse the file given in arguments

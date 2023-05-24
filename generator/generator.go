@@ -54,6 +54,7 @@ type Generator struct {
 	mustParse         bool
 	forceLower        bool
 	noComments        bool
+	buildTags         []string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -209,6 +210,12 @@ func (g *Generator) WithNoComments() *Generator {
 	return g
 }
 
+// WithBuildTags will add build tags to the generated file.
+func (g *Generator) WithBuildTags(tags ...string) *Generator {
+	g.buildTags = append(g.buildTags, tags...)
+	return g
+}
+
 func (g *Generator) anySQLEnabled() bool {
 	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
 }
@@ -273,6 +280,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		"revision":  g.Revision,
 		"buildDate": g.BuildDate,
 		"builtBy":   g.BuiltBy,
+		"buildTags": g.buildTags,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed writing header: %w", err)
