@@ -9,7 +9,7 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/mattn/goveralls v0.0.11
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/urfave/cli/v2 v2.25.1
 	golang.org/x/text v0.8.0
 	golang.org/x/tools v0.7.0
