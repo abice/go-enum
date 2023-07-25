@@ -11,6 +11,7 @@ import (
 
 func TestUserTemplateColor(t *testing.T) {
 	assert.Equal(t, OceanColor(0), OceanColorCerulean)
+	assert.Equal(t, "OceanColor is an enumeration of ocean colors that are allowed.", ParseOceanColorDescription())
 	assert.Equal(t, true, ParseOceanColorExample())
 	assert.Equal(t, true, ParseOceanColorGlobbedExample())
 	assert.Equal(t, true, ParseOceanColorGlobbedExample2())

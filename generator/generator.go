@@ -59,10 +59,11 @@ type Generator struct {
 
 // Enum holds data for a discovered enum in the parsed source
 type Enum struct {
-	Name   string
-	Prefix string
-	Type   string
-	Values []EnumValue
+	Name    string
+	Prefix  string
+	Type    string
+	Values  []EnumValue
+	Comment string
 }
 
 // EnumValue holds the individual data for each enum value within the found enum.
@@ -384,6 +385,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	if g.prefix != "" {
 		enum.Prefix = g.prefix + enum.Prefix
 	}
+
+	commentPreEnumDecl, _, _ := strings.Cut(ts.Doc.Text(), `ENUM(`)
+	enum.Comment = strings.TrimSpace(commentPreEnumDecl)
 
 	enumDecl := getEnumDeclFromComments(ts.Doc.List)
 	if enumDecl == "" {

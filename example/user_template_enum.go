@@ -73,3 +73,6 @@ func ParseOceanColorGlobbedExample2() bool {
 func ParseOceanColorExample() bool {
 	return true
 }
+func ParseOceanColorDescription() string {
+	return `OceanColor is an enumeration of ocean colors that are allowed.`
+}
