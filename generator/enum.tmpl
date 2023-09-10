@@ -341,7 +341,7 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 
 
 {{- define "stringer"}}
-const _{{.enum.Name}}Name = "{{ stringify .enum .forcelower }}"
+	const _{{.enum.Name}}Name = "{{ stringify .enum .forcelower .forceupper }}"
 
 {{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
 

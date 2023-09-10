@@ -53,6 +53,7 @@ type Generator struct {
 	ptr               bool
 	mustParse         bool
 	forceLower        bool
+	forceUpper        bool
 	noComments        bool
 	buildTags         []string
 }
@@ -205,6 +206,12 @@ func (g *Generator) WithForceLower() *Generator {
 	return g
 }
 
+// WithForceUpper is used to force enums names to upper case while keeping variable names the same.
+func (g *Generator) WithForceUpper() *Generator {
+	g.forceUpper = true
+	return g
+}
+
 // WithNoComments is used to remove auto generated comments from the enum.
 func (g *Generator) WithNoComments() *Generator {
 	g.noComments = true
@@ -323,6 +330,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"sqlnullstr":    g.sqlNullStr,
 			"mustparse":     g.mustParse,
 			"forcelower":    g.forceLower,
+			"forceupper":    g.forceUpper,
 		}
 
 		templateName := "enum"

@@ -88,6 +88,28 @@ func TestExampleFileMoreOptions(t *testing.T) {
 	}
 }
 
+// TestExampleFileMoreOptionsWithForceUpper — test with force upper option
+func TestExampleFileMoreOptionsWithForceUpper(t *testing.T) {
+	g := NewGenerator().
+		WithMarshal().
+		WithSQLDriver().
+		WithNames().
+		WithoutSnakeToCamel().
+		WithMustParse().
+		WithForceUpper().
+		WithTemplates(`../example/user_template.tmpl`)
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	cupaloy.SnapshotT(t, outputLines)
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
 // TestExampleFile
 func TestNoPrefixExampleFile(t *testing.T) {
 	g := NewGenerator().
