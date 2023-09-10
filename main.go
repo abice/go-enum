@@ -40,6 +40,7 @@ type rootT struct {
 	BuildTags         cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
+	ForceUpper        bool
 	NoComments        bool
 }
 
@@ -158,6 +159,11 @@ func main() {
 				Destination: &argv.ForceLower,
 			},
 			&cli.BoolFlag{
+				Name:        "forceupper",
+				Usage:       "Forces a camel cased comment to generate uppercased names.",
+				Destination: &argv.ForceUpper,
+			},
+			&cli.BoolFlag{
 				Name:        "nocomments",
 				Usage:       "Removes auto generated comments.  If you add your own comments, these will still be created.",
 				Destination: &argv.NoComments,
@@ -230,6 +236,9 @@ func main() {
 				}
 				if argv.ForceLower {
 					g.WithForceLower()
+				}
+				if argv.ForceUpper {
+					g.WithForceUpper()
 				}
 				if argv.NoComments {
 					g.WithNoComments()

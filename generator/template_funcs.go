@@ -7,12 +7,15 @@ import (
 )
 
 // Stringify returns a string that is all of the enum value names concatenated without a separator
-func Stringify(e Enum, forceLower bool) (ret string, err error) {
+func Stringify(e Enum, forceLower, forceUpper bool) (ret string, err error) {
 	for _, val := range e.Values {
 		if val.Name != skipHolder {
 			next := val.RawName
 			if forceLower {
 				next = strings.ToLower(next)
+			}
+			if forceUpper {
+				next = strings.ToUpper(next)
 			}
 			ret = ret + next
 		}
