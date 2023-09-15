@@ -161,6 +161,7 @@ GLOBAL OPTIONS:
    --alias value, -a value [ --alias value, -a value ]        Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be "key:value,key2:value2", or specify multiple entries, or both!]
    --mustparse                                                Adds a Must version of the Parse that will panic on failure. (default: false)
    --forcelower                                               Forces a camel cased comment to generate lowercased names. (default: false)
+   --forceupper                                               Forces a camel cased comment to generate uppercased names. (default: false)
    --nocomments                                               Removes auto generated comments.  If you add your own comments, these will still be created. (default: false)
    --buildtag value, -b value [ --buildtag value, -b value ]  Adds build tags to a generated enum file.
    --help, -h                                                 show help

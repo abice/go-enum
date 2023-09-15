@@ -20,3 +20,4 @@ coverage.out
 coverage.html
 
 dist/
+.idea/
