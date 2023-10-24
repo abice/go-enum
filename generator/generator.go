@@ -446,7 +446,8 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 							valueStr = trimQuotes(dataVal)
 						}
 					} else if unsigned {
-						newData, err := strconv.ParseUint(dataVal, 10, 64)
+						dataVal, base := getNumberBase(dataVal)
+						newData, err := strconv.ParseUint(dataVal, base, 64)
 						if err != nil {
 							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
@@ -454,7 +455,8 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						data = newData
 					} else {
-						newData, err := strconv.ParseInt(dataVal, 10, 64)
+						dataVal, base := getNumberBase(dataVal)
+						newData, err := strconv.ParseInt(dataVal, base, 64)
 						if err != nil {
 							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
@@ -520,6 +522,18 @@ func unescapeComment(comment string) string {
 		return comment
 	}
 	return val
+}
+
+// getNumberBase will return the base of the number if it is prefixed with 0x, 0, or 0b
+func getNumberBase(value string) (string, int) {
+	if strings.HasPrefix(strings.ToLower(value), "0x") {
+		return value[2:], 16
+	} else if strings.HasPrefix(strings.ToLower(value), "0b") {
+		return value[2:], 2
+	} else if strings.HasPrefix(value, "0") && len(value) > 1 {
+		return value[1:], 8
+	}
+	return value, 10
 }
 
 // sanitizeValue will ensure the value name generated adheres to golang's
