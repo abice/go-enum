@@ -19,6 +19,17 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
 
+kos:
+  - repository: abice/go-enum
+    tags:
+      - "{{.Version}}"
+      - latest
+    bare: true
+    preserve_import_paths: false
+    platforms:
+      - linux/amd64
+      - linux/arm64
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
