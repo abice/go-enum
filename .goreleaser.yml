@@ -21,6 +21,7 @@ archives:
 
 kos:
   - repository: abice/go-enum
+    base_image: cgr.dev/chainguard/go # need the go binary for formatting 🔧 purposes 🫤
     tags:
       - "{{.Version}}"
       - latest
