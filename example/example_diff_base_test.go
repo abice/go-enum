@@ -45,6 +45,14 @@ func TestDiffBase(t *testing.T) {
 			name:     "DiffBaseB9",
 			actual:   9,
 			expected: DiffBaseB9,
+		}, {
+			name:     "DiffBaseB10",
+			actual:   0x0B,
+			expected: DiffBaseB10,
+		}, {
+			name:     "DiffBaseB11",
+			actual:   0x2B,
+			expected: DiffBaseB11,
 		},
 	}
 
