@@ -33,11 +33,19 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           make cover
+
+      - name: Coveralls
+        if: (matrix.go == '1.21')
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        run: |
           if [[ -n "$COVERALLS_TOKEN" ]]; then
             make coveralls
           fi
+
       - name: Upload coverage
-        uses: actions/upload-artifact@v3
+        if: (matrix.go == '1.21')
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage.*
