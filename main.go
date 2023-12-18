@@ -176,7 +176,8 @@ func main() {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			if err := generator.ParseAliases(argv.Aliases.Value()); err != nil {
+			aliases, err := generator.ParseAliases(argv.Aliases.Value())
+			if err != nil {
 				return err
 			}
 			for _, fileOption := range argv.FileNames.Value() {
@@ -188,6 +189,7 @@ func main() {
 				g.BuiltBy = builtBy
 
 				g.WithBuildTags(argv.BuildTags.Value()...)
+				g.WithAliases(aliases)
 
 				if argv.NoPrefix {
 					g.WithNoPrefix()

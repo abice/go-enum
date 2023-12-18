@@ -217,10 +217,7 @@ func Test118AliasParsing(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			defer func() {
-				replacementNames = map[string]string{}
-			}()
-			err := ParseAliases(tc.input)
+			replacementNames, err := ParseAliases(tc.input)
 			if tc.err != nil {
 				require.Error(t, err)
 				require.EqualError(t, err, tc.err.Error())
@@ -306,9 +303,11 @@ func Test118Aliasing(t *testing.T) {
 	// ENUM(a,b,CDEF) with some extra text
 	type Animal int
 	`
+	aliases, err := ParseAliases([]string{"CDEF:C"})
+	require.NoError(t, err)
 	g := NewGenerator().
-		WithoutSnakeToCamel()
-	_ = ParseAliases([]string{"CDEF:C"})
+		WithoutSnakeToCamel().
+		WithAliases(aliases)
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 

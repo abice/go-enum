@@ -49,8 +49,8 @@ fmt:
 	-$(GO) fmt ./...
 
 test: gen-test generate
-	$(GO) test -v -race -coverprofile=coverage.out ./...
-	$(GO) test -v -race --tags=example ./example
+	$(GO) test -v -race -shuffle on -coverprofile=coverage.out ./...
+	$(GO) test -v -race -shuffle on --tags=example ./example
 
 cover: gen-test test
 	$(GO) tool cover -html=coverage.out -o coverage.html
