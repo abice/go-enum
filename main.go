@@ -42,6 +42,7 @@ type rootT struct {
 	ForceLower        bool
 	ForceUpper        bool
 	NoComments        bool
+	OutputSuffix      string
 }
 
 func main() {
@@ -174,6 +175,11 @@ func main() {
 				Usage:       "Adds build tags to a generated enum file.",
 				Destination: &argv.BuildTags,
 			},
+			&cli.StringFlag{
+				Name:        "output-suffix",
+				Usage:       "Changes the default filename suffix of _enum to something else.  `.go` will be appended to the end of the string no matter what, so that `_test.go` cases can be accommodated ",
+				Destination: &argv.OutputSuffix,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			aliases, err := generator.ParseAliases(argv.Aliases.Value())
@@ -262,14 +268,20 @@ func main() {
 					filenames = fn
 				}
 
+				outputSuffix := `_enum`
+				if argv.OutputSuffix != "" {
+					outputSuffix = argv.OutputSuffix
+				}
+
 				for _, fileName := range filenames {
 					originalName := fileName
 
 					out("go-enum started. file: %s\n", color.Cyan(originalName))
 					fileName, _ = filepath.Abs(fileName)
-					outFilePath := fmt.Sprintf("%s_enum.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)))
+
+					outFilePath := fmt.Sprintf("%s%s.go", strings.TrimSuffix(fileName, filepath.Ext(fileName)), outputSuffix)
 					if strings.HasSuffix(fileName, "_test.go") {
-						outFilePath = strings.Replace(outFilePath, "_test_enum.go", "_enum_test.go", 1)
+						outFilePath = strings.Replace(outFilePath, "_test"+outputSuffix+".go", outputSuffix+"_test.go", 1)
 					}
 
 					// Parse the file given in arguments
