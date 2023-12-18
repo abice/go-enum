@@ -25,8 +25,6 @@ const (
 	parseCommentPrefix = `//`
 )
 
-var replacementNames = map[string]string{}
-
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
 	Version           string
@@ -56,6 +54,7 @@ type Generator struct {
 	forceUpper        bool
 	noComments        bool
 	buildTags         []string
+	replacementNames  map[string]string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -90,6 +89,7 @@ func NewGenerator() *Generator {
 		t:                 template.New("generator"),
 		fileSet:           token.NewFileSet(),
 		noPrefix:          false,
+		replacementNames:  map[string]string{},
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -224,12 +224,21 @@ func (g *Generator) WithBuildTags(tags ...string) *Generator {
 	return g
 }
 
+// WithAliases will set up aliases for the generator.
+func (g *Generator) WithAliases(aliases map[string]string) *Generator {
+	if aliases == nil {
+		return g
+	}
+	g.replacementNames = aliases
+	return g
+}
+
 func (g *Generator) anySQLEnabled() bool {
 	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
 }
 
 // ParseAliases is used to add aliases to replace during name sanitization.
-func ParseAliases(aliases []string) error {
+func ParseAliases(aliases []string) (map[string]string, error) {
 	aliasMap := map[string]string{}
 
 	for _, str := range aliases {
@@ -237,17 +246,13 @@ func ParseAliases(aliases []string) error {
 		for _, kvp := range kvps {
 			parts := strings.Split(kvp, ":")
 			if len(parts) != 2 {
-				return fmt.Errorf("invalid formatted alias entry %q, must be in the format \"key:value\"", kvp)
+				return nil, fmt.Errorf("invalid formatted alias entry %q, must be in the format \"key:value\"", kvp)
 			}
 			aliasMap[parts[0]] = parts[1]
 		}
 	}
 
-	for k, v := range aliasMap {
-		replacementNames[k] = v
-	}
-
-	return nil
+	return aliasMap, nil
 }
 
 // WithTemplates is used to provide the filenames of additional templates.
@@ -438,7 +443,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					valueStr = dataVal
 					rawName = value[:equalIndex]
 					if enum.Type == "string" {
-						if parsed, err := strconv.ParseInt(dataVal, 10, 64); err == nil {
+						if parsed, err := strconv.ParseInt(dataVal, 0, 64); err == nil {
 							data = parsed
 							valueStr = rawName
 						}
@@ -446,7 +451,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 							valueStr = trimQuotes(dataVal)
 						}
 					} else if unsigned {
-						newData, err := strconv.ParseUint(dataVal, 10, 64)
+						newData, err := strconv.ParseUint(dataVal, 0, 64)
 						if err != nil {
 							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
@@ -454,7 +459,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						data = newData
 					} else {
-						newData, err := strconv.ParseInt(dataVal, 10, 64)
+						newData, err := strconv.ParseInt(dataVal, 0, 64)
 						if err != nil {
 							err = fmt.Errorf("failed parsing the data part of enum value '%s': %w", value, err)
 							fmt.Println(err)
@@ -473,7 +478,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			prefixedName := name
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
-				prefixedName = sanitizeValue(prefixedName)
+				prefixedName = g.sanitizeValue(prefixedName)
 				if !g.leaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
@@ -526,14 +531,14 @@ func unescapeComment(comment string) string {
 // identifier syntax as described here: https://golang.org/ref/spec#Identifiers
 // identifier = letter { letter | unicode_digit }
 // where letter can be unicode_letter or '_'
-func sanitizeValue(value string) string {
+func (g *Generator) sanitizeValue(value string) string {
 	// Keep skip value holders
 	if value == skipHolder {
 		return skipHolder
 	}
 
 	replacedValue := value
-	for k, v := range replacementNames {
+	for k, v := range g.replacementNames {
 		replacedValue = strings.ReplaceAll(replacedValue, k, v)
 	}
 
