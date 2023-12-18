@@ -99,28 +99,26 @@ bin/goveralls: go.sum
 	$(call goinstall,github.com/mattn/goveralls)
 
 # snapshots: snapshots_1.17
-snapshots: snapshots_1.20
+snapshots: snapshots_1.21
 
 snapshots_%: clean
 	echo "##### updating snapshots for golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c './update-snapshots.sh || true'
 
 .PHONY: ci
-# ci: docker_1.16
-# ci: docker_1.17
-ci: docker_1.18
-ci: docker_1.19
 ci: docker_1.20
+ci: docker_1.21
 
 docker_%:
 	echo "##### testing golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
 
 .PHONY: pullimages
-pullimages: pullimage_1.17
-pullimages: pullimage_1.18
-pullimages: pullimage_1.19
 pullimages: pullimage_1.20
+pullimages: pullimage_1.21
 
 pullimage_%:
 	docker pull golang:$*
+
+build_docker:
+	KO_DOCKER_REPO=abice/go-enum VERSION=$(GITHUB_REF) COMMIT=$(GITHUB_SHA) DATE=$(DATE) BUILT_BY=$(USER) ko build --bare --local

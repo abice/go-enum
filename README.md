@@ -88,6 +88,14 @@ It's not perfect, but I think it's useful.
 
 I took the output of the [Stringer](https://godoc.org/golang.org/x/tools/cmd/stringer) command as the `String()` method, and added a way to parse a string value.
 
+## Docker image
+
+You can now use a docker image directly for running the command if you do not wish to install anything!
+
+```shell
+   docker run -w /app -v $(pwd):/app abice/go-enum:$(GO_ENUM_VERSION)
+```
+
 ## Installation
 
 You can now download a release directly from github and use that for generating your enums! (Thanks to [GoReleaser](https://github.com/goreleaser/goreleaser-action))

@@ -1,0 +1,19 @@
+defaultBaseImage: cgr.dev/chainguard/go # For now, we need the go binary in order to format go files.
+defaultPlatforms:
+  - linux/arm64
+  - linux/amd64
+
+builds:
+  - id: go-enum
+    dir: . # default is .
+    main: .
+    flags:
+      - -tags
+      - netgo
+    ldflags:
+      - -s -w
+      - -extldflags "-static"
+      - -X "main.version={{.Env.VERSION}}"
+      - -X "main.commit={{.Env.COMMIT}}"
+      - -X "main.date={{.Env.DATE}}"
+      - -X "main.builtBy={{.Env.BUILT_BY}}"
