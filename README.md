@@ -119,10 +119,10 @@ I did not specify any overrides on the release binary names, so `uname -s` and `
 If you prefer makefile stuff, you can always do something like this:
 
 ```Makefile
-STANDARD_ENUMS = ./_example/animal_enum.go \
- ./_example/color_enum.go
+STANDARD_ENUMS = ./example/animal_enum.go \
+ ./example/color_enum.go
 
-NULLABLE_ENUMS = ./_example/sql_enum.go
+NULLABLE_ENUMS = ./example/sql_enum.go
 
 $(STANDARD_ENUMS): GO_ENUM_FLAGS=--nocase --marshal --names --ptr
 $(NULLABLE_ENUMS): GO_ENUM_FLAGS=--nocase --marshal --names --sqlnullint --ptr
@@ -220,7 +220,7 @@ const (
 
 #### Example
 
-There are a few examples in the `_example` [directory](_example).
+There are a few examples in the `example` [directory](./example/).
 I've included one here for easy access, but can't guarantee it's up to date.
 
 ``` go
