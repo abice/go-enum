@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - "1.20"
           - "1.21"
+          - "1.22"
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
@@ -35,7 +35,7 @@ jobs:
           make cover
 
       - name: Coveralls
-        if: (matrix.go == '1.21')
+        if: (matrix.go == '1.22')
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
@@ -44,7 +44,7 @@ jobs:
           fi
 
       - name: Upload coverage
-        if: (matrix.go == '1.21')
+        if: (matrix.go == '1.22')
         uses: actions/upload-artifact@v4
         with:
           name: coverage
