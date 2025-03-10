@@ -25,6 +25,7 @@ type rootT struct {
 	Lowercase         bool
 	NoCase            bool
 	Marshal           bool
+	UnknownCase       bool
 	SQL               bool
 	SQLInt            bool
 	Flag              bool
@@ -86,6 +87,11 @@ func main() {
 				Name:        "marshal",
 				Usage:       "Adds text (and inherently json) marshalling functions.",
 				Destination: &argv.Marshal,
+			},
+			&cli.BoolFlag{
+				Name:        "unknowncase",
+				Usage:       "Adds an unknown case when unmarshaling illegal enum values (forces marshal flag).",
+				Destination: &argv.UnknownCase,
 			},
 			&cli.BoolFlag{
 				Name:        "sql",
@@ -208,6 +214,9 @@ func main() {
 				}
 				if argv.Marshal {
 					g.WithMarshal()
+				}
+				if argv.UnknownCase {
+					g.WithUnknownCase()
 				}
 				if argv.SQL {
 					g.WithSQLDriver()

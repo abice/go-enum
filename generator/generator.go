@@ -39,6 +39,7 @@ type Generator struct {
 	lowercaseLookup   bool
 	caseInsensitive   bool
 	marshal           bool
+	unknownCase       bool
 	sql               bool
 	sqlint            bool
 	flag              bool
@@ -131,6 +132,13 @@ func (g *Generator) WithCaseInsensitiveParse() *Generator {
 // WithMarshal is used to add marshalling to the enum
 func (g *Generator) WithMarshal() *Generator {
 	g.marshal = true
+	return g
+}
+
+// WithUnknownCase is used to add an unknown case to the enum
+func (g *Generator) WithUnknownCase() *Generator {
+	g.marshal = true
+	g.unknownCase = true
 	return g
 }
 
@@ -324,6 +332,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"nocase":        g.caseInsensitive,
 			"nocomments":    g.noComments,
 			"marshal":       g.marshal,
+			"unknowncase":   g.unknownCase,
 			"sql":           g.sql,
 			"sqlint":        g.sqlint,
 			"flag":          g.flag,
@@ -418,6 +427,16 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	} else {
 		data = int64(0)
 	}
+
+	if enum.Type == "string" && g.unknownCase {
+		enum.Values = append(enum.Values, EnumValue{
+			Name:         "Unknown",
+			RawName:      "(empty string)",
+			PrefixedName: enum.Prefix + "Unknown",
+			Comment:      "Unknown (default) case",
+		})
+	}
+
 	for _, value := range values {
 		var comment string
 

@@ -74,7 +74,7 @@ assert-no-changes:
 	fi
 
 .PHONY: generate
-generate:
+generate: build
 	$(GO) generate --tags=example $(PACKAGES)
 
 gen-test: build

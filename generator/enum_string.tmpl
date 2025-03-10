@@ -93,6 +93,12 @@ func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 // UnmarshalText implements the text unmarshaller method.
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	tmp, err := Parse{{.enum.Name}}(string(text))
+	{{- if .unknowncase }}
+	if errors.Is(err, ErrInvalid{{.enum.Name}}) {
+		*x =  {{ with $unknownCase := index .enum.Values 0 }}{{ $unknownCase.PrefixedName }}{{ end }}
+		return nil
+	}
+	{{- end}}
 	if err != nil {
 		return err
 	}
