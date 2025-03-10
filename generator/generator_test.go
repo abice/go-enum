@@ -389,3 +389,54 @@ func TestQuotedStrings(t *testing.T) {
 		fmt.Println(string(output))
 	}
 }
+
+func TestStringWithSingleDoubleQuoteValue(t *testing.T) {
+	input := `package test
+	// ENUM(DoubleQuote='"')
+	type Char string
+	`
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "CharDoubleQuote Char = \"\\\"\"")
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
+func TestStringWithSingleSingleQuoteValue(t *testing.T) {
+	input := `package test
+	// ENUM(SingleQuote="'")
+	type Char string
+	`
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "CharSingleQuote Char = \"'\"")
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}
+
+func TestStringWithSingleBacktickValue(t *testing.T) {
+	input := `package test
+	// ENUM(SingleQuote="` + "`" + `")
+	type Char string
+	`
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "CharSingleQuote Char = \"`\"")
+	if false { // Debugging statement
+		fmt.Println(string(output))
+	}
+}

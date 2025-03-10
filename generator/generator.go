@@ -99,6 +99,7 @@ func NewGenerator() *Generator {
 	funcs["unmapify"] = Unmapify
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
+	funcs["quote"] = strconv.Quote
 
 	g.t.Funcs(funcs)
 
@@ -447,8 +448,8 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 							data = parsed
 							valueStr = rawName
 						}
-						if isQuoted(dataVal) {
-							valueStr = trimQuotes(dataVal)
+						if q := identifyQuoted(dataVal); q != "" {
+							valueStr = trimQuotes(q, dataVal)
 						}
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 0, 64)
@@ -495,18 +496,19 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 	return enum, nil
 }
 
-func isQuoted(s string) bool {
+func identifyQuoted(s string) string {
 	s = strings.TrimSpace(s)
-	return (strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`)) || (strings.HasPrefix(s, `'`) && strings.HasSuffix(s, `'`))
+	if strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`) {
+		return `"`
+	}
+	if strings.HasPrefix(s, `'`) && strings.HasSuffix(s, `'`) {
+		return `'`
+	}
+	return ""
 }
 
-func trimQuotes(s string) string {
-	s = strings.TrimSpace(s)
-	for _, quote := range []string{`"`, `'`} {
-		s = strings.TrimPrefix(s, quote)
-		s = strings.TrimSuffix(s, quote)
-	}
-	return s
+func trimQuotes(q, s string) string {
+	return strings.TrimPrefix(strings.TrimSuffix(strings.TrimSpace(s), q), q)
 }
 
 func increment(d interface{}) interface{} {

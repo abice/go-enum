@@ -10,7 +10,7 @@ const (
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
-    {{$value.PrefixedName}} {{$enumName}} = "{{$value.ValueStr}}"
+    {{$value.PrefixedName}} {{$enumName}} = {{quote $value.ValueStr}}
 {{- end}}
 )
 {{if .names -}}
