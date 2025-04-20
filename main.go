@@ -28,6 +28,7 @@ type rootT struct {
 	SQL               bool
 	SQLInt            bool
 	Flag              bool
+	JsonPkg           string
 	Prefix            string
 	Names             bool
 	Values            bool
@@ -101,6 +102,11 @@ func main() {
 				Name:        "flag",
 				Usage:       "Adds golang flag functions.",
 				Destination: &argv.Flag,
+			},
+			&cli.StringFlag{
+				Name:        "jsonpkg",
+				Usage:       "Custom json package for imports instead encoding/json.",
+				Destination: &argv.JsonPkg,
 			},
 			&cli.StringFlag{
 				Name:        "prefix",
@@ -226,6 +232,9 @@ func main() {
 				}
 				if argv.LeaveSnakeCase {
 					g.WithoutSnakeToCamel()
+				}
+				if argv.JsonPkg != "" {
+					g.WithJsonPkg(argv.JsonPkg)
 				}
 				if argv.Prefix != "" {
 					g.WithPrefix(argv.Prefix)
