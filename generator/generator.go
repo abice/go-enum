@@ -45,6 +45,7 @@ type Generator struct {
 	names             bool
 	values            bool
 	leaveSnakeCase    bool
+	jsonPkg           string
 	prefix            string
 	sqlNullInt        bool
 	sqlNullStr        bool
@@ -90,6 +91,7 @@ func NewGenerator() *Generator {
 		fileSet:           token.NewFileSet(),
 		noPrefix:          false,
 		replacementNames:  map[string]string{},
+		jsonPkg:           "encoding/json",
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -168,6 +170,12 @@ func (g *Generator) WithValues() *Generator {
 // WithoutSnakeToCamel is used to add flag methods to the enum
 func (g *Generator) WithoutSnakeToCamel() *Generator {
 	g.leaveSnakeCase = true
+	return g
+}
+
+// WithJsonPkg is used to add a custom json package to the imports
+func (g *Generator) WithJsonPkg(pkg string) *Generator {
+	g.jsonPkg = pkg
 	return g
 }
 
@@ -295,6 +303,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		"buildDate": g.BuildDate,
 		"builtBy":   g.BuiltBy,
 		"buildTags": g.buildTags,
+		"jsonpkg":   g.jsonPkg,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed writing header: %w", err)

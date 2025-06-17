@@ -11,7 +11,7 @@ package example
 
 import (
 	"database/sql/driver"
-	"encoding/json"
+	json "encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
