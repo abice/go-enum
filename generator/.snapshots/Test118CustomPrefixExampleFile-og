@@ -9,7 +9,7 @@
   (string) "",
   (string) (len=8) "import (",
   (string) (len=22) "\t\"database/sql/driver\"",
-  (string) (len=16) "\t\"encoding/json\"",
+  (string) (len=21) "\tjson \"encoding/json\"",
   (string) (len=9) "\t\"errors\"",
   (string) (len=6) "\t\"fmt\"",
   (string) (len=10) "\t\"strconv\"",
