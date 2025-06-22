@@ -16,8 +16,8 @@
 /bin
 /coverage
 vendor/
-coverage.out
-coverage.html
+coverage.*
 
 dist/
 .idea/
+.DS_Store
