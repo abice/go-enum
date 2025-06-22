@@ -21,7 +21,8 @@ jobs:
       - name: install go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: '${{ matrix.go }}'
+          check-latest: true
 
       - name: checkout code
         uses: actions/checkout@v4
@@ -30,8 +31,6 @@ jobs:
         run: make build
 
       - name: Test
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           make cover
       
@@ -43,10 +42,9 @@ jobs:
           parallel: true
 
       - name: Upload coverage
-        if: (matrix.go == '1.23')
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage.${{ matrix.go }}
           path: coverage.*
 
       - name: Assert no changes

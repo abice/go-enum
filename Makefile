@@ -10,7 +10,7 @@ COVERAGEDIR= coverage
 SERVICE=local
 
 ifdef GITHUB_ACTIONS
-SERVICE=github-actions
+SERVICE=github
 endif
 
 DATE := $(shell date -u '+%FT%T%z')
@@ -53,7 +53,8 @@ test: gen-test generate
 	$(GO) test -v -race -shuffle on --tags=example ./example
 
 cover: gen-test test
-	$(GO) tool cover -html=coverage.out -o coverage.html
+	grep -v 'main.go' coverage.out > coverage.cov
+	$(GO) tool cover -html=coverage.cov -o coverage.html
 
 tc: test cover
 coveralls: $(GOVERALLS)
