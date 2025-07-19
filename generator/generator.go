@@ -68,10 +68,10 @@ func NewGenerator(options ...Option) *Generator {
 		t:              template.New("generator"),
 		fileSet:        token.NewFileSet(),
 		GeneratorOptions: GeneratorOptions{
-			noPrefix:          false,
-			userTemplateNames: make([]string, 0),
-			replacementNames:  map[string]string{},
-			jsonPkg:           "encoding/json",
+			NoPrefix:          false,
+			UserTemplateNames: make([]string, 0),
+			ReplacementNames:  map[string]string{},
+			JSONPkg:           "encoding/json",
 		},
 	}
 
@@ -99,7 +99,7 @@ func NewGenerator(options ...Option) *Generator {
 }
 
 func (g *Generator) anySQLEnabled() bool {
-	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
+	return g.SQL || g.SQLNullStr || g.SQLInt || g.SQLNullInt
 }
 
 // ParseAliases is used to add aliases to replace during name sanitization.
@@ -146,8 +146,8 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		"revision":  g.Revision,
 		"buildDate": g.BuildDate,
 		"builtBy":   g.BuiltBy,
-		"buildTags": g.buildTags,
-		"jsonpkg":   g.jsonPkg,
+		"buildTags": g.BuildTags,
+		"jsonpkg":   g.JSONPkg,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed writing header: %w", err)
@@ -174,22 +174,22 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		data := map[string]interface{}{
 			"enum":          enum,
 			"name":          name,
-			"lowercase":     g.lowercaseLookup,
-			"nocase":        g.caseInsensitive,
-			"nocomments":    g.noComments,
-			"marshal":       g.marshal,
-			"sql":           g.sql,
-			"sqlint":        g.sqlint,
-			"flag":          g.flag,
-			"names":         g.names,
-			"ptr":           g.ptr,
-			"values":        g.values,
+			"lowercase":     g.LowercaseLookup,
+			"nocase":        g.CaseInsensitive,
+			"nocomments":    g.NoComments,
+			"marshal":       g.Marshal,
+			"sql":           g.SQL,
+			"sqlint":        g.SQLInt,
+			"flag":          g.Flag,
+			"names":         g.Names,
+			"ptr":           g.Ptr,
+			"values":        g.Values,
 			"anySQLEnabled": g.anySQLEnabled(),
-			"sqlnullint":    g.sqlNullInt,
-			"sqlnullstr":    g.sqlNullStr,
-			"mustparse":     g.mustParse,
-			"forcelower":    g.forceLower,
-			"forceupper":    g.forceUpper,
+			"sqlnullint":    g.SQLNullInt,
+			"sqlnullstr":    g.SQLNullStr,
+			"mustparse":     g.MustParse,
+			"forcelower":    g.ForceLower,
+			"forceupper":    g.ForceUpper,
 		}
 
 		templateName := "enum"
@@ -202,7 +202,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q: %w", name, err)
 		}
 
-		for _, userTemplateName := range g.userTemplateNames {
+		for _, userTemplateName := range g.UserTemplateNames {
 			err = g.t.ExecuteTemplate(vBuff, userTemplateName, data)
 			if err != nil {
 				return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q, template: %v: %w", name, userTemplateName, err)
@@ -246,11 +246,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	enum.Name = ts.Name.Name
 	enum.Type = fmt.Sprintf("%s", ts.Type)
-	if !g.noPrefix {
+	if !g.NoPrefix {
 		enum.Prefix = ts.Name.Name
 	}
-	if g.prefix != "" {
-		enum.Prefix = g.prefix + enum.Prefix
+	if g.Prefix != "" {
+		enum.Prefix = g.Prefix + enum.Prefix
 	}
 
 	commentPreEnumDecl, _, _ := strings.Cut(ts.Doc.Text(), `ENUM(`)
@@ -333,7 +333,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
 				prefixedName = g.sanitizeValue(prefixedName)
-				if !g.leaveSnakeCase {
+				if !g.LeaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
 			}
@@ -393,7 +393,7 @@ func (g *Generator) sanitizeValue(value string) string {
 	}
 
 	replacedValue := value
-	for k, v := range g.replacementNames {
+	for k, v := range g.ReplacementNames {
 		replacedValue = strings.ReplaceAll(replacedValue, k, v)
 	}
 
