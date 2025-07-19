@@ -27,8 +27,7 @@ func Test118NoStructFile(t *testing.T) {
 
 	}
 	`
-	g := NewGenerator().
-		WithoutSnakeToCamel()
+	g := NewGenerator(WithoutSnakeToCamel())
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
@@ -41,8 +40,7 @@ func Test118NoStructFile(t *testing.T) {
 
 // TestNoFile
 func Test118NoFile(t *testing.T) {
-	g := NewGenerator().
-		WithoutSnakeToCamel()
+	g := NewGenerator(WithoutSnakeToCamel())
 	// Parse the file given in arguments
 	_, err := g.GenerateFromFile("")
 	assert.NotNil(t, err, "Error generating formatted code")
@@ -50,12 +48,13 @@ func Test118NoFile(t *testing.T) {
 
 // TestExampleFile
 func Test118ExampleFile(t *testing.T) {
-	g := NewGenerator().
-		WithMarshal().
-		WithSQLDriver().
-		WithCaseInsensitiveParse().
-		WithNames().
-		WithoutSnakeToCamel()
+	g := NewGenerator(
+		WithMarshal(),
+		WithSQLDriver(),
+		WithCaseInsensitiveParse(),
+		WithNames(),
+		WithoutSnakeToCamel(),
+	)
 
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
@@ -75,15 +74,16 @@ func Test118ExampleFile(t *testing.T) {
 
 // TestExampleFileMoreOptions
 func Test118ExampleFileMoreOptions(t *testing.T) {
-	g := NewGenerator().
-		WithMarshal().
-		WithSQLDriver().
-		WithCaseInsensitiveParse().
-		WithNames().
-		WithoutSnakeToCamel().
-		WithMustParse().
-		WithForceLower().
-		WithTemplates(`../example/user_template.tmpl`)
+	g := NewGenerator(
+		WithMarshal(),
+		WithSQLDriver(),
+		WithCaseInsensitiveParse(),
+		WithNames(),
+		WithoutSnakeToCamel(),
+		WithMustParse(),
+		WithForceLower(),
+		WithTemplates(`../example/user_template.tmpl`),
+	)
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
 			// Parse the file given in arguments
@@ -102,12 +102,13 @@ func Test118ExampleFileMoreOptions(t *testing.T) {
 
 // TestExampleFile
 func Test118NoPrefixExampleFile(t *testing.T) {
-	g := NewGenerator().
-		WithMarshal().
-		WithLowercaseVariant().
-		WithNoPrefix().
-		WithFlag().
-		WithoutSnakeToCamel()
+	g := NewGenerator(
+		WithMarshal(),
+		WithLowercaseVariant(),
+		WithNoPrefix(),
+		WithFlag(),
+		WithoutSnakeToCamel(),
+	)
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
 			// Parse the file given in arguments
@@ -126,11 +127,12 @@ func Test118NoPrefixExampleFile(t *testing.T) {
 
 // TestExampleFile
 func Test118NoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
-	g := NewGenerator().
-		WithMarshal().
-		WithLowercaseVariant().
-		WithNoPrefix().
-		WithFlag()
+	g := NewGenerator(
+		WithMarshal(),
+		WithLowercaseVariant(),
+		WithNoPrefix(),
+		WithFlag(),
+	)
 
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
@@ -150,16 +152,17 @@ func Test118NoPrefixExampleFileWithSnakeToCamel(t *testing.T) {
 
 // TestCustomPrefixExampleFile
 func Test118CustomPrefixExampleFile(t *testing.T) {
-	g := NewGenerator().
-		WithMarshal().
-		WithLowercaseVariant().
-		WithNoPrefix().
-		WithFlag().
-		WithoutSnakeToCamel().
-		WithPtr().
-		WithSQLNullInt().
-		WithSQLNullStr().
-		WithPrefix("Custom_prefix_")
+	g := NewGenerator(
+		WithMarshal(),
+		WithLowercaseVariant(),
+		WithNoPrefix(),
+		WithFlag(),
+		WithoutSnakeToCamel(),
+		WithPtr(),
+		WithSQLNullInt(),
+		WithSQLNullStr(),
+		WithPrefix("Custom_prefix_"),
+	)
 	for name, testExample := range testExampleFiles {
 		t.Run(name, func(t *testing.T) {
 			// Parse the file given in arguments
@@ -242,8 +245,7 @@ func Test118EnumParseFailure(t *testing.T) {
 	//}
 	type Animal int
 	`
-	g := NewGenerator().
-		WithoutSnakeToCamel()
+	g := NewGenerator(WithoutSnakeToCamel())
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
@@ -263,8 +265,7 @@ func Test118UintInvalidParsing(t *testing.T) {
 	//)
 	type Animal uint
 	`
-	g := NewGenerator().
-		WithoutSnakeToCamel()
+	g := NewGenerator(WithoutSnakeToCamel())
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
@@ -284,8 +285,7 @@ func Test118IntInvalidParsing(t *testing.T) {
 	//)
 	type Animal int
 	`
-	g := NewGenerator().
-		WithoutSnakeToCamel()
+	g := NewGenerator(WithoutSnakeToCamel())
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 
@@ -305,9 +305,10 @@ func Test118Aliasing(t *testing.T) {
 	`
 	aliases, err := ParseAliases([]string{"CDEF:C"})
 	require.NoError(t, err)
-	g := NewGenerator().
-		WithoutSnakeToCamel().
-		WithAliases(aliases)
+	g := NewGenerator(
+		WithoutSnakeToCamel(),
+		WithAliases(aliases),
+	)
 	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
 	assert.Nil(t, err, "Error parsing no struct input")
 

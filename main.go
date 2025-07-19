@@ -194,81 +194,85 @@ func main() {
 			}
 			for _, fileOption := range argv.FileNames.Value() {
 
-				g := generator.NewGenerator()
-				g.Version = version
-				g.Revision = commit
-				g.BuildDate = date
-				g.BuiltBy = builtBy
+				// Collect all options
+				var options []generator.Option
 
-				g.WithBuildTags(argv.BuildTags.Value()...)
-				g.WithAliases(aliases)
+				options = append(options, generator.WithBuildTags(argv.BuildTags.Value()...))
+				options = append(options, generator.WithAliases(aliases))
 
 				if argv.NoPrefix {
-					g.WithNoPrefix()
+					options = append(options, generator.WithNoPrefix())
 				}
 				if argv.Lowercase {
-					g.WithLowercaseVariant()
+					options = append(options, generator.WithLowercaseVariant())
 				}
 				if argv.NoCase {
-					g.WithCaseInsensitiveParse()
+					options = append(options, generator.WithCaseInsensitiveParse())
 				}
 				if argv.Marshal {
-					g.WithMarshal()
+					options = append(options, generator.WithMarshal())
 				}
 				if argv.SQL {
-					g.WithSQLDriver()
+					options = append(options, generator.WithSQLDriver())
 				}
 				if argv.SQLInt {
-					g.WithSQLInt()
+					options = append(options, generator.WithSQLInt())
 				}
 				if argv.Flag {
-					g.WithFlag()
+					options = append(options, generator.WithFlag())
 				}
 				if argv.Names {
-					g.WithNames()
+					options = append(options, generator.WithNames())
 				}
 				if argv.Values {
-					g.WithValues()
+					options = append(options, generator.WithValues())
 				}
 				if argv.LeaveSnakeCase {
-					g.WithoutSnakeToCamel()
+					options = append(options, generator.WithoutSnakeToCamel())
 				}
 				if argv.JsonPkg != "" {
-					g.WithJsonPkg(argv.JsonPkg)
+					options = append(options, generator.WithJsonPkg(argv.JsonPkg))
 				}
 				if argv.Prefix != "" {
-					g.WithPrefix(argv.Prefix)
+					options = append(options, generator.WithPrefix(argv.Prefix))
 				}
 				if argv.Ptr {
-					g.WithPtr()
+					options = append(options, generator.WithPtr())
 				}
 				if argv.SQLNullInt {
-					g.WithSQLNullInt()
+					options = append(options, generator.WithSQLNullInt())
 				}
 				if argv.SQLNullStr {
-					g.WithSQLNullStr()
+					options = append(options, generator.WithSQLNullStr())
 				}
 				if argv.MustParse {
-					g.WithMustParse()
+					options = append(options, generator.WithMustParse())
 				}
 				if argv.ForceLower {
-					g.WithForceLower()
+					options = append(options, generator.WithForceLower())
 				}
 				if argv.ForceUpper {
-					g.WithForceUpper()
+					options = append(options, generator.WithForceUpper())
 				}
 				if argv.NoComments {
-					g.WithNoComments()
+					options = append(options, generator.WithNoComments())
 				}
 				if templates := []string(argv.TemplateFileNames.Value()); len(templates) > 0 {
 					for _, t := range templates {
 						if fn, err := globFilenames(t); err != nil {
 							return err
 						} else {
-							g.WithTemplates(fn...)
+							options = append(options, generator.WithTemplates(fn...))
 						}
 					}
 				}
+
+				// Create generator with all options
+				g := generator.NewGenerator(options...)
+				g.Version = version
+				g.Revision = commit
+				g.BuildDate = date
+				g.BuiltBy = builtBy
 
 				var filenames []string
 				if fn, err := globFilenames(fileOption); err != nil {
