@@ -31,10 +31,11 @@ type Generator struct {
 	Revision  string
 	BuildDate string
 	BuiltBy   string
-	GeneratorOptions
-	t              *template.Template
-	knownTemplates map[string]*template.Template
-	fileSet        *token.FileSet
+	GeneratorConfig
+	t                 *template.Template
+	knownTemplates    map[string]*template.Template
+	fileSet           *token.FileSet
+	userTemplateNames []string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -60,24 +61,24 @@ type EnumValue struct {
 // templates loaded.
 func NewGenerator(options ...Option) *Generator {
 	g := &Generator{
-		Version:        "-",
-		Revision:       "-",
-		BuildDate:      "-",
-		BuiltBy:        "-",
-		knownTemplates: make(map[string]*template.Template),
-		t:              template.New("generator"),
-		fileSet:        token.NewFileSet(),
-		GeneratorOptions: GeneratorOptions{
-			NoPrefix:          false,
-			UserTemplateNames: make([]string, 0),
-			ReplacementNames:  map[string]string{},
-			JSONPkg:           "encoding/json",
+		Version:           "-",
+		Revision:          "-",
+		BuildDate:         "-",
+		BuiltBy:           "-",
+		knownTemplates:    make(map[string]*template.Template),
+		t:                 template.New("generator"),
+		fileSet:           token.NewFileSet(),
+		userTemplateNames: make([]string, 0),
+		GeneratorConfig: GeneratorConfig{
+			NoPrefix:         false,
+			ReplacementNames: map[string]string{},
+			JSONPkg:          "encoding/json",
 		},
 	}
 
 	// Apply all options
 	for _, option := range options {
-		option(g)
+		option(&g.GeneratorConfig)
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -92,10 +93,62 @@ func NewGenerator(options ...Option) *Generator {
 	g.t.Funcs(funcs)
 
 	g.addEmbeddedTemplates()
-
 	g.updateTemplates()
 
+	// Process template files if any were provided via options
+	// This must happen AFTER embedded templates are added and updated
+	g.processUserTemplates()
+
 	return g
+}
+
+// NewGeneratorWithConfig is a constructor method for creating a new Generator with
+// a configuration struct instead of using the functional options pattern.
+func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
+	g := &Generator{
+		Version:           "-",
+		Revision:          "-",
+		BuildDate:         "-",
+		BuiltBy:           "-",
+		knownTemplates:    make(map[string]*template.Template),
+		t:                 template.New("generator"),
+		fileSet:           token.NewFileSet(),
+		userTemplateNames: make([]string, 0),
+		GeneratorConfig:   config,
+	}
+
+	funcs := sprig.TxtFuncMap()
+
+	funcs["stringify"] = Stringify
+	funcs["mapify"] = Mapify
+	funcs["unmapify"] = Unmapify
+	funcs["namify"] = Namify
+	funcs["offset"] = Offset
+	funcs["quote"] = strconv.Quote
+
+	g.t.Funcs(funcs)
+
+	g.addEmbeddedTemplates()
+	g.updateTemplates()
+
+	// Process template files if any were provided
+	// This must happen AFTER embedded templates are added and updated
+	g.processUserTemplates()
+
+	return g
+}
+
+// processUserTemplates handles loading and processing user template files
+func (g *Generator) processUserTemplates() {
+	if len(g.TemplateFileNames) > 0 {
+		for _, ut := range template.Must(g.t.ParseFiles(g.TemplateFileNames...)).Templates() {
+			if _, ok := g.knownTemplates[ut.Name()]; !ok {
+				g.userTemplateNames = append(g.userTemplateNames, ut.Name())
+			}
+		}
+		sort.Strings(g.userTemplateNames)
+		g.updateTemplates()
+	}
 }
 
 func (g *Generator) anySQLEnabled() bool {
@@ -202,7 +255,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q: %w", name, err)
 		}
 
-		for _, userTemplateName := range g.UserTemplateNames {
+		for _, userTemplateName := range g.userTemplateNames {
 			err = g.t.ExecuteTemplate(vBuff, userTemplateName, data)
 			if err != nil {
 				return vBuff.Bytes(), fmt.Errorf("failed writing enum data for enum: %q, template: %v: %w", name, userTemplateName, err)
