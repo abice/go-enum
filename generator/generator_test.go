@@ -64,6 +64,41 @@ func TestExampleFile(t *testing.T) {
 	}
 }
 
+// TestExampleFileEmptyHeaders tests the generator with empty header values
+func TestExampleFileEmptyHeaders(t *testing.T) {
+	g := NewGenerator(
+		WithMarshal(),
+		WithSQLDriver(),
+		WithCaseInsensitiveParse(),
+		WithNames(),
+		WithoutSnakeToCamel(),
+	)
+	g.Version = ""
+	g.Revision = ""
+	g.BuildDate = ""
+	g.BuiltBy = ""
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	cupaloy.SnapshotT(t, outputLines)
+
+	const maxLinesToCheck = 10
+	// Check that the first 10 lines do not contain version information
+	// or build information
+	for idx := range min(maxLinesToCheck, len(outputLines)) {
+		assert.NotContains(t, outputLines[idx], "Version:")
+		assert.NotContains(t, outputLines[idx], "Revision:")
+		assert.NotContains(t, outputLines[idx], "BuildDate:")
+		assert.NotContains(t, outputLines[idx], "BuiltBy:")
+	}
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
 // TestExampleFileMoreOptions
 func TestExampleFileMoreOptions(t *testing.T) {
 	g := NewGenerator(
