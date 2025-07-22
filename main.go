@@ -22,6 +22,7 @@ var (
 type rootT struct {
 	FileNames         cli.StringSlice
 	NoPrefix          bool
+	NoIota            bool
 	Lowercase         bool
 	NoCase            bool
 	Marshal           bool
@@ -186,6 +187,11 @@ func main() {
 				Usage:       "Changes the default filename suffix of _enum to something else.  `.go` will be appended to the end of the string no matter what, so that `_test.go` cases can be accommodated ",
 				Destination: &argv.OutputSuffix,
 			},
+			&cli.BoolFlag{
+				Name:        "no-iota",
+				Usage:       "Disables the use of iota in generated enums.",
+				Destination: &argv.NoIota,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			aliases, err := generator.ParseAliases(argv.Aliases.Value())
@@ -213,6 +219,7 @@ func main() {
 
 				config := generator.GeneratorConfig{
 					NoPrefix:          argv.NoPrefix,
+					NoIota:            argv.NoIota,
 					LowercaseLookup:   argv.Lowercase || argv.NoCase,
 					CaseInsensitive:   argv.NoCase,
 					Marshal:           argv.Marshal,

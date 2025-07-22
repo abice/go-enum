@@ -22,6 +22,7 @@ const (
 {{- $enumName := .enum.Name -}}
 {{- $enumType := .enum.Type -}}
 {{- $noComments := .nocomments -}}
+{{- $noIota := .noIota -}}
 {{- $vars := dict "lastoffset" "0" -}}
 {{ range $rIndex, $value := .enum.Values }}
 	{{- $lastOffset := pluck "lastoffset" $vars | first }}{{ $offset := offset $rIndex $enumType $value }}
@@ -30,7 +31,9 @@ const (
 	{{- if $value.Comment}}
 	// {{$value.Comment}}
 	{{- end}}
+		{{if $noIota }}{{$value.PrefixedName}} {{$enumName}} = {{directVal $enumType $value}}{{else -}}
     {{$value.PrefixedName}} {{ if eq $rIndex 0 }}{{$enumName}} = iota{{ if ne "0" $offset }} + {{ $offset }}{{end}}{{else if ne $lastOffset $offset }}{{$enumName}} = iota + {{ $offset }}{{end}}{{$_ := set $vars "lastoffset" $offset}}
+		{{- end}}
 {{- end}}
 )
 {{if .names -}}
