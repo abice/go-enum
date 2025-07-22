@@ -13,14 +13,16 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - "1.20"
-          - "1.21"
+          - '1.22'
+          - '1.23'
+          - '1.24'
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: '${{ matrix.go }}'
+          check-latest: true
 
       - name: checkout code
         uses: actions/checkout@v4
@@ -29,26 +31,30 @@ jobs:
         run: make build
 
       - name: Test
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           make cover
-
-      - name: Coveralls
-        if: (matrix.go == '1.21')
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        run: |
-          if [[ -n "$COVERALLS_TOKEN" ]]; then
-            make coveralls
-          fi
+      
+      - name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage.out
+          flag-name: Go-${{ matrix.go }}
+          parallel: true
 
       - name: Upload coverage
-        if: (matrix.go == '1.21')
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage.${{ matrix.go }}
           path: coverage.*
 
       - name: Assert no changes
         run: make assert-no-changes
+  
+  # notifies that all test jobs are finished.
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true

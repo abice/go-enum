@@ -27,35 +27,15 @@ const (
 
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
-	Version           string
-	Revision          string
-	BuildDate         string
-	BuiltBy           string
+	Version   string
+	Revision  string
+	BuildDate string
+	BuiltBy   string
+	GeneratorConfig
 	t                 *template.Template
 	knownTemplates    map[string]*template.Template
-	userTemplateNames []string
 	fileSet           *token.FileSet
-	noPrefix          bool
-	lowercaseLookup   bool
-	caseInsensitive   bool
-	marshal           bool
-	sql               bool
-	sqlint            bool
-	flag              bool
-	names             bool
-	values            bool
-	leaveSnakeCase    bool
-	jsonPkg           string
-	prefix            string
-	sqlNullInt        bool
-	sqlNullStr        bool
-	ptr               bool
-	mustParse         bool
-	forceLower        bool
-	forceUpper        bool
-	noComments        bool
-	buildTags         []string
-	replacementNames  map[string]string
+	userTemplateNames []string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -79,19 +59,26 @@ type EnumValue struct {
 
 // NewGenerator is a constructor method for creating a new Generator with default
 // templates loaded.
-func NewGenerator() *Generator {
+func NewGenerator(options ...Option) *Generator {
 	g := &Generator{
 		Version:           "-",
 		Revision:          "-",
 		BuildDate:         "-",
 		BuiltBy:           "-",
 		knownTemplates:    make(map[string]*template.Template),
-		userTemplateNames: make([]string, 0),
 		t:                 template.New("generator"),
 		fileSet:           token.NewFileSet(),
-		noPrefix:          false,
-		replacementNames:  map[string]string{},
-		jsonPkg:           "encoding/json",
+		userTemplateNames: make([]string, 0),
+		GeneratorConfig: GeneratorConfig{
+			NoPrefix:         false,
+			ReplacementNames: map[string]string{},
+			JSONPkg:          "encoding/json",
+		},
+	}
+
+	// Apply all options
+	for _, option := range options {
+		option(&g.GeneratorConfig)
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -106,144 +93,66 @@ func NewGenerator() *Generator {
 	g.t.Funcs(funcs)
 
 	g.addEmbeddedTemplates()
-
 	g.updateTemplates()
 
+	// Process template files if any were provided via options
+	// This must happen AFTER embedded templates are added and updated
+	g.processUserTemplates()
+
 	return g
 }
 
-// WithNoPrefix is used to change the enum const values generated to not have the enum on them.
-func (g *Generator) WithNoPrefix() *Generator {
-	g.noPrefix = true
-	return g
-}
-
-// WithLowercaseVariant is used to change the enum const values generated to not have the enum on them.
-func (g *Generator) WithLowercaseVariant() *Generator {
-	g.lowercaseLookup = true
-	return g
-}
-
-// WithLowercaseVariant is used to change the enum const values generated to not have the enum on them.
-func (g *Generator) WithCaseInsensitiveParse() *Generator {
-	g.lowercaseLookup = true
-	g.caseInsensitive = true
-	return g
-}
-
-// WithMarshal is used to add marshalling to the enum
-func (g *Generator) WithMarshal() *Generator {
-	g.marshal = true
-	return g
-}
-
-// WithSQLDriver is used to add marshalling to the enum
-func (g *Generator) WithSQLDriver() *Generator {
-	g.sql = true
-	return g
-}
-
-// WithSQLInt is used to signal a string to be stored as an int.
-func (g *Generator) WithSQLInt() *Generator {
-	g.sqlint = true
-	return g
-}
-
-// WithFlag is used to add flag methods to the enum
-func (g *Generator) WithFlag() *Generator {
-	g.flag = true
-	return g
-}
-
-// WithNames is used to add Names methods to the enum
-func (g *Generator) WithNames() *Generator {
-	g.names = true
-	return g
-}
-
-// WithValues is used to add Values methods to the enum
-func (g *Generator) WithValues() *Generator {
-	g.values = true
-	return g
-}
-
-// WithoutSnakeToCamel is used to add flag methods to the enum
-func (g *Generator) WithoutSnakeToCamel() *Generator {
-	g.leaveSnakeCase = true
-	return g
-}
-
-// WithJsonPkg is used to add a custom json package to the imports
-func (g *Generator) WithJsonPkg(pkg string) *Generator {
-	g.jsonPkg = pkg
-	return g
-}
-
-// WithPrefix is used to add a custom prefix to the enum constants
-func (g *Generator) WithPrefix(prefix string) *Generator {
-	g.prefix = prefix
-	return g
-}
-
-// WithPtr adds a way to get a pointer value straight from the const value.
-func (g *Generator) WithPtr() *Generator {
-	g.ptr = true
-	return g
-}
-
-// WithSQLNullInt is used to add a null int option for SQL interactions.
-func (g *Generator) WithSQLNullInt() *Generator {
-	g.sqlNullInt = true
-	return g
-}
-
-// WithSQLNullStr is used to add a null string option for SQL interactions.
-func (g *Generator) WithSQLNullStr() *Generator {
-	g.sqlNullStr = true
-	return g
-}
-
-// WithMustParse is used to add a method `MustParse` that will panic on failure.
-func (g *Generator) WithMustParse() *Generator {
-	g.mustParse = true
-	return g
-}
-
-// WithForceLower is used to force enums names to lower case while keeping variable names the same.
-func (g *Generator) WithForceLower() *Generator {
-	g.forceLower = true
-	return g
-}
-
-// WithForceUpper is used to force enums names to upper case while keeping variable names the same.
-func (g *Generator) WithForceUpper() *Generator {
-	g.forceUpper = true
-	return g
-}
-
-// WithNoComments is used to remove auto generated comments from the enum.
-func (g *Generator) WithNoComments() *Generator {
-	g.noComments = true
-	return g
-}
-
-// WithBuildTags will add build tags to the generated file.
-func (g *Generator) WithBuildTags(tags ...string) *Generator {
-	g.buildTags = append(g.buildTags, tags...)
-	return g
-}
-
-// WithAliases will set up aliases for the generator.
-func (g *Generator) WithAliases(aliases map[string]string) *Generator {
-	if aliases == nil {
-		return g
+// NewGeneratorWithConfig is a constructor method for creating a new Generator with
+// a configuration struct instead of using the functional options pattern.
+func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
+	g := &Generator{
+		Version:           "-",
+		Revision:          "-",
+		BuildDate:         "-",
+		BuiltBy:           "-",
+		knownTemplates:    make(map[string]*template.Template),
+		t:                 template.New("generator"),
+		fileSet:           token.NewFileSet(),
+		userTemplateNames: make([]string, 0),
+		GeneratorConfig:   config,
 	}
-	g.replacementNames = aliases
+
+	funcs := sprig.TxtFuncMap()
+
+	funcs["stringify"] = Stringify
+	funcs["mapify"] = Mapify
+	funcs["unmapify"] = Unmapify
+	funcs["namify"] = Namify
+	funcs["offset"] = Offset
+	funcs["quote"] = strconv.Quote
+
+	g.t.Funcs(funcs)
+
+	g.addEmbeddedTemplates()
+	g.updateTemplates()
+
+	// Process template files if any were provided
+	// This must happen AFTER embedded templates are added and updated
+	g.processUserTemplates()
+
 	return g
+}
+
+// processUserTemplates handles loading and processing user template files
+func (g *Generator) processUserTemplates() {
+	if len(g.TemplateFileNames) > 0 {
+		for _, ut := range template.Must(g.t.ParseFiles(g.TemplateFileNames...)).Templates() {
+			if _, ok := g.knownTemplates[ut.Name()]; !ok {
+				g.userTemplateNames = append(g.userTemplateNames, ut.Name())
+			}
+		}
+		sort.Strings(g.userTemplateNames)
+		g.updateTemplates()
+	}
 }
 
 func (g *Generator) anySQLEnabled() bool {
-	return g.sql || g.sqlNullStr || g.sqlint || g.sqlNullInt
+	return g.SQL || g.SQLNullStr || g.SQLInt || g.SQLNullInt
 }
 
 // ParseAliases is used to add aliases to replace during name sanitization.
@@ -262,18 +171,6 @@ func ParseAliases(aliases []string) (map[string]string, error) {
 	}
 
 	return aliasMap, nil
-}
-
-// WithTemplates is used to provide the filenames of additional templates.
-func (g *Generator) WithTemplates(filenames ...string) *Generator {
-	for _, ut := range template.Must(g.t.ParseFiles(filenames...)).Templates() {
-		if _, ok := g.knownTemplates[ut.Name()]; !ok {
-			g.userTemplateNames = append(g.userTemplateNames, ut.Name())
-		}
-	}
-	g.updateTemplates()
-	sort.Strings(g.userTemplateNames)
-	return g
 }
 
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
@@ -302,8 +199,8 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		"revision":  g.Revision,
 		"buildDate": g.BuildDate,
 		"builtBy":   g.BuiltBy,
-		"buildTags": g.buildTags,
-		"jsonpkg":   g.jsonPkg,
+		"buildTags": g.BuildTags,
+		"jsonpkg":   g.JSONPkg,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed writing header: %w", err)
@@ -330,22 +227,22 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		data := map[string]interface{}{
 			"enum":          enum,
 			"name":          name,
-			"lowercase":     g.lowercaseLookup,
-			"nocase":        g.caseInsensitive,
-			"nocomments":    g.noComments,
-			"marshal":       g.marshal,
-			"sql":           g.sql,
-			"sqlint":        g.sqlint,
-			"flag":          g.flag,
-			"names":         g.names,
-			"ptr":           g.ptr,
-			"values":        g.values,
+			"lowercase":     g.LowercaseLookup,
+			"nocase":        g.CaseInsensitive,
+			"nocomments":    g.NoComments,
+			"marshal":       g.Marshal,
+			"sql":           g.SQL,
+			"sqlint":        g.SQLInt,
+			"flag":          g.Flag,
+			"names":         g.Names,
+			"ptr":           g.Ptr,
+			"values":        g.Values,
 			"anySQLEnabled": g.anySQLEnabled(),
-			"sqlnullint":    g.sqlNullInt,
-			"sqlnullstr":    g.sqlNullStr,
-			"mustparse":     g.mustParse,
-			"forcelower":    g.forceLower,
-			"forceupper":    g.forceUpper,
+			"sqlnullint":    g.SQLNullInt,
+			"sqlnullstr":    g.SQLNullStr,
+			"mustparse":     g.MustParse,
+			"forcelower":    g.ForceLower,
+			"forceupper":    g.ForceUpper,
 		}
 
 		templateName := "enum"
@@ -402,11 +299,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	enum.Name = ts.Name.Name
 	enum.Type = fmt.Sprintf("%s", ts.Type)
-	if !g.noPrefix {
+	if !g.NoPrefix {
 		enum.Prefix = ts.Name.Name
 	}
-	if g.prefix != "" {
-		enum.Prefix = g.prefix + enum.Prefix
+	if g.Prefix != "" {
+		enum.Prefix = g.Prefix + enum.Prefix
 	}
 
 	commentPreEnumDecl, _, _ := strings.Cut(ts.Doc.Text(), `ENUM(`)
@@ -489,7 +386,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			if name != skipHolder {
 				prefixedName = enum.Prefix + name
 				prefixedName = g.sanitizeValue(prefixedName)
-				if !g.leaveSnakeCase {
+				if !g.LeaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
 			}
@@ -549,7 +446,7 @@ func (g *Generator) sanitizeValue(value string) string {
 	}
 
 	replacedValue := value
-	for k, v := range g.replacementNames {
+	for k, v := range g.ReplacementNames {
 		replacedValue = strings.ReplaceAll(replacedValue, k, v)
 	}
 

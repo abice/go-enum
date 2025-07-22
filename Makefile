@@ -10,7 +10,7 @@ COVERAGEDIR= coverage
 SERVICE=local
 
 ifdef GITHUB_ACTIONS
-SERVICE=github-actions
+SERVICE=github
 endif
 
 DATE := $(shell date -u '+%FT%T%z')
@@ -99,23 +99,23 @@ bin/goveralls: go.sum
 	$(call goinstall,github.com/mattn/goveralls)
 
 # snapshots: snapshots_1.17
-snapshots: snapshots_1.21
+snapshots: snapshots_1.24
 
 snapshots_%: clean
 	echo "##### updating snapshots for golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c './update-snapshots.sh || true'
 
 .PHONY: ci
-ci: docker_1.20
-ci: docker_1.21
+ci: docker_1.23
+ci: docker_1.24
 
 docker_%:
 	echo "##### testing golang $* #####"
 	docker run -i -t -w /app -v $(shell pwd):/app --entrypoint /bin/sh golang:$* -c 'make clean && make'
 
 .PHONY: pullimages
-pullimages: pullimage_1.20
-pullimages: pullimage_1.21
+pullimages: pullimage_1.23
+pullimages: pullimage_1.24
 
 pullimage_%:
 	docker pull golang:$*
