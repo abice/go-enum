@@ -1,3 +1,4 @@
+version: 2
 builds:
   - env:
       - CGO_ENABLED=0
@@ -11,7 +12,7 @@ checksum:
 
 archives:
   # Distribute just the binaries by default
-  - format: binary
+  - formats: ["binary"]
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -20,7 +21,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
 kos:
-  - repository: abice/go-enum
+  - repositories: ["abice/go-enum"]
     base_image: cgr.dev/chainguard/go # need the go binary for formatting 🔧 purposes 🫤
     tags:
       - "{{.Version}}"
@@ -32,7 +33,7 @@ kos:
       - linux/arm64
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
