@@ -183,6 +183,14 @@ func (x *Make) UnmarshalText(text []byte) error {
 	return nil
 }
 
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (x *Make) AppendText(b []byte) ([]byte, error) {
+	return append(b, x.String()...), nil
+}
+
 // Set implements the Golang flag.Value interface func.
 func (x *Make) Set(val string) error {
 	v, err := ParseMake(val)
@@ -312,6 +320,14 @@ func (x *NoZeros) UnmarshalText(text []byte) error {
 	}
 	*x = tmp
 	return nil
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (x *NoZeros) AppendText(b []byte) ([]byte, error) {
+	return append(b, x.String()...), nil
 }
 
 // Set implements the Golang flag.Value interface func.

@@ -238,6 +238,19 @@ func TestColorMarshal(t *testing.T) {
 	}
 }
 
+func TestColorAppendText(t *testing.T) {
+	input := ColorRedOrangeBlue
+	expected := "red-orange-blue"
+
+	a, err1 := input.AppendText(nil)
+	b, err2 := input.MarshalText()
+	require.NoError(t, err1, "AppendText should not return an error")
+	require.NoError(t, err2, "MarshalText should not return an error")
+	assert.Equal(t, expected, string(a), "AppendText should return the correct string")
+	assert.Equal(t, expected, string(b), "MarshalText should return the correct string")
+	assert.Equal(t, expected, input.String(), "String should return the correct string")
+}
+
 func BenchmarkColorParse(b *testing.B) {
 	knownItems := []string{
 		ColorRedOrangeBlue.String(),
