@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	testExample = `example_test.go`
+	testExample       = `example_test.go`
+	testExampleNoIota = `example_no_iota_test.go`
 )
 
 // TestNoStructInputFile
@@ -157,6 +158,46 @@ func TestNoPrefixExampleFile(t *testing.T) {
 	)
 	// Parse the file given in arguments
 	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	cupaloy.SnapshotT(t, outputLines)
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
+func TestNoIotaExampleFile(t *testing.T) {
+	g := NewGenerator(
+		WithMarshal(),
+		WithLowercaseVariant(),
+		WithNoIota(),
+		WithFlag(),
+		WithoutSnakeToCamel(),
+	)
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExample)
+	require.Nil(t, err, "Error generating formatted code")
+
+	outputLines := strings.Split(string(imported), "\n")
+	cupaloy.SnapshotT(t, outputLines)
+
+	if false {
+		fmt.Println(string(imported))
+	}
+}
+
+func TestNoIotaOnlyExampleFile(t *testing.T) {
+	g := NewGenerator(
+		WithMarshal(),
+		WithLowercaseVariant(),
+		WithNoIota(),
+		WithFlag(),
+		WithoutSnakeToCamel(),
+	)
+	// Parse the file given in arguments
+	imported, err := g.GenerateFromFile(testExampleNoIota)
 	require.Nil(t, err, "Error generating formatted code")
 
 	outputLines := strings.Split(string(imported), "\n")

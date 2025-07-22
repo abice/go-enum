@@ -3,6 +3,7 @@ package generator
 // GeneratorConfig holds all the configuration options for the Generator
 type GeneratorConfig struct {
 	NoPrefix          bool              `json:"no_prefix"`
+	NoIota            bool              `json:"no_iota"`
 	LowercaseLookup   bool              `json:"lowercase_lookup"`
 	CaseInsensitive   bool              `json:"case_insensitive"`
 	Marshal           bool              `json:"marshal"`
@@ -41,6 +42,13 @@ type Option func(*GeneratorConfig)
 func WithNoPrefix() Option {
 	return func(g *GeneratorConfig) {
 		g.NoPrefix = true
+	}
+}
+
+// WithNoIota is used to generate enum constants with explicit values instead of using iota.
+func WithNoIota() Option {
+	return func(g *GeneratorConfig) {
+		g.NoIota = true
 	}
 }
 

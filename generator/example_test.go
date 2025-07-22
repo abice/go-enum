@@ -1,8 +1,7 @@
 package generator
 
 // X is doc'ed
-type X struct {
-}
+type X struct{}
 
 // Color is an enumeration of colors that are allowed.
 // ENUM(

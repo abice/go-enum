@@ -53,53 +53,21 @@ type EnumValue struct {
 	Name         string
 	PrefixedName string
 	ValueStr     string
-	ValueInt     interface{}
+	ValueInt     any
 	Comment      string
 }
 
 // NewGenerator is a constructor method for creating a new Generator with default
 // templates loaded.
 func NewGenerator(options ...Option) *Generator {
-	g := &Generator{
-		Version:           "-",
-		Revision:          "-",
-		BuildDate:         "-",
-		BuiltBy:           "-",
-		knownTemplates:    make(map[string]*template.Template),
-		t:                 template.New("generator"),
-		fileSet:           token.NewFileSet(),
-		userTemplateNames: make([]string, 0),
-		GeneratorConfig: GeneratorConfig{
-			NoPrefix:         false,
-			ReplacementNames: map[string]string{},
-			JSONPkg:          "encoding/json",
-		},
-	}
+	cfg := NewGeneratorConfig()
 
 	// Apply all options
 	for _, option := range options {
-		option(&g.GeneratorConfig)
+		option(cfg)
 	}
 
-	funcs := sprig.TxtFuncMap()
-
-	funcs["stringify"] = Stringify
-	funcs["mapify"] = Mapify
-	funcs["unmapify"] = Unmapify
-	funcs["namify"] = Namify
-	funcs["offset"] = Offset
-	funcs["quote"] = strconv.Quote
-
-	g.t.Funcs(funcs)
-
-	g.addEmbeddedTemplates()
-	g.updateTemplates()
-
-	// Process template files if any were provided via options
-	// This must happen AFTER embedded templates are added and updated
-	g.processUserTemplates()
-
-	return g
+	return NewGeneratorWithConfig(*cfg)
 }
 
 // NewGeneratorWithConfig is a constructor method for creating a new Generator with
@@ -125,6 +93,7 @@ func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
 	funcs["quote"] = strconv.Quote
+	funcs["directVal"] = DirectValue
 
 	g.t.Funcs(funcs)
 
@@ -193,7 +162,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 	pkg := f.Name.Name
 
 	vBuff := bytes.NewBuffer([]byte{})
-	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]any{
 		"package":   pkg,
 		"version":   g.Version,
 		"revision":  g.Revision,
@@ -224,12 +193,13 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		}
 
 		created++
-		data := map[string]interface{}{
+		data := map[string]any{
 			"enum":          enum,
 			"name":          name,
 			"lowercase":     g.LowercaseLookup,
 			"nocase":        g.CaseInsensitive,
 			"nocomments":    g.NoComments,
+			"noIota":        g.NoIota,
 			"marshal":       g.Marshal,
 			"sql":           g.SQL,
 			"sqlint":        g.SQLInt,
@@ -316,7 +286,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 
 	values := strings.Split(strings.TrimSuffix(strings.TrimPrefix(enumDecl, `ENUM(`), `)`), `,`)
 	var (
-		data     interface{}
+		data     any
 		unsigned bool
 	)
 	if strings.HasPrefix(enum.Type, "u") {
@@ -417,7 +387,7 @@ func trimQuotes(q, s string) string {
 	return strings.TrimPrefix(strings.TrimSuffix(strings.TrimSpace(s), q), q)
 }
 
-func increment(d interface{}) interface{} {
+func increment(d any) any {
 	switch v := d.(type) {
 	case uint64:
 		return v + 1
@@ -580,9 +550,9 @@ func parseLinePart(line string) (paramLevel int, trimmed string) {
 func breakCommentIntoLines(comment *ast.Comment) []string {
 	lines := []string{}
 	text := comment.Text
-	if strings.HasPrefix(text, `/*`) {
+	if after, ok := strings.CutPrefix(text, `/*`); ok {
 		// deal with multi line comment
-		multiline := strings.TrimSuffix(strings.TrimPrefix(text, `/*`), `*/`)
+		multiline := strings.TrimSuffix(after, `*/`)
 		lines = append(lines, strings.Split(multiline, "\n")...)
 	} else {
 		lines = append(lines, strings.TrimPrefix(text, `//`))
