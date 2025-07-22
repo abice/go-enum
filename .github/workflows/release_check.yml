@@ -26,6 +26,14 @@ jobs:
       - name: Show GoReleaser version
         run: goreleaser -v
 
+      - name: Run GoReleaser Check
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          version: latest
+          args: check
+          
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
