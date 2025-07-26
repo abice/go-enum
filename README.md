@@ -6,7 +6,72 @@
 [![GoDoc](https://godoc.org/github.com/abice/go-enum?status.svg)](https://godoc.org/github.com/abice/go-enum)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
-An enum generator for go
+An enum generator for Go that creates type-safe enumerations with useful methods from simple type declarations.
+
+## Key Features
+
+- 🎯 **Type-safe enums** - Generate const declarations with proper typing
+- 🔄 **String conversion** - Automatic `String()` and `Parse()` methods
+- 📦 **JSON marshaling** - Built-in JSON marshal/unmarshal support
+- 🗄️ **SQL integration** - Database scan and value functions
+- 🧪 **Custom templates** - Extend with your own code generation
+- ✅ **Multiple types** - Support for `int`, `string`, and other base types
+- 🏷️ **Flexible syntax** - Simple comment-based enum declarations
+
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [How it works](#how-it-works)
+- [String typed enums](#now-with-string-typed-enums)
+- [Recent Features](#recent-features)
+- [Goal](#goal)
+- [Docker image](#docker-image)
+- [Installation](#installation)
+- [Adding it to your project](#adding-it-to-your-project)
+- [Command options](#command-options)
+- [Syntax](#syntax)
+- [Examples](#example)
+
+## Requirements
+
+- Go 1.23.0 or later
+
+## Quick Start
+
+1. Install go-enum:
+
+   ```shell
+   go install github.com/abice/go-enum@latest
+   ```
+
+2. Create a Go file with an enum declaration:
+
+   ```go
+   package main
+   
+   // ENUM(red, green, blue)
+   type Color int
+   ```
+
+3. Generate the enum:
+
+   ```shell
+   go-enum -f your_file.go
+   ```
+
+4. Use your generated enum:
+
+   ```go
+   color := ColorRed
+   fmt.Println(color.String()) // prints "red"
+   
+   parsed, err := ParseColor("green")
+   if err == nil {
+       fmt.Println(parsed) // prints "green"
+   }
+   ```
 
 ## How it works
 
@@ -81,6 +146,32 @@ sql layer, and not have swagger assume that your enumerations are integers, but 
 type StrState string
 ```
 
+## Recent Features
+
+### Custom JSON Package Support (v0.7.0+)
+
+You can now specify a custom JSON package for imports instead of the standard `encoding/json`:
+
+```shell
+go-enum --marshal --jsonpkg="github.com/goccy/go-json" -f your_file.go
+```
+
+### Disable iota (v0.9.0+)
+
+For cases where you don't want to use `iota` in your generated enums:
+
+```shell
+go-enum --no-iota -f your_file.go
+```
+
+### Custom Output Suffix
+
+Change the default `_enum.go` suffix to something else:
+
+```shell
+go-enum --output-suffix="_generated" -f your_file.go  # Creates your_file_generated.go
+```
+
 ## Goal
 
 The goal of go-enum is to create an easy to use enum generator that will take a decorated type declaration like `type EnumName int` and create the associated constant values and funcs that will make life a little easier for adding new values.
@@ -90,20 +181,45 @@ I took the output of the [Stringer](https://godoc.org/golang.org/x/tools/cmd/str
 
 ## Docker image
 
-You can now use a docker image directly for running the command if you do not wish to install anything!
+You can use the Docker image directly for running the command if you do not wish to install anything locally:
 
 ```shell
-   docker run -w /app -v $(pwd):/app abice/go-enum:$(GO_ENUM_VERSION)
+docker run -w /app -v $(pwd):/app abice/go-enum:latest
 ```
 
 ## Installation
 
-You can now download a release directly from github and use that for generating your enums! (Thanks to [GoReleaser](https://github.com/goreleaser/goreleaser-action))
+### Using go install (recommended)
 
-I did not specify any overrides on the release binary names, so `uname -s` and `uname -m` should provide the correct version of the binary for your distro.
+Install the latest version directly from source:
 
 ```shell
-    curl -fsSL "https://github.com/abice/go-enum/releases/download/$(GO_ENUM_VERSION)/go-enum_$(uname -s)_$(uname -m)" -o go-enum
+go install github.com/abice/go-enum@latest
+```
+
+### Using GitHub releases
+
+You can download a pre-built binary from GitHub releases. (Thanks to [GoReleaser](https://github.com/goreleaser/goreleaser-action))
+
+```shell
+# Download the latest release for your platform
+curl -fsSL "https://github.com/abice/go-enum/releases/download/v0.9.0/go-enum_$(uname -s)_$(uname -m)" -o go-enum
+chmod +x go-enum
+
+# Or use a specific version by replacing v0.9.0 with your desired version
+# Example: curl -fsSL "https://github.com/abice/go-enum/releases/download/v0.8.0/go-enum_$(uname -s)_$(uname -m)" -o go-enum
+```
+
+### Using Docker
+
+You can use the Docker image directly without installing anything locally:
+
+```shell
+# Use the latest version
+docker run -w /app -v $(pwd):/app abice/go-enum:latest
+
+# Or use a specific version
+docker run -w /app -v $(pwd):/app abice/go-enum:v0.9.0
 ```
 
 ## Adding it to your project
@@ -144,7 +260,7 @@ NAME:
    go-enum - An enum generator for go
 
 USAGE:
-   go-enum [global options] [arguments...]
+   go-enum [global options]
 
 VERSION:
    example
@@ -158,6 +274,7 @@ GLOBAL OPTIONS:
    --sql                                                      Adds SQL database scan and value functions. (default: false)
    --sqlint                                                   Tells the generator that a string typed enum should be stored in sql as an integer value. (default: false)
    --flag                                                     Adds golang flag functions. (default: false)
+   --jsonpkg value                                            Custom json package for imports instead encoding/json.
    --prefix value                                             Adds a prefix with a user one. If you would like to replace the prefix, then combine this option with --noprefix.
    --names                                                    Generates a 'Names() []string' function, and adds the possible enum values in the error response during parsing (default: false)
    --values                                                   Generates a 'Values() []{{ENUM}}' function. (default: false)
@@ -172,6 +289,8 @@ GLOBAL OPTIONS:
    --forceupper                                               Forces a camel cased comment to generate uppercased names. (default: false)
    --nocomments                                               Removes auto generated comments.  If you add your own comments, these will still be created. (default: false)
    --buildtag value, -b value [ --buildtag value, -b value ]  Adds build tags to a generated enum file.
+   --output-suffix .go                                        Changes the default filename suffix of _enum to something else.  .go will be appended to the end of the string no matter what, so that `_test.go` cases can be accommodated
+   --no-iota                                                  Disables the use of iota in generated enums. (default: false)
    --help, -h                                                 show help
    --version, -v                                              print the version
 ```
