@@ -725,11 +725,12 @@ func TestCliFlagAliases(t *testing.T) {
 }
 
 func TestGlobalVariables(t *testing.T) {
+	initializeVersion()
 	// Test that global variables are properly declared
-	assert.Equal(t, "", version) // Should be empty by default (set during build)
-	assert.Equal(t, "", commit)  // Should be empty by default (set during build)
-	assert.Equal(t, "", date)    // Should be empty by default (set during build)
-	assert.Equal(t, "", builtBy) // Should be empty by default (set during build)
+	assert.Equal(t, "(devel)", version)    // Default is "(devel)" unless set during build
+	assert.Equal(t, "", commit)            // Should be empty by default (set during build)
+	assert.Equal(t, "", date)              // Should be empty by default (set during build)
+	assert.Equal(t, "go install", builtBy) // Default is "go install" unless set during build
 }
 
 func TestGlobFilenamesEdgeCases(t *testing.T) {
