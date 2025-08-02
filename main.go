@@ -5,7 +5,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
+	"sync"
 
 	"github.com/abice/go-enum/generator"
 	"github.com/labstack/gommon/color"
@@ -13,10 +15,11 @@ import (
 )
 
 var (
-	version string
-	commit  string
-	date    string
-	builtBy string
+	versionOnce sync.Once
+	version     string
+	commit      string
+	date        string
+	builtBy     string
 )
 
 type rootT struct {
@@ -47,11 +50,39 @@ type rootT struct {
 	OutputSuffix      string
 }
 
+func initializeVersion() {
+	versionOnce.Do(func() {
+		if version != "" {
+			return
+		}
+		buildInfo, ok := debug.ReadBuildInfo()
+		if !ok {
+			return
+		}
+		builtBy = "go install"
+		version = buildInfo.Main.Version
+		for _, setting := range buildInfo.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				commit = setting.Value
+			case "vcs.time":
+				date = setting.Value
+			case "vcs.modified":
+				if setting.Value == "true" {
+					commit += "-modified"
+				}
+			}
+		}
+	})
+}
+
 func main() {
 	var argv rootT
 
+	initializeVersion()
+
 	clr := color.New()
-	out := func(format string, args ...interface{}) {
+	out := func(format string, args ...any) {
 		_, _ = fmt.Fprintf(clr.Output(), format, args...)
 	}
 
