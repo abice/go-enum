@@ -8,8 +8,8 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/labstack/gommon v0.4.2
 	github.com/mattn/goveralls v0.0.12
-	github.com/spf13/pflag v1.0.7
-	github.com/stretchr/testify v1.11.0
+	github.com/spf13/pflag v1.0.8
+	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/text v0.28.0
 	golang.org/x/tools v0.36.0
