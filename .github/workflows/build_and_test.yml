@@ -19,7 +19,7 @@ jobs:
     name: run tests with go version ${{ matrix.go }}
     steps:
       - name: install go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '${{ matrix.go }}'
           check-latest: true
