@@ -36,11 +36,18 @@ An enum generator for Go that creates type-safe enumerations with useful methods
 
 ## Requirements
 
-- Go 1.23.0 or later
+- Go 1.24.0 or later (recommended for new tool installation method)
+- Go 1.23.0 or later (minimum for legacy installation)
 
 ## Quick Start
 
-1. Install go-enum:
+1. Install go-enum as a project tool (Go 1.24+):
+
+   ```shell
+   go get -tool github.com/abice/go-enum@latest
+   ```
+
+   Or for older Go versions:
 
    ```shell
    go install github.com/abice/go-enum@latest
@@ -58,6 +65,10 @@ An enum generator for Go that creates type-safe enumerations with useful methods
 3. Generate the enum:
 
    ```shell
+   # Go 1.24+ (recommended)
+   go tool go-enum -f your_file.go
+   
+   # Or for older Go versions
    go-enum -f your_file.go
    ```
 
@@ -189,7 +200,27 @@ docker run -w /app -v $(pwd):/app abice/go-enum:latest
 
 ## Installation
 
-### Using go install (recommended)
+### Using go get -tool (Go 1.24+, recommended)
+
+Install go-enum as a project tool with dependency tracking in `go.mod`:
+
+```shell
+go get -tool github.com/abice/go-enum@latest
+```
+
+This will add a tool dependency to your `go.mod` file:
+
+```mod
+tool github.com/abice/go-enum
+```
+
+You can then run the tool using:
+
+```shell
+go tool go-enum [options]
+```
+
+### Using go install (older Go versions)
 
 Install the latest version directly from source:
 
@@ -226,13 +257,24 @@ docker run -w /app -v $(pwd):/app abice/go-enum:v0.9.0
 
 ### Using go generate
 
-1. Add a go:generate line to your file like so... `//go:generate go-enum --marshal`
-1. Run go generate like so `go generate ./...`
+For Go 1.24+ with tool dependency:
+
+1. Install the tool dependency: `go get -tool github.com/abice/go-enum@latest`
+1. Add a go:generate line to your file: `//go:generate go tool go-enum --marshal`
+1. Run go generate: `go generate ./...`
+1. Enjoy your newly created Enumeration!
+
+For older Go versions:
+
+1. Add a go:generate line to your file: `//go:generate go-enum --marshal`
+1. Run go generate: `go generate ./...`
 1. Enjoy your newly created Enumeration!
 
 ### Using Makefile
 
 If you prefer makefile stuff, you can always do something like this:
+
+For Go 1.24+ with tool dependency:
 
 ```Makefile
 STANDARD_ENUMS = ./example/animal_enum.go \
@@ -245,8 +287,15 @@ $(NULLABLE_ENUMS): GO_ENUM_FLAGS=--nocase --marshal --names --sqlnullint --ptr
 
 enums: $(STANDARD_ENUMS) $(NULLABLE_ENUMS)
 
-# The generator statement for go enum files.  Files that invalidate the
-# enum file: source file, the binary itself, and this file (in case you want to generate with different flags)
+# The generator statement for go enum files using go tool (Go 1.24+)
+%_enum.go: %.go Makefile
+ go tool go-enum -f $*.go $(GO_ENUM_FLAGS)
+```
+
+For older Go versions:
+
+```Makefile
+# The generator statement for go enum files using go-enum binary
 %_enum.go: %.go $(GOENUM) Makefile
  $(GOENUM) -f $*.go $(GO_ENUM_FLAGS)
 ```
