@@ -668,3 +668,324 @@ func TestGeneratorConfigWithTemplates(t *testing.T) {
 	assert.True(t, g2.NoPrefix)
 	assert.True(t, g2.Values)
 }
+
+// TestNoParseOption tests the WithNoParse option
+func TestNoParseOption(t *testing.T) {
+	g := NewGenerator(WithNoParse())
+	assert.True(t, g.NoParse, "NoParse should be true when WithNoParse is used")
+}
+
+// TestNoParseWithIntEnum tests that NoParse flag removes Parse method from int enums
+func TestNoParseWithIntEnum(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber")
+	assert.NotContains(t, outputStr, "func parseNumber")
+
+	// Should still contain other methods
+	assert.Contains(t, outputStr, "func (x Number) String()")
+	assert.Contains(t, outputStr, "func (x Number) IsValid()")
+}
+
+// TestNoParseWithStringEnum tests that NoParse flag removes Parse method from string enums
+func TestNoParseWithStringEnum(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain Parse method
+	assert.NotContains(t, outputStr, "func ParseGreek")
+	assert.NotContains(t, outputStr, "func parseGreek")
+
+	// Should still contain other methods
+	assert.Contains(t, outputStr, "func (x Greek) String()")
+	assert.Contains(t, outputStr, "func (x Greek) IsValid()")
+}
+
+// TestNoParseWithMarshalCreatesUnexported tests that NoParse with Marshal creates unexported parse
+func TestNoParseWithMarshalCreatesUnexported(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithMarshal())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain public Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Should contain unexported parse method
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Should contain marshal methods that use the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) UnmarshalText(")
+	assert.Contains(t, outputStr, "parseNumber(name)")
+}
+
+// TestNoParseWithSQLCreatesUnexported tests that NoParse with SQL creates unexported parse
+func TestNoParseWithSQLCreatesUnexported(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithSQLDriver())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain public Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Should contain unexported parse method
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Should contain Scan method that uses the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) Scan(")
+	// The Scan method should reference parseNumber somewhere
+	assert.Regexp(t, `parseNumber\([^)]+\)`, outputStr)
+}
+
+// TestNoParseWithFlagCreatesUnexported tests that NoParse with Flag creates unexported parse
+func TestNoParseWithFlagCreatesUnexported(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithFlag())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain public Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Should contain unexported parse method
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Should contain Set method that uses the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) Set(")
+	assert.Contains(t, outputStr, "parseNumber(val)")
+}
+
+// TestNoParseWithMultipleFeaturesCreatesUnexported tests NoParse with multiple features
+func TestNoParseWithMultipleFeaturesCreatesUnexported(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithMarshal(), WithSQLDriver(), WithFlag())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain public Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Should contain exactly one unexported parse method
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Should contain all the feature methods
+	assert.Contains(t, outputStr, "func (x *Number) UnmarshalText(")
+	assert.Contains(t, outputStr, "func (x *Number) Scan(")
+	assert.Contains(t, outputStr, "func (x *Number) Set(")
+}
+
+// TestNoParseDoesNotAffectOtherMethods tests that NoParse doesn't break other functionality
+func TestNoParseDoesNotAffectOtherMethods(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(
+		WithNoParse(),
+		WithNames(),
+		WithValues(),
+		WithPtr(),
+	)
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain Parse method
+	assert.NotContains(t, outputStr, "func ParseNumber")
+	assert.NotContains(t, outputStr, "func parseNumber")
+
+	// Should contain other methods
+	assert.Contains(t, outputStr, "func NumberNames()")
+	assert.Contains(t, outputStr, "func NumberValues()")
+	assert.Contains(t, outputStr, "func (x Number) Ptr()")
+	assert.Contains(t, outputStr, "func (x Number) String()")
+	assert.Contains(t, outputStr, "func (x Number) IsValid()")
+}
+
+// TestNoParseWithStringEnumAndMarshal tests NoParse with string enum and marshal
+func TestNoParseWithStringEnumAndMarshal(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse(), WithMarshal())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should not contain public Parse method
+	assert.NotContains(t, outputStr, "func ParseGreek(")
+
+	// Should contain unexported parse method
+	assert.Contains(t, outputStr, "func parseGreek(")
+
+	// Should contain marshal methods
+	assert.Contains(t, outputStr, "func (x *Greek) UnmarshalText(")
+	assert.Contains(t, outputStr, "parseGreek(string(text))")
+}
+
+// TestNoParseOmitsErrorVariable tests that NoParse without dependent features omits ErrInvalidXXX
+func TestNoParseOmitsErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should NOT contain error variable since Parse is not generated
+	assert.NotContains(t, outputStr, "var ErrInvalidNumber")
+	assert.NotContains(t, outputStr, "ErrInvalidNumber")
+}
+
+// TestNoParseWithMarshalIncludesErrorVariable tests that error is generated when needed
+func TestNoParseWithMarshalIncludesErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithMarshal())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should contain error variable since parseNumber uses it
+	assert.Contains(t, outputStr, "var ErrInvalidNumber")
+}
+
+// TestNoParseWithStringEnumOmitsErrorVariable tests error omission with string enums
+func TestNoParseWithStringEnumOmitsErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should NOT contain error variable
+	assert.NotContains(t, outputStr, "var ErrInvalidGreek")
+	assert.NotContains(t, outputStr, "ErrInvalidGreek")
+}
+
+// TestStringEnumWithSQLIntIncludesErrorVariable tests that sqlint generates error even with noparse
+func TestStringEnumWithSQLIntIncludesErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse(), WithSQLInt())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should contain error variable because lookupSqlInt and Value use it
+	assert.Contains(t, outputStr, "var ErrInvalidGreek")
+	assert.Contains(t, outputStr, "lookupSqlIntGreek")
+}

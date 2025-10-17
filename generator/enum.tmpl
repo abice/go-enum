@@ -36,11 +36,13 @@ const (
 		{{- end}}
 {{- end}}
 )
+{{- if .generateError }}
 {{if .names -}}
 var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
 {{- else -}}
 var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
 {{- end}}
+{{- end }}
 
 {{ template "stringer" . }}
 
@@ -63,8 +65,9 @@ func (x {{.enum.Name}}) IsValid() bool {
 
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
-// Parse{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
-func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
+{{- if .generateParse }}
+// {{.parseName}}{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
+func {{.parseName}}{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return x, nil
 	}{{if .nocase }}
@@ -74,11 +77,12 @@ func Parse{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	}{{- end}}
 	return {{.enum.Name}}(0), fmt.Errorf("%s is %w", name, ErrInvalid{{.enum.Name}})
 }
+{{- end }}
 
 {{ if .mustparse }}
 // MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
 func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
-	val, err := Parse{{.enum.Name}}(name)
+	val, err := {{.parseName}}{{.enum.Name}}(name)
 	if err != nil {
 		panic(err)
 	}
@@ -101,7 +105,7 @@ func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 // UnmarshalText implements the text unmarshaller method.
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := Parse{{.enum.Name}}(name)
+	tmp, err := {{.parseName}}{{.enum.Name}}(name)
 	if err != nil {
 		return err
 	}
@@ -134,7 +138,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	case int64:
 		*x = {{.enum.Name}}(v)
 	case string:
-		*x, err = Parse{{.enum.Name}}(v){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(v); verr == nil {
@@ -142,7 +146,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 			}
 		}{{end}}
 	case []byte:
-		*x, err = Parse{{.enum.Name}}(string(v)){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(string(v)){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
@@ -193,7 +197,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x, err = Parse{{.enum.Name}}(*v){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(*v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(*v); verr == nil {
@@ -223,7 +227,7 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 {{ if .flag }}
 // Set implements the Golang flag.Value interface func.
 func (x *{{.enum.Name}}) Set(val string) error {
-	v, err := Parse{{.enum.Name}}(val)
+	v, err := {{.parseName}}{{.enum.Name}}(val)
 	*x = v
 	return err
 }

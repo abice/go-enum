@@ -22,6 +22,7 @@ type GeneratorConfig struct {
 	ForceLower        bool              `json:"force_lower"`
 	ForceUpper        bool              `json:"force_upper"`
 	NoComments        bool              `json:"no_comments"`
+	NoParse           bool              `json:"no_parse"`
 	BuildTags         []string          `json:"build_tags"`
 	ReplacementNames  map[string]string `json:"replacement_names"`
 	TemplateFileNames []string          `json:"template_file_names"`
@@ -202,5 +203,12 @@ func WithTemplates(filenames ...string) Option {
 		// Note: Template processing is deferred to the generator constructor
 		// because we need access to the template collection and knownTemplates
 		g.TemplateFileNames = append(g.TemplateFileNames, filenames...)
+	}
+}
+
+// WithNoParse is used to remove the public Parse method from the enum.
+func WithNoParse() Option {
+	return func(g *GeneratorConfig) {
+		g.NoParse = true
 	}
 }

@@ -193,6 +193,19 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		}
 
 		created++
+
+		// Determine parse method generation logic
+		parseNeeded := g.MustParse || g.Marshal || g.anySQLEnabled() || g.Flag
+		generateParse := !g.NoParse || parseNeeded
+		parseIsPublic := !g.NoParse
+		parseName := "Parse"
+		if !parseIsPublic && generateParse {
+			parseName = "parse"
+		}
+
+		// Determine if error variable is needed
+		generateError := generateParse || (enum.Type == "string" && g.SQLInt)
+
 		data := map[string]any{
 			"enum":          enum,
 			"name":          name,
@@ -213,6 +226,12 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"mustparse":     g.MustParse,
 			"forcelower":    g.ForceLower,
 			"forceupper":    g.ForceUpper,
+			"noparse":       g.NoParse,
+			// Computed values for cleaner templates
+			"generateParse": generateParse,
+			"parseIsPublic": parseIsPublic,
+			"parseName":     parseName,
+			"generateError": generateError,
 		}
 
 		templateName := "enum"

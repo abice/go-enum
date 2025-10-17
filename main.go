@@ -47,6 +47,7 @@ type rootT struct {
 	ForceLower        bool
 	ForceUpper        bool
 	NoComments        bool
+	NoParse           bool
 	OutputSuffix      string
 }
 
@@ -207,6 +208,11 @@ func main() {
 				Usage:       "Removes auto generated comments.  If you add your own comments, these will still be created.",
 				Destination: &argv.NoComments,
 			},
+			&cli.BoolFlag{
+				Name:        "noparse",
+				Usage:       "Prevents generating the Parse method, or generates it as unexported if other methods depend on it.",
+				Destination: &argv.NoParse,
+			},
 			&cli.StringSliceFlag{
 				Name:        "buildtag",
 				Aliases:     []string{"b"},
@@ -225,6 +231,11 @@ func main() {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			// Validate incompatible flag combinations
+			if argv.NoParse && argv.MustParse {
+				return fmt.Errorf("--noparse and --mustparse are incompatible: MustParse requires the Parse method to exist")
+			}
+
 			aliases, err := generator.ParseAliases(argv.Aliases.Value())
 			if err != nil {
 				return err
@@ -269,6 +280,7 @@ func main() {
 					ForceLower:        argv.ForceLower,
 					ForceUpper:        argv.ForceUpper,
 					NoComments:        argv.NoComments,
+					NoParse:           argv.NoParse,
 					BuildTags:         argv.BuildTags.Value(),
 					ReplacementNames:  aliases,
 					TemplateFileNames: templateFileNames,
