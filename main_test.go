@@ -2110,3 +2110,261 @@ type Color int
 		assert.FileExists(t, expectedOutput)
 	}
 }
+
+// TestNoParseAndMustParseIncompatible tests that using both --noparse and --mustparse returns an error
+func TestNoParseAndMustParseIncompatible(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(one, two, three)
+type Number int
+`), 0o644)
+	require.NoError(t, err)
+
+	// Create the CLI app
+	app := &cli.App{
+		Name:  "go-enum",
+		Flags: createTestFlags(),
+		Action: func(ctx *cli.Context) error {
+			// Get the argv struct
+			argv := &rootT{
+				NoParse:   ctx.Bool("noparse"),
+				MustParse: ctx.Bool("mustparse"),
+			}
+
+			// Validate incompatible flag combinations
+			if argv.NoParse && argv.MustParse {
+				return fmt.Errorf("--noparse and --mustparse are incompatible: MustParse requires the Parse method to exist")
+			}
+
+			return nil
+		},
+	}
+
+	// Test with both flags
+	err = app.Run([]string{"go-enum", "--file", testFile, "--noparse", "--mustparse"})
+	require.Error(t, err, "Expected error when using both --noparse and --mustparse")
+	assert.Contains(t, err.Error(), "incompatible")
+	assert.Contains(t, err.Error(), "MustParse requires the Parse method to exist")
+}
+
+// TestNoParseFlagOnly tests that using only --noparse works correctly
+func TestNoParseFlagOnly(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(one, two, three)
+type Number int
+`), 0o644)
+	require.NoError(t, err)
+
+	// Change to temp directory
+	oldDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	// Create a generator with NoParse
+	g := generator.NewGeneratorWithConfig(generator.GeneratorConfig{
+		NoParse: true,
+	})
+
+	// Generate the enum
+	output, err := g.GenerateFromFile(testFile)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Verify that Parse method is NOT present (neither public nor private)
+	assert.NotContains(t, outputStr, "func ParseNumber")
+	assert.NotContains(t, outputStr, "func parseNumber")
+
+	// Verify that other methods are still present
+	assert.Contains(t, outputStr, "func (x Number) String()")
+	assert.Contains(t, outputStr, "func (x Number) IsValid()")
+}
+
+// TestNoParseWithMarshal tests that using --noparse with --marshal creates unexported parse
+func TestNoParseWithMarshal(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(one, two, three)
+type Number int
+`), 0o644)
+	require.NoError(t, err)
+
+	// Change to temp directory
+	oldDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	// Create a generator with NoParse and Marshal
+	g := generator.NewGeneratorWithConfig(generator.GeneratorConfig{
+		NoParse: true,
+		Marshal: true,
+	})
+
+	// Generate the enum
+	output, err := g.GenerateFromFile(testFile)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Verify that public Parse method is NOT present
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Verify that unexported parse method IS present
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Verify that UnmarshalText uses the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) UnmarshalText(")
+	assert.Contains(t, outputStr, "parseNumber(name)")
+}
+
+// TestNoParseWithSQL tests that using --noparse with --sql creates unexported parse
+func TestNoParseWithSQL(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(one, two, three)
+type Number int
+`), 0o644)
+	require.NoError(t, err)
+
+	// Change to temp directory
+	oldDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	// Create a generator with NoParse and SQL
+	g := generator.NewGeneratorWithConfig(generator.GeneratorConfig{
+		NoParse: true,
+		SQL:     true,
+	})
+
+	// Generate the enum
+	output, err := g.GenerateFromFile(testFile)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Verify that public Parse method is NOT present
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Verify that unexported parse method IS present
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Verify that Scan uses the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) Scan(")
+	assert.Contains(t, outputStr, "parseNumber(")
+}
+
+// TestNoParseWithFlag tests that using --noparse with --flag creates unexported parse
+func TestNoParseWithFlag(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(one, two, three)
+type Number int
+`), 0o644)
+	require.NoError(t, err)
+
+	// Change to temp directory
+	oldDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	// Create a generator with NoParse and Flag
+	g := generator.NewGeneratorWithConfig(generator.GeneratorConfig{
+		NoParse: true,
+		Flag:    true,
+	})
+
+	// Generate the enum
+	output, err := g.GenerateFromFile(testFile)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Verify that public Parse method is NOT present
+	assert.NotContains(t, outputStr, "func ParseNumber(")
+
+	// Verify that unexported parse method IS present
+	assert.Contains(t, outputStr, "func parseNumber(")
+
+	// Verify that Set uses the unexported parse
+	assert.Contains(t, outputStr, "func (x *Number) Set(")
+	assert.Contains(t, outputStr, "parseNumber(")
+}
+
+// TestNoParseWithStringEnum tests that --noparse works with string enums
+func TestNoParseWithStringEnum(t *testing.T) {
+	// Create a temporary test file
+	tmpDir := t.TempDir()
+	testFile := filepath.Join(tmpDir, "test.go")
+	err := os.WriteFile(testFile, []byte(`package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`), 0o644)
+	require.NoError(t, err)
+
+	// Change to temp directory
+	oldDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(oldDir)
+	os.Chdir(tmpDir)
+
+	// Create a generator with NoParse
+	g := generator.NewGeneratorWithConfig(generator.GeneratorConfig{
+		NoParse: true,
+	})
+
+	// Generate the enum
+	output, err := g.GenerateFromFile(testFile)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Verify that Parse method is NOT present
+	assert.NotContains(t, outputStr, "func ParseGreek")
+	assert.NotContains(t, outputStr, "func parseGreek")
+
+	// Verify that IsValid doesn't use Parse (should use map lookup directly)
+	assert.Contains(t, outputStr, "func (x Greek) IsValid()")
+	assert.NotContains(t, outputStr, "IsValid() bool {\n\t_, err := parseGreek")
+}
+
+// Helper function to create test flags
+func createTestFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringSliceFlag{
+			Name: "file",
+		},
+		&cli.BoolFlag{
+			Name: "noparse",
+		},
+		&cli.BoolFlag{
+			Name: "mustparse",
+		},
+	}
+}

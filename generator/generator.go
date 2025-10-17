@@ -213,6 +213,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"mustparse":     g.MustParse,
 			"forcelower":    g.ForceLower,
 			"forceupper":    g.ForceUpper,
+			"noparse":       g.NoParse,
 		}
 
 		templateName := "enum"
