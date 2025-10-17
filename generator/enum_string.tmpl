@@ -13,11 +13,14 @@ const (
     {{$value.PrefixedName}} {{$enumName}} = {{quote $value.ValueStr}}
 {{- end}}
 )
+{{- $parseNeeded := or .mustparse .marshal .anySQLEnabled .flag -}}
+{{- if or (not .noparse) $parseNeeded .sqlint }}
 {{if .names -}}
 var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
 {{- else -}}
 var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
 {{- end}}
+{{- end }}
 
 {{ if .names }}var _{{.enum.Name}}Names = {{namify .enum}}
 

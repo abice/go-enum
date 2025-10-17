@@ -902,3 +902,90 @@ type Greek string
 	assert.Contains(t, outputStr, "func (x *Greek) UnmarshalText(")
 	assert.Contains(t, outputStr, "parseGreek(string(text))")
 }
+
+// TestNoParseOmitsErrorVariable tests that NoParse without dependent features omits ErrInvalidXXX
+func TestNoParseOmitsErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should NOT contain error variable since Parse is not generated
+	assert.NotContains(t, outputStr, "var ErrInvalidNumber")
+	assert.NotContains(t, outputStr, "ErrInvalidNumber")
+}
+
+// TestNoParseWithMarshalIncludesErrorVariable tests that error is generated when needed
+func TestNoParseWithMarshalIncludesErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(one, two, three)
+type Number int
+`
+	g := NewGenerator(WithNoParse(), WithMarshal())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should contain error variable since parseNumber uses it
+	assert.Contains(t, outputStr, "var ErrInvalidNumber")
+}
+
+// TestNoParseWithStringEnumOmitsErrorVariable tests error omission with string enums
+func TestNoParseWithStringEnumOmitsErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should NOT contain error variable
+	assert.NotContains(t, outputStr, "var ErrInvalidGreek")
+	assert.NotContains(t, outputStr, "ErrInvalidGreek")
+}
+
+// TestStringEnumWithSQLIntIncludesErrorVariable tests that sqlint generates error even with noparse
+func TestStringEnumWithSQLIntIncludesErrorVariable(t *testing.T) {
+	input := `package test
+
+// ENUM(alpha, beta, gamma)
+type Greek string
+`
+	g := NewGenerator(WithNoParse(), WithSQLInt())
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+	require.NotNil(t, output)
+
+	outputStr := string(output)
+
+	// Should contain error variable because lookupSqlInt and Value use it
+	assert.Contains(t, outputStr, "var ErrInvalidGreek")
+	assert.Contains(t, outputStr, "lookupSqlIntGreek")
+}

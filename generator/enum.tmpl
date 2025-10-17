@@ -36,11 +36,14 @@ const (
 		{{- end}}
 {{- end}}
 )
+{{- $parseNeeded := or .mustparse .marshal .anySQLEnabled .flag -}}
+{{- if or (not .noparse) $parseNeeded }}
 {{if .names -}}
 var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
 {{- else -}}
 var ErrInvalid{{.enum.Name}} = errors.New("not a valid {{.enum.Name}}")
 {{- end}}
+{{- end }}
 
 {{ template "stringer" . }}
 
@@ -63,7 +66,6 @@ func (x {{.enum.Name}}) IsValid() bool {
 
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
-{{- $parseNeeded := or .mustparse .marshal .anySQLEnabled .flag -}}
 {{- $parseName := "Parse" -}}
 {{- if and .noparse $parseNeeded -}}
 {{- $parseName = "parse" -}}
