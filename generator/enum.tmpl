@@ -36,8 +36,7 @@ const (
 		{{- end}}
 {{- end}}
 )
-{{- $parseNeeded := or .mustparse .marshal .anySQLEnabled .flag -}}
-{{- if or (not .noparse) $parseNeeded }}
+{{- if .generateError }}
 {{if .names -}}
 var ErrInvalid{{.enum.Name}} = fmt.Errorf("not a valid {{.enum.Name}}, try [%s]", strings.Join(_{{.enum.Name}}Names, ", "))
 {{- else -}}
@@ -66,13 +65,9 @@ func (x {{.enum.Name}}) IsValid() bool {
 
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
-{{- $parseName := "Parse" -}}
-{{- if and .noparse $parseNeeded -}}
-{{- $parseName = "parse" -}}
-{{- end -}}
-{{- if or (not .noparse) $parseNeeded }}
-// {{$parseName}}{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
-func {{$parseName}}{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
+{{- if .generateParse }}
+// {{.parseName}}{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
+func {{.parseName}}{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
 		return x, nil
 	}{{if .nocase }}
@@ -85,13 +80,9 @@ func {{$parseName}}{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 {{- end }}
 
 {{ if .mustparse }}
-{{- $parseName := "Parse" -}}
-{{- if .noparse -}}
-{{- $parseName = "parse" -}}
-{{- end }}
 // MustParse{{.enum.Name}} converts a string to a {{.enum.Name}}, and panics if is not valid.
 func MustParse{{.enum.Name}}(name string) {{.enum.Name}} {
-	val, err := {{$parseName}}{{.enum.Name}}(name)
+	val, err := {{.parseName}}{{.enum.Name}}(name)
 	if err != nil {
 		panic(err)
 	}
@@ -106,10 +97,6 @@ func (x {{.enum.Name}}) Ptr() *{{.enum.Name}} {
 {{end}}
 
 {{ if .marshal }}
-{{- $parseName := "Parse" -}}
-{{- if .noparse -}}
-{{- $parseName = "parse" -}}
-{{- end }}
 // MarshalText implements the text marshaller method.
 func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
@@ -118,7 +105,7 @@ func (x {{.enum.Name}}) MarshalText() ([]byte, error) {
 // UnmarshalText implements the text unmarshaller method.
 func (x *{{.enum.Name}}) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := {{$parseName}}{{.enum.Name}}(name)
+	tmp, err := {{.parseName}}{{.enum.Name}}(name)
 	if err != nil {
 		return err
 	}
@@ -136,10 +123,6 @@ func (x *{{.enum.Name}}) AppendText(b []byte) ([]byte, error) {
 {{end}}
 
 {{ if or .sql .sqlnullint .sqlnullstr}}
-{{- $parseName := "Parse" -}}
-{{- if .noparse -}}
-{{- $parseName = "parse" -}}
-{{- end }}
 var err{{.enum.Name}}NilPtr = errors.New("value pointer is nil") // one per type for package clashes
 
 // Scan implements the Scanner interface.
@@ -155,7 +138,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 	case int64:
 		*x = {{.enum.Name}}(v)
 	case string:
-		*x, err = {{$parseName}}{{.enum.Name}}(v){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(v); verr == nil {
@@ -163,7 +146,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 			}
 		}{{end}}
 	case []byte:
-		*x, err = {{$parseName}}{{.enum.Name}}(string(v)){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(string(v)){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(string(v)); verr == nil {
@@ -214,7 +197,7 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x, err = {{$parseName}}{{.enum.Name}}(*v){{if .sqlnullint }}
+		*x, err = {{.parseName}}{{.enum.Name}}(*v){{if .sqlnullint }}
 		if err != nil {
 			// try parsing the integer value as a string
 			if val, verr := strconv.Atoi(*v); verr == nil {
@@ -242,13 +225,9 @@ func (x {{.enum.Name}}) Value() (driver.Value, error) {
 
 
 {{ if .flag }}
-{{- $parseName := "Parse" -}}
-{{- if .noparse -}}
-{{- $parseName = "parse" -}}
-{{- end }}
 // Set implements the Golang flag.Value interface func.
 func (x *{{.enum.Name}}) Set(val string) error {
-	v, err := {{$parseName}}{{.enum.Name}}(val)
+	v, err := {{.parseName}}{{.enum.Name}}(val)
 	*x = v
 	return err
 }
