@@ -9,9 +9,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/abice/go-enum/generator"
 	"github.com/labstack/gommon/color"
 	"github.com/urfave/cli/v2"
+
+	"github.com/abice/go-enum/generator"
 )
 
 var (
@@ -48,6 +49,7 @@ type rootT struct {
 	ForceUpper        bool
 	NoComments        bool
 	NoParse           bool
+	BitField          bool
 	OutputSuffix      string
 }
 
@@ -229,6 +231,11 @@ func main() {
 				Usage:       "Disables the use of iota in generated enums.",
 				Destination: &argv.NoIota,
 			},
+			&cli.BoolFlag{
+				Name:        "bitfield",
+				Usage:       "Generates the values as bit fields.",
+				Destination: &argv.BitField,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			// Validate incompatible flag combinations
@@ -281,6 +288,7 @@ func main() {
 					ForceUpper:        argv.ForceUpper,
 					NoComments:        argv.NoComments,
 					NoParse:           argv.NoParse,
+					BitField:          argv.BitField,
 					BuildTags:         argv.BuildTags.Value(),
 					ReplacementNames:  aliases,
 					TemplateFileNames: templateFileNames,

@@ -25,6 +25,9 @@ const (
 	parseCommentPrefix = `//`
 )
 
+var ErrBitfieldOnString = errors.New("bitfield option is not allowed on string types")
+var ErrBitfieldManuallValue = errors.New("manually setting values is not allowed with the bitfield option")
+
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
 	Version   string
@@ -189,6 +192,11 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 		// Parse the enum doc statement
 		enum, pErr := g.parseEnum(ts)
 		if pErr != nil {
+			if errors.Is(pErr, ErrBitfieldOnString) ||
+				errors.Is(pErr, ErrBitfieldManuallValue) {
+				return nil, pErr
+			}
+
 			continue
 		}
 
@@ -227,6 +235,7 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 			"forcelower":    g.ForceLower,
 			"forceupper":    g.ForceUpper,
 			"noparse":       g.NoParse,
+			"bitField":      g.BitField,
 			// Computed values for cleaner templates
 			"generateParse": generateParse,
 			"parseIsPublic": parseIsPublic,
@@ -295,6 +304,10 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 		enum.Prefix = g.Prefix + enum.Prefix
 	}
 
+	if g.BitField && enum.Type == "string" {
+		return nil, ErrBitfieldOnString
+	}
+
 	commentPreEnumDecl, _, _ := strings.Cut(ts.Doc.Text(), `ENUM(`)
 	enum.Comment = strings.TrimSpace(commentPreEnumDecl)
 
@@ -332,6 +345,9 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			valueStr := value
 
 			if strings.Contains(value, `=`) {
+				if g.BitField {
+					return nil, ErrBitfieldManuallValue
+				}
 				// Get the value specified and set the data to that value.
 				equalIndex := strings.Index(value, `=`)
 				dataVal := strings.TrimSpace(value[equalIndex+1:])

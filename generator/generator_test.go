@@ -469,6 +469,50 @@ func TestQuotedStrings(t *testing.T) {
 	}
 }
 
+func TestBitFieldOfStringFailure(t *testing.T) {
+	input := `package test
+	// This is a pre-enum comment that needs (to be handled properly)
+	// ENUM(
+	//	abc
+	//  ghi 
+	//). This is an extra string comment (With parentheses of it's own)
+	// And (another line) with Parentheses
+	type Animal string
+	`
+	g := NewGenerator(WithBitfield())
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing input")
+
+	output, err := g.Generate(f)
+	assert.ErrorIs(t, err, ErrBitfieldOnString)
+	assert.Empty(t, output)
+	if false { // Debugging statement
+		fmt.Println(output)
+	}
+}
+
+func TestBitFieldManuallyValueFailure(t *testing.T) {
+	input := `package test
+	// This is a pre-enum comment that needs (to be handled properly)
+	// ENUM(
+	//	abc = 1
+	//  ghi 
+	//). This is an extra string comment (With parentheses of it's own)
+	// And (another line) with Parentheses
+	type Animal int
+	`
+	g := NewGenerator(WithBitfield())
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing input")
+
+	output, err := g.Generate(f)
+	assert.ErrorIs(t, err, ErrBitfieldManuallValue)
+	assert.Empty(t, output)
+	if false { // Debugging statement
+		fmt.Println(output)
+	}
+}
+
 func TestStringWithSingleDoubleQuoteValue(t *testing.T) {
 	input := `package test
 	// ENUM(DoubleQuote='"')

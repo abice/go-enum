@@ -1,0 +1,43 @@
+//go:generate ../bin/go-enum --names -b example --bitfield --values
+
+package example
+
+/*
+ENUM(
+
+E2P0
+E2P1
+E2P2
+E2P3
+E2P4
+E2P5
+E2P6
+E2P7
+E2P8
+E2P9
+E2P10
+E2P11
+E2P12
+E2P13
+E2P14
+E2P15
+E2P16
+E2P17
+E2P18
+E2P19
+E2P20
+E2P21
+E2P22
+E2P23
+E2P24
+E2P25
+E2P26
+E2P27
+E2P28
+E2P29
+E2P30
+E2P31
+
+)
+*/
+type Enum32bitfield uint32

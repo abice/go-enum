@@ -340,6 +340,7 @@ GLOBAL OPTIONS:
    --buildtag value, -b value [ --buildtag value, -b value ]  Adds build tags to a generated enum file.
    --output-suffix .go                                        Changes the default filename suffix of _enum to something else.  .go will be appended to the end of the string no matter what, so that `_test.go` cases can be accommodated
    --no-iota                                                  Disables the use of iota in generated enums. (default: false)
+   --bitfield                                                 Generates the values as bit fields. (default: false)
    --help, -h                                                 show help
    --version, -v                                              print the version
 ```

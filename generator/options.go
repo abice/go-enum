@@ -23,6 +23,7 @@ type GeneratorConfig struct {
 	ForceUpper        bool              `json:"force_upper"`
 	NoComments        bool              `json:"no_comments"`
 	NoParse           bool              `json:"no_parse"`
+	BitField          bool              `json:"bit_field"`
 	BuildTags         []string          `json:"build_tags"`
 	ReplacementNames  map[string]string `json:"replacement_names"`
 	TemplateFileNames []string          `json:"template_file_names"`
@@ -210,5 +211,12 @@ func WithTemplates(filenames ...string) Option {
 func WithNoParse() Option {
 	return func(g *GeneratorConfig) {
 		g.NoParse = true
+	}
+}
+
+// WithBitfield is used to create bitfield enums.
+func WithBitfield() Option {
+	return func(g *GeneratorConfig) {
+		g.BitField = true
 	}
 }

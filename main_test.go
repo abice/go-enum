@@ -8,10 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/abice/go-enum/generator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
+
+	"github.com/abice/go-enum/generator"
 )
 
 func TestGlobFilenames(t *testing.T) {
@@ -261,6 +262,7 @@ func TestCliFlagsConfiguration(t *testing.T) {
 				"--forcelower",
 				"--forceupper",
 				"--nocomments",
+				"--bitfield",
 			},
 			setup: func() (string, func()) {
 				tmpDir, err := os.MkdirTemp("", "go-enum-test")
@@ -311,6 +313,7 @@ const (
 				ForceLower:     true,
 				ForceUpper:     true,
 				NoComments:     true,
+				BitField:       true,
 			},
 		},
 		{
@@ -440,6 +443,9 @@ const (
 				}
 				if tt.expected.NoComments {
 					assert.True(t, argv.NoComments)
+				}
+				if tt.expected.BitField {
+					assert.True(t, argv.BitField)
 				}
 				if tt.expected.Prefix != "" {
 					assert.Equal(t, tt.expected.Prefix, argv.Prefix)
@@ -591,6 +597,11 @@ func createCliApp(argv *rootT) *cli.App {
 				Name:        "output-suffix",
 				Usage:       "Changes the default filename suffix of _enum to something else.  `.go` will be appended to the end of the string no matter what, so that `_test.go` cases can be accommodated ",
 				Destination: &argv.OutputSuffix,
+			},
+			&cli.BoolFlag{
+				Name:        "bitfield",
+				Usage:       "Generates the values as bit fields.",
+				Destination: &argv.BitField,
 			},
 		},
 		Action: func(ctx *cli.Context) error {
