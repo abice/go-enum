@@ -24,7 +24,7 @@ jobs:
           check-latest: true
 
       - name: checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Build
         run: make build
@@ -41,7 +41,7 @@ jobs:
           parallel: true
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage.${{ matrix.go }}
           path: coverage.*
