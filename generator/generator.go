@@ -25,6 +25,12 @@ const (
 	parseCommentPrefix = `//`
 )
 
+// acronymReplacement holds a precomputed pair for acronym substitution.
+type acronymReplacement struct {
+	from string // title-cased form, e.g. "Http"
+	to   string // uppercase form, e.g. "HTTP"
+}
+
 // Generator is responsible for generating validation files for the given in a go source file.
 type Generator struct {
 	Version   string
@@ -32,10 +38,11 @@ type Generator struct {
 	BuildDate string
 	BuiltBy   string
 	GeneratorConfig
-	t                 *template.Template
-	knownTemplates    map[string]*template.Template
-	fileSet           *token.FileSet
-	userTemplateNames []string
+	t                    *template.Template
+	knownTemplates       map[string]*template.Template
+	fileSet              *token.FileSet
+	userTemplateNames    []string
+	acronymReplacements  []acronymReplacement
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -83,6 +90,21 @@ func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
 		fileSet:           token.NewFileSet(),
 		userTemplateNames: make([]string, 0),
 		GeneratorConfig:   config,
+	}
+
+	// Precompute acronym replacement pairs (sorted longest-first for correct overlap handling).
+	if len(config.Acronyms) > 0 {
+		title := cases.Title(language.Und, cases.NoLower)
+		g.acronymReplacements = make([]acronymReplacement, len(config.Acronyms))
+		for i, acr := range config.Acronyms {
+			g.acronymReplacements[i] = acronymReplacement{
+				from: title.String(strings.ToLower(acr)),
+				to:   acr,
+			}
+		}
+		sort.Slice(g.acronymReplacements, func(i, j int) bool {
+			return len(g.acronymReplacements[i].from) > len(g.acronymReplacements[j].from)
+		})
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -140,6 +162,44 @@ func ParseAliases(aliases []string) (map[string]string, error) {
 	}
 
 	return aliasMap, nil
+}
+
+// ParseAcronyms parses and validates acronym entries from CLI input.
+// Each entry can be comma-separated. Acronyms must be all uppercase ASCII letters.
+func ParseAcronyms(entries []string) ([]string, error) {
+	seen := make(map[string]struct{})
+	var result []string
+
+	for _, entry := range entries {
+		parts := strings.Split(entry, ",")
+		for _, part := range parts {
+			acronym := strings.TrimSpace(part)
+			if acronym == "" {
+				continue
+			}
+			for _, r := range acronym {
+				if r < 'A' || r > 'Z' {
+					return nil, fmt.Errorf("invalid acronym %q: must be all uppercase ASCII letters", acronym)
+				}
+			}
+			if _, ok := seen[acronym]; !ok {
+				seen[acronym] = struct{}{}
+				result = append(result, acronym)
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// applyAcronyms replaces title-cased acronym substrings with their fully uppercased forms.
+// For example, with acronym "HTTP", it replaces "Http" with "HTTP" in the identifier.
+// Replacements are applied longest-first to handle overlapping acronyms correctly.
+func (g *Generator) applyAcronyms(name string) string {
+	for _, r := range g.acronymReplacements {
+		name = strings.ReplaceAll(name, r.from, r.to)
+	}
+	return name
 }
 
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
@@ -378,6 +438,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				if !g.LeaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
+				prefixedName = g.applyAcronyms(prefixedName)
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}
