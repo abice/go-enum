@@ -531,6 +531,7 @@ func TestNewGeneratorWithConfig(t *testing.T) {
 		JSONPkg:         "custom/json",
 		Prefix:          "TestPrefix",
 		BuildTags:       []string{"tag1", "tag2"},
+		Acronyms:        []string{"HTTP", "URL"},
 		NoComments:      true,
 		Values:          true,
 	}
@@ -546,6 +547,7 @@ func TestNewGeneratorWithConfig(t *testing.T) {
 	assert.Equal(t, config.JSONPkg, g.JSONPkg)
 	assert.Equal(t, config.Prefix, g.Prefix)
 	assert.Equal(t, config.BuildTags, g.BuildTags)
+	assert.Equal(t, config.Acronyms, g.Acronyms)
 	assert.Equal(t, config.NoComments, g.NoComments)
 	assert.Equal(t, config.Values, g.Values)
 
@@ -638,6 +640,7 @@ func TestAllOptionsIntegration(t *testing.T) {
 		WithJsonPkg("custom/json"),
 		WithNoComments(),
 		WithBuildTags("integration", "test"),
+		WithAcronyms("HTTP", "URL"),
 	)
 
 	assert.True(t, g.SQLInt)
@@ -645,6 +648,7 @@ func TestAllOptionsIntegration(t *testing.T) {
 	assert.Equal(t, "custom/json", g.JSONPkg)
 	assert.True(t, g.NoComments)
 	assert.Equal(t, []string{"integration", "test"}, g.BuildTags)
+	assert.Equal(t, []string{"HTTP", "URL"}, g.Acronyms)
 }
 
 // TestGeneratorConfigWithTemplates tests NewGeneratorWithConfig with templates
@@ -988,4 +992,198 @@ type Greek string
 	// Should contain error variable because lookupSqlInt and Value use it
 	assert.Contains(t, outputStr, "var ErrInvalidGreek")
 	assert.Contains(t, outputStr, "lookupSqlIntGreek")
+}
+
+func TestAcronymParsing(t *testing.T) {
+	tests := map[string]struct {
+		input  []string
+		result []string
+		err    string
+	}{
+		"no acronyms": {
+			result: nil,
+		},
+		"single entry": {
+			input:  []string{"HTTP"},
+			result: []string{"HTTP"},
+		},
+		"comma separated": {
+			input:  []string{"HTTP,URL,ID"},
+			result: []string{"HTTP", "URL", "ID"},
+		},
+		"multiple flags": {
+			input:  []string{"HTTP", "URL,ID", "API"},
+			result: []string{"HTTP", "URL", "ID", "API"},
+		},
+		"deduplication": {
+			input:  []string{"HTTP,HTTP,URL"},
+			result: []string{"HTTP", "URL"},
+		},
+		"invalid lowercase": {
+			input: []string{"Http"},
+			err:   `invalid acronym "Http": must be all uppercase ASCII letters`,
+		},
+		"invalid number": {
+			input: []string{"H2"},
+			err:   `invalid acronym "H2": must be all uppercase ASCII letters`,
+		},
+		"empty entries ignored": {
+			input:  []string{"HTTP,,URL"},
+			result: []string{"HTTP", "URL"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			result, err := ParseAcronyms(tc.input)
+			if tc.err != "" {
+				require.Error(t, err)
+				require.EqualError(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.result, result)
+			}
+		})
+	}
+}
+
+func TestWithAcronyms(t *testing.T) {
+	config := &GeneratorConfig{}
+	option := WithAcronyms("HTTP", "URL")
+	option(config)
+	assert.Equal(t, []string{"HTTP", "URL"}, config.Acronyms)
+
+	// Test appending
+	option2 := WithAcronyms("API")
+	option2(config)
+	assert.Equal(t, []string{"HTTP", "URL", "API"}, config.Acronyms)
+}
+
+func TestAcronymsInGeneration(t *testing.T) {
+	input := `package test
+
+// ENUM(
+//   get_http_url,
+//   post_api_request,
+//   fetch_html_id,
+// )
+type Method int
+`
+	g := NewGenerator(WithAcronyms("HTTP", "URL", "API", "ID", "HTML"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	// Verify acronyms are fully uppercased in const names
+	assert.Contains(t, outputStr, "MethodGetHTTPURL")
+	assert.Contains(t, outputStr, "MethodPostAPIRequest")
+	assert.Contains(t, outputStr, "MethodFetchHTMLID")
+	// Verify string values are NOT affected (stored in _MethodName concatenation)
+	assert.Contains(t, outputStr, "get_http_urlpost_api_requestfetch_html_id")
+}
+
+func TestAcronymsKfeaturesStyle(t *testing.T) {
+	input := `package test
+
+// ENUM(
+//   bpf_lsm,
+//   btf,
+//   bpf_tracing,
+//   ima,
+// )
+type Feature int
+`
+	g := NewGenerator(WithAcronyms("BPF", "LSM", "BTF", "IMA"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "FeatureBPFLSM")
+	assert.Contains(t, outputStr, "FeatureBTF")
+	assert.Contains(t, outputStr, "FeatureBPFTracing")
+	assert.Contains(t, outputStr, "FeatureIMA")
+}
+
+func TestAcronymsWithLeaveSnakeCase(t *testing.T) {
+	input := `package test
+
+// ENUM(get_http_url)
+type Method int
+`
+	g := NewGenerator(WithoutSnakeToCamel(), WithAcronyms("HTTP", "URL"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	// With nocamel, snakeToCamelCase is skipped. cases.Title only uppercases
+	// the first rune of the entire rawName, so underscore-separated parts after
+	// the first remain lowercase. applyAcronyms finds no title-cased matches,
+	// so acronyms have no effect in nocamel mode.
+	assert.Contains(t, outputStr, "MethodGet_http_url")
+}
+
+func TestAcronymsWithNoPrefix(t *testing.T) {
+	input := `package test
+
+// ENUM(http_url)
+type Method int
+`
+	g := NewGenerator(WithNoPrefix(), WithAcronyms("HTTP", "URL"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "HTTPURL")
+}
+
+func TestAcronymsWithStringEnum(t *testing.T) {
+	input := `package test
+
+// ENUM(http_api, rest_url)
+type Endpoint string
+`
+	g := NewGenerator(WithAcronyms("HTTP", "API", "URL", "REST"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "EndpointHTTPAPI")
+	assert.Contains(t, outputStr, "EndpointRESTURL")
+	// String values unchanged
+	assert.Contains(t, outputStr, `"http_api"`)
+	assert.Contains(t, outputStr, `"rest_url"`)
+}
+
+func TestAcronymOrdering(t *testing.T) {
+	input := `package test
+
+// ENUM(ide, id_value)
+type Thing int
+`
+	// ID and IDE overlap — IDE should take priority (longest-first).
+	g := NewGenerator(WithAcronyms("ID", "IDE"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "ThingIDE")
+	assert.Contains(t, outputStr, "ThingIDValue")
 }
