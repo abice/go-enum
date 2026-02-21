@@ -531,6 +531,7 @@ func TestNewGeneratorWithConfig(t *testing.T) {
 		JSONPkg:         "custom/json",
 		Prefix:          "TestPrefix",
 		BuildTags:       []string{"tag1", "tag2"},
+		Initialisms:     []string{"HTTP", "URL"},
 		NoComments:      true,
 		Values:          true,
 	}
@@ -546,6 +547,7 @@ func TestNewGeneratorWithConfig(t *testing.T) {
 	assert.Equal(t, config.JSONPkg, g.JSONPkg)
 	assert.Equal(t, config.Prefix, g.Prefix)
 	assert.Equal(t, config.BuildTags, g.BuildTags)
+	assert.Equal(t, config.Initialisms, g.Initialisms)
 	assert.Equal(t, config.NoComments, g.NoComments)
 	assert.Equal(t, config.Values, g.Values)
 
@@ -638,6 +640,7 @@ func TestAllOptionsIntegration(t *testing.T) {
 		WithJsonPkg("custom/json"),
 		WithNoComments(),
 		WithBuildTags("integration", "test"),
+		WithInitialisms("HTTP", "URL"),
 	)
 
 	assert.True(t, g.SQLInt)
@@ -645,6 +648,7 @@ func TestAllOptionsIntegration(t *testing.T) {
 	assert.Equal(t, "custom/json", g.JSONPkg)
 	assert.True(t, g.NoComments)
 	assert.Equal(t, []string{"integration", "test"}, g.BuildTags)
+	assert.Equal(t, []string{"HTTP", "URL"}, g.Initialisms)
 }
 
 // TestGeneratorConfigWithTemplates tests NewGeneratorWithConfig with templates
@@ -988,4 +992,318 @@ type Greek string
 	// Should contain error variable because lookupSqlInt and Value use it
 	assert.Contains(t, outputStr, "var ErrInvalidGreek")
 	assert.Contains(t, outputStr, "lookupSqlIntGreek")
+}
+
+func TestInitialismParsing(t *testing.T) {
+	tests := map[string]struct {
+		input  []string
+		result []string
+		err    string
+	}{
+		"no initialisms": {
+			result: nil,
+		},
+		"single entry": {
+			input:  []string{"HTTP"},
+			result: []string{"HTTP"},
+		},
+		"comma separated": {
+			input:  []string{"HTTP,URL,ID"},
+			result: []string{"HTTP", "URL", "ID"},
+		},
+		"multiple flags": {
+			input:  []string{"HTTP", "URL,ID", "API"},
+			result: []string{"HTTP", "URL", "ID", "API"},
+		},
+		"deduplication": {
+			input:  []string{"HTTP,HTTP,URL"},
+			result: []string{"HTTP", "URL"},
+		},
+		"invalid lowercase": {
+			input: []string{"Http"},
+			err:   `invalid initialism "Http": must be all uppercase ASCII letters`,
+		},
+		"invalid number": {
+			input: []string{"H2"},
+			err:   `invalid initialism "H2": must be all uppercase ASCII letters`,
+		},
+		"empty entries ignored": {
+			input:  []string{"HTTP,,URL"},
+			result: []string{"HTTP", "URL"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			result, err := ParseInitialisms(tc.input)
+			if tc.err != "" {
+				require.Error(t, err)
+				require.EqualError(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.result, result)
+			}
+		})
+	}
+}
+
+func TestWithInitialisms(t *testing.T) {
+	config := &GeneratorConfig{}
+	option := WithInitialisms("HTTP", "URL")
+	option(config)
+	assert.Equal(t, []string{"HTTP", "URL"}, config.Initialisms)
+
+	// Test appending
+	option2 := WithInitialisms("API")
+	option2(config)
+	assert.Equal(t, []string{"HTTP", "URL", "API"}, config.Initialisms)
+}
+
+func TestInitialismsInGeneration(t *testing.T) {
+	input := `package test
+
+// ENUM(
+//   get_http_url,
+//   post_api_request,
+//   fetch_html_id,
+// )
+type Method int
+`
+	g := NewGenerator(WithInitialisms("HTTP", "URL", "API", "ID", "HTML"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	// Verify initialisms are fully uppercased in const names
+	assert.Contains(t, outputStr, "MethodGetHTTPURL")
+	assert.Contains(t, outputStr, "MethodPostAPIRequest")
+	assert.Contains(t, outputStr, "MethodFetchHTMLID")
+	// Verify string values are NOT affected (stored in _MethodName concatenation)
+	assert.Contains(t, outputStr, "get_http_urlpost_api_requestfetch_html_id")
+}
+
+func TestInitialismsKfeaturesStyle(t *testing.T) {
+	input := `package test
+
+// ENUM(
+//   bpf_lsm,
+//   btf,
+//   bpf_tracing,
+//   ima,
+// )
+type Feature int
+`
+	g := NewGenerator(WithInitialisms("BPF", "LSM", "BTF", "IMA"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "FeatureBPFLSM")
+	assert.Contains(t, outputStr, "FeatureBTF")
+	assert.Contains(t, outputStr, "FeatureBPFTracing")
+	assert.Contains(t, outputStr, "FeatureIMA")
+}
+
+func TestInitialismsWithLeaveSnakeCase(t *testing.T) {
+	input := `package test
+
+// ENUM(get_http_url)
+type Method int
+`
+	g := NewGenerator(WithoutSnakeToCamel(), WithInitialisms("HTTP", "URL"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	// With nocamel, snakeToCamelCase is skipped. cases.Title only uppercases
+	// the first rune of the entire rawName, so underscore-separated parts after
+	// the first remain lowercase. applyInitialisms finds no title-cased matches,
+	// so initialisms have no effect in nocamel mode.
+	assert.Contains(t, outputStr, "MethodGet_http_url")
+}
+
+func TestInitialismsWithNoPrefix(t *testing.T) {
+	input := `package test
+
+// ENUM(http_url)
+type Method int
+`
+	g := NewGenerator(WithNoPrefix(), WithInitialisms("HTTP", "URL"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "HTTPURL")
+}
+
+func TestInitialismsWithStringEnum(t *testing.T) {
+	input := `package test
+
+// ENUM(http_api, rest_url)
+type Endpoint string
+`
+	g := NewGenerator(WithInitialisms("HTTP", "API", "URL", "REST"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "EndpointHTTPAPI")
+	assert.Contains(t, outputStr, "EndpointRESTURL")
+	// String values unchanged
+	assert.Contains(t, outputStr, `"http_api"`)
+	assert.Contains(t, outputStr, `"rest_url"`)
+}
+
+func TestInitialismOrdering(t *testing.T) {
+	input := `package test
+
+// ENUM(ide, id_value)
+type Thing int
+`
+	// ID and IDE overlap should resolve by exact token match.
+	g := NewGenerator(WithInitialisms("ID", "IDE"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "ThingIDE")
+	assert.Contains(t, outputStr, "ThingIDValue")
+}
+
+func TestInitialismsDoNotReplaceSubstringsInsideTokens(t *testing.T) {
+	input := `package test
+
+// ENUM(apiary, ideology, id_value, api_id)
+type Thing int
+`
+	g := NewGenerator(WithInitialisms("API", "IDE", "ID"))
+	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+	require.NoError(t, err)
+
+	output, err := g.Generate(f)
+	require.NoError(t, err)
+
+	outputStr := string(output)
+	assert.Contains(t, outputStr, "ThingApiary")
+	assert.Contains(t, outputStr, "ThingIdeology")
+	assert.Contains(t, outputStr, "ThingIDValue")
+	assert.Contains(t, outputStr, "ThingAPIID")
+	assert.NotContains(t, outputStr, "ThingAPIary")
+	assert.NotContains(t, outputStr, "ThingIDEology")
+}
+
+func TestShouldSplitToken(t *testing.T) {
+	tests := map[string]struct {
+		value    string
+		index    int
+		expected bool
+	}{
+		"current rune underscore": {
+			value:    "A_B",
+			index:    1,
+			expected: true,
+		},
+		"previous rune underscore": {
+			value:    "A_B",
+			index:    2,
+			expected: true,
+		},
+		"digit to letter": {
+			value:    "2A",
+			index:    1,
+			expected: true,
+		},
+		"letter to digit": {
+			value:    "A2",
+			index:    1,
+			expected: true,
+		},
+		"lower to upper": {
+			value:    "aB",
+			index:    1,
+			expected: true,
+		},
+		"upper run before trailing lower": {
+			value:    "HTTPServer",
+			index:    4, // P|S where next is lower e
+			expected: true,
+		},
+		"upper run at end": {
+			value:    "HTTP",
+			index:    3,
+			expected: false,
+		},
+		"upper to lower": {
+			value:    "Ab",
+			index:    1,
+			expected: false,
+		},
+		"digit to digit": {
+			value:    "22",
+			index:    1,
+			expected: false,
+		},
+		"lower to lower": {
+			value:    "ab",
+			index:    1,
+			expected: false,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			runes := []rune(tc.value)
+			require.GreaterOrEqual(t, tc.index, 1)
+			require.Less(t, tc.index, len(runes))
+			assert.Equal(t, tc.expected, shouldSplitToken(runes, tc.index))
+		})
+	}
+}
+
+func TestSplitIdentifierTokens(t *testing.T) {
+	tests := map[string]struct {
+		value    string
+		expected []string
+	}{
+		"empty string": {
+			value:    "",
+			expected: nil,
+		},
+		"underscore boundaries": {
+			value:    "API_ID",
+			expected: []string{"API", "_", "ID"},
+		},
+		"digit boundaries": {
+			value:    "V2API3ID",
+			expected: []string{"V", "2", "API", "3", "ID"},
+		},
+		"camel boundaries": {
+			value:    "MyHTTPServer",
+			expected: []string{"My", "HTTP", "Server"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, splitIdentifierTokens(tc.value))
+		})
+	}
 }

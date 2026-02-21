@@ -42,6 +42,7 @@ type rootT struct {
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
+	Initialisms       cli.StringSlice
 	BuildTags         cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
@@ -188,6 +189,11 @@ func main() {
 				Usage:       "Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be \"key:value,key2:value2\", or specify multiple entries, or both!]",
 				Destination: &argv.Aliases,
 			},
+			&cli.StringSliceFlag{
+				Name:        "initialism",
+				Usage:       "Initialism(s) to keep fully uppercased in generated const names (e.g., HTTP,URL,ID). Repeatable.",
+				Destination: &argv.Initialisms,
+			},
 			&cli.BoolFlag{
 				Name:        "mustparse",
 				Usage:       "Adds a Must version of the Parse that will panic on failure.",
@@ -240,6 +246,10 @@ func main() {
 			if err != nil {
 				return err
 			}
+			initialisms, err := generator.ParseInitialisms(argv.Initialisms.Value())
+			if err != nil {
+				return err
+			}
 			for _, fileOption := range argv.FileNames.Value() {
 
 				// Build configuration structure
@@ -281,6 +291,7 @@ func main() {
 					ForceUpper:        argv.ForceUpper,
 					NoComments:        argv.NoComments,
 					NoParse:           argv.NoParse,
+					Initialisms:       initialisms,
 					BuildTags:         argv.BuildTags.Value(),
 					ReplacementNames:  aliases,
 					TemplateFileNames: templateFileNames,

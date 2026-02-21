@@ -32,10 +32,11 @@ type Generator struct {
 	BuildDate string
 	BuiltBy   string
 	GeneratorConfig
-	t                 *template.Template
-	knownTemplates    map[string]*template.Template
-	fileSet           *token.FileSet
-	userTemplateNames []string
+	t                      *template.Template
+	knownTemplates         map[string]*template.Template
+	fileSet                *token.FileSet
+	userTemplateNames      []string
+	initialismReplacements map[string]string
 }
 
 // Enum holds data for a discovered enum in the parsed source
@@ -83,6 +84,15 @@ func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
 		fileSet:           token.NewFileSet(),
 		userTemplateNames: make([]string, 0),
 		GeneratorConfig:   config,
+	}
+
+	// Precompute initialism replacements from title-cased token to uppercased token.
+	if len(config.Initialisms) > 0 {
+		title := cases.Title(language.Und, cases.NoLower)
+		g.initialismReplacements = make(map[string]string, len(config.Initialisms))
+		for _, initialism := range config.Initialisms {
+			g.initialismReplacements[title.String(strings.ToLower(initialism))] = initialism
+		}
 	}
 
 	funcs := sprig.TxtFuncMap()
@@ -140,6 +150,102 @@ func ParseAliases(aliases []string) (map[string]string, error) {
 	}
 
 	return aliasMap, nil
+}
+
+// ParseInitialisms parses and validates initialism entries from CLI input.
+// Each entry can be comma-separated. Initialisms must be all uppercase ASCII letters.
+func ParseInitialisms(entries []string) ([]string, error) {
+	seen := make(map[string]struct{})
+	var result []string
+
+	for _, entry := range entries {
+		parts := strings.Split(entry, ",")
+		for _, part := range parts {
+			initialism := strings.TrimSpace(part)
+			if initialism == "" {
+				continue
+			}
+			for _, r := range initialism {
+				if r < 'A' || r > 'Z' {
+					return nil, fmt.Errorf("invalid initialism %q: must be all uppercase ASCII letters", initialism)
+				}
+			}
+			if _, ok := seen[initialism]; !ok {
+				seen[initialism] = struct{}{}
+				result = append(result, initialism)
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// applyInitialisms rewrites identifier tokens that match configured initialisms.
+// For example, with initialism "HTTP", token "Http" becomes "HTTP".
+func (g *Generator) applyInitialisms(name string) string {
+	if len(g.initialismReplacements) == 0 {
+		return name
+	}
+
+	tokens := splitIdentifierTokens(name)
+	if len(tokens) == 0 {
+		return name
+	}
+
+	var builder strings.Builder
+	builder.Grow(len(name))
+	for _, token := range tokens {
+		if replacement, ok := g.initialismReplacements[token]; ok {
+			builder.WriteString(replacement)
+			continue
+		}
+		builder.WriteString(token)
+	}
+
+	return builder.String()
+}
+
+func splitIdentifierTokens(value string) []string {
+	if value == "" {
+		return nil
+	}
+
+	runes := []rune(value)
+	start := 0
+	tokens := make([]string, 0, len(runes))
+
+	for i := 1; i < len(runes); i++ {
+		if shouldSplitToken(runes, i) {
+			tokens = append(tokens, string(runes[start:i]))
+			start = i
+		}
+	}
+
+	tokens = append(tokens, string(runes[start:]))
+	return tokens
+}
+
+func shouldSplitToken(runes []rune, index int) bool {
+	prev := runes[index-1]
+	curr := runes[index]
+
+	if prev == '_' || curr == '_' {
+		return true
+	}
+	if unicode.IsDigit(prev) && !unicode.IsDigit(curr) {
+		return true
+	}
+	if !unicode.IsDigit(prev) && unicode.IsDigit(curr) {
+		return true
+	}
+	if unicode.IsLower(prev) && unicode.IsUpper(curr) {
+		return true
+	}
+	if unicode.IsUpper(prev) && unicode.IsUpper(curr) && index+1 < len(runes) && unicode.IsLower(runes[index+1]) {
+		return true
+	}
+
+	return false
 }
 
 // GenerateFromFile is responsible for orchestrating the Code generation.  It results in a byte array
@@ -378,6 +484,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				if !g.LeaveSnakeCase {
 					prefixedName = snakeToCamelCase(prefixedName)
 				}
+				prefixedName = g.applyInitialisms(prefixedName)
 			}
 
 			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}
