@@ -42,7 +42,7 @@ type rootT struct {
 	Ptr               bool
 	TemplateFileNames cli.StringSlice
 	Aliases           cli.StringSlice
-	Acronyms          cli.StringSlice
+	Initialisms       cli.StringSlice
 	BuildTags         cli.StringSlice
 	MustParse         bool
 	ForceLower        bool
@@ -190,9 +190,9 @@ func main() {
 				Destination: &argv.Aliases,
 			},
 			&cli.StringSliceFlag{
-				Name:        "acronym",
-				Usage:       "Acronym(s) to keep fully uppercased in generated const names (e.g., HTTP,URL,ID). Repeatable.",
-				Destination: &argv.Acronyms,
+				Name:        "initialism",
+				Usage:       "Initialism(s) to keep fully uppercased in generated const names (e.g., HTTP,URL,ID). Repeatable.",
+				Destination: &argv.Initialisms,
 			},
 			&cli.BoolFlag{
 				Name:        "mustparse",
@@ -246,7 +246,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			acronyms, err := generator.ParseAcronyms(argv.Acronyms.Value())
+			initialisms, err := generator.ParseInitialisms(argv.Initialisms.Value())
 			if err != nil {
 				return err
 			}
@@ -291,7 +291,7 @@ func main() {
 					ForceUpper:        argv.ForceUpper,
 					NoComments:        argv.NoComments,
 					NoParse:           argv.NoParse,
-					Acronyms:          acronyms,
+					Initialisms:       initialisms,
 					BuildTags:         argv.BuildTags.Value(),
 					ReplacementNames:  aliases,
 					TemplateFileNames: templateFileNames,

@@ -23,7 +23,7 @@ type GeneratorConfig struct {
 	ForceUpper        bool              `json:"force_upper"`
 	NoComments        bool              `json:"no_comments"`
 	NoParse           bool              `json:"no_parse"`
-	Acronyms          []string          `json:"acronyms"`
+	Initialisms       []string          `json:"initialisms"`
 	BuildTags         []string          `json:"build_tags"`
 	ReplacementNames  map[string]string `json:"replacement_names"`
 	TemplateFileNames []string          `json:"template_file_names"`
@@ -214,10 +214,10 @@ func WithNoParse() Option {
 	}
 }
 
-// WithAcronyms configures acronyms whose const names should be fully uppercased
+// WithInitialisms configures initialisms whose const-name segments should be fully uppercased
 // (e.g., "HTTP" makes the generator produce "HTTP" instead of "Http" in const names).
-func WithAcronyms(acronyms ...string) Option {
+func WithInitialisms(initialisms ...string) Option {
 	return func(g *GeneratorConfig) {
-		g.Acronyms = append(g.Acronyms, acronyms...)
+		g.Initialisms = append(g.Initialisms, initialisms...)
 	}
 }
