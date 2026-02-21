@@ -333,6 +333,7 @@ GLOBAL OPTIONS:
    --sqlnullstr                                               Adds a Null{{ENUM}} type for marshalling a nullable string value to sql.  If sqlnullint is specified too, it will be Null{{ENUM}}Str (default: false)
    --template value, -t value [ --template value, -t value ]  Additional template file(s) to generate enums.  Use more than one flag for more files. Templates will be executed in alphabetical order.
    --alias value, -a value [ --alias value, -a value ]        Adds or replaces aliases for a non alphanumeric value that needs to be accounted for. [Format should be "key:value,key2:value2", or specify multiple entries, or both!]
+   --initialism value [ --initialism value ]                  Initialism(s) to keep fully uppercased in generated const names (e.g., HTTP,URL,ID). Repeatable.
    --mustparse                                                Adds a Must version of the Parse that will panic on failure. (default: false)
    --forcelower                                               Forces a camel cased comment to generate lowercased names. (default: false)
    --forceupper                                               Forces a camel cased comment to generate uppercased names. (default: false)
@@ -343,6 +344,23 @@ GLOBAL OPTIONS:
    --help, -h                                                 show help
    --version, -v                                              print the version
 ```
+
+### Initialism notes
+
+- `--initialism` affects generated const identifiers only. It does not modify enum string values.
+- `--forcelower` and `--forceupper` control enum string values; they are separate from `--initialism`.
+- Initialism rewriting runs after `--alias` replacements and after snake_case to CamelCase conversion.
+- With `--nocamel`, initialisms in underscore-separated segments may not be rewritten because CamelCase conversion is skipped.
+- Rewriting currently runs on the full identifier (including prefix/type-derived segments), not only on the enum value segment.
+
+Example:
+
+```go
+// ENUM(created)
+type UserId int
+```
+
+With `--initialism ID`, the const becomes `UserIDCreated` (the `Id` in the type-derived prefix is rewritten too).
 
 ### Syntax
 
