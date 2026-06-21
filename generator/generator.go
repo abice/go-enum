@@ -55,6 +55,7 @@ type EnumValue struct {
 	ValueStr     string
 	ValueInt     any
 	Comment      string
+	Valid        bool
 }
 
 // NewGenerator is a constructor method for creating a new Generator with default
@@ -89,6 +90,7 @@ func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
 
 	funcs["stringify"] = Stringify
 	funcs["mapify"] = Mapify
+	funcs["mapifyValidity"] = MapifyValidity
 	funcs["unmapify"] = Unmapify
 	funcs["namify"] = Namify
 	funcs["offset"] = Offset
@@ -372,7 +374,16 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			valueStr = strings.TrimSpace(valueStr)
 			name := cases.Title(language.Und, cases.NoLower).String(rawName)
 			prefixedName := name
+			var isValid bool
 			if name != skipHolder {
+				if strings.HasPrefix(name, "!") {
+					valueStr = valueStr[1:]
+					rawName = rawName[1:]
+					name = name[1:]
+					prefixedName = prefixedName[1:]
+				} else {
+					isValid = true
+				}
 				prefixedName = enum.Prefix + name
 				prefixedName = g.sanitizeValue(prefixedName)
 				if !g.LeaveSnakeCase {
@@ -380,7 +391,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 				}
 			}
 
-			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment}
+			ev := EnumValue{Name: name, RawName: rawName, PrefixedName: prefixedName, ValueStr: valueStr, ValueInt: data, Comment: comment, Valid: isValid}
 			enum.Values = append(enum.Values, ev)
 			data = increment(data)
 		}
