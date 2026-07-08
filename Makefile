@@ -93,7 +93,7 @@ bin/goimports: go.sum
 	$(call goinstall,golang.org/x/tools/cmd/goimports)
 
 bin/mockgen: go.sum
-	$(call goinstall,github.com/golang/mock/mockgen)
+	$(call goinstall,go.uber.org/mock/mockgen)
 
 bin/goveralls: go.sum
 	$(call goinstall,github.com/mattn/goveralls)
