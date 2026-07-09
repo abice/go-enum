@@ -331,6 +331,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 			rawName := value
 			valueStr := value
 
+			isQuoted := false
 			if strings.Contains(value, `=`) {
 				// Get the value specified and set the data to that value.
 				equalIndex := strings.Index(value, `=`)
@@ -345,6 +346,7 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 						}
 						if q := identifyQuoted(dataVal); q != "" {
 							valueStr = trimQuotes(q, dataVal)
+							isQuoted = true
 						}
 					} else if unsigned {
 						newData, err := strconv.ParseUint(dataVal, 0, 64)
@@ -368,8 +370,11 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 					fmt.Printf("Ignoring enum with '=' but no value after: %s\n", rawName)
 				}
 			}
+
 			rawName = strings.TrimSpace(rawName)
-			valueStr = strings.TrimSpace(valueStr)
+			if !isQuoted {
+				valueStr = strings.TrimSpace(valueStr)
+			}
 			name := cases.Title(language.Und, cases.NoLower).String(rawName)
 			prefixedName := name
 			if name != skipHolder {

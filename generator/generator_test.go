@@ -1012,3 +1012,33 @@ type Greek string
 	assert.Contains(t, outputStr, "var ErrInvalidGreek")
 	assert.Contains(t, outputStr, "lookupSqlIntGreek")
 }
+
+func TestStringDoubleQuotedWithWhitespaceOnly(t *testing.T) {
+	input := `package test
+	// ENUM(Empty=" ")
+	type Char string
+	`
+
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "CharEmpty Char = \" \"")
+}
+
+func TestStringSingleQuotedWithWhitespaceOnly(t *testing.T) {
+	input := `package test
+	// ENUM(Empty=' ')
+	type Char string
+	`
+
+	g := NewGenerator()
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	assert.Contains(t, string(output), "CharEmpty Char = \" \"")
+}
