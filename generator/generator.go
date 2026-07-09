@@ -501,12 +501,14 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 			start := strings.Index(line, EnumPrefix)
 			line = line[start+len(EnumPrefix):]
 		}
-		lineParamLevel := strings.Count(line, "(")
-		lineParamLevel = lineParamLevel - strings.Count(line, ")")
+		// we need to ignore anything after the value comment
+		lineWithoutCommentSuffix, _, _ := strings.Cut(line, parseCommentPrefix)
+		lineParamLevel := strings.Count(lineWithoutCommentSuffix, "(")
+		lineParamLevel = lineParamLevel - strings.Count(lineWithoutCommentSuffix, ")")
 
 		if enumParamLevel+lineParamLevel < 1 {
 			// We've ended, either with more than we need, or with just enough.  Now we need to find the end.
-			for lineIdx, ch := range line {
+			for lineIdx, ch := range lineWithoutCommentSuffix {
 				if ch == '(' {
 					enumParamLevel = enumParamLevel + 1
 					continue
@@ -516,7 +518,7 @@ func getEnumDeclFromComments(comments []*ast.Comment) string {
 					if enumParamLevel == 0 {
 						// We've found the end of the ENUM() definition,
 						// Cut off the suffix and break out of the loop
-						line = line[:lineIdx]
+						line = lineWithoutCommentSuffix[:lineIdx]
 						store = false
 						break
 					}
