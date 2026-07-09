@@ -1,27 +1,45 @@
 version: 2
 builds:
-  - env:
+  - id: default
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
       - windows
       - darwin
+  - id: arm64-aarch64
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - arm64
 
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
 
 archives:
   # Distribute just the binaries by default
-  - formats: ["binary"]
+  - id: default
+    ids: ["default"]
+    formats: ["binary"]
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+  - id: aarch64
+    ids: ["arm64-aarch64"]
+    formats: ["binary"]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_aarch64
 
 kos:
-  - repositories: ["abice/go-enum"]
+  - build: default
+    repositories: ["abice/go-enum"]
     base_image: cgr.dev/chainguard/go # need the go binary for formatting 🔧 purposes 🫤
     tags:
       - "{{.Version}}"
