@@ -469,6 +469,29 @@ func TestQuotedStrings(t *testing.T) {
 	}
 }
 
+// TestValueComments tests that we can override the comment of a value
+// AND that anything after a value comment (// in //) is ignored, even if that
+// would close the enum declaration.
+func TestValueComments(t *testing.T) {
+	input := `package test
+	// This is a pre-enum comment that needs (to be handled properly)
+	//ENUM(
+	//  dog, // woof :)
+	//  cat, // meow :3
+	//)
+	type Animal string
+	`
+	g := NewGenerator(WithNoComments())
+
+	f, err := parser.ParseFile(g.fileSet, "TestRequiredErrors", input, parser.ParseComments)
+	assert.Nil(t, err, "Error parsing no struct input")
+
+	output, err := g.Generate(f)
+	assert.Nil(t, err, "Error generating formatted code")
+	fmt.Println(string(output))
+	assert.Contains(t, string(output), "\t// woof :)\n\tAnimalDog Animal = \"dog\"\n\t// meow :3\n\tAnimalCat Animal = \"cat\"")
+}
+
 func TestStringWithSingleDoubleQuoteValue(t *testing.T) {
 	input := `package test
 	// ENUM(DoubleQuote='"')
