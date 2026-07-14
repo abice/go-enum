@@ -238,6 +238,37 @@ func (n *NullProjectStatus) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// MarshalText implements the text marshaller method.
+func (n NullProjectStatus) MarshalText() ([]byte, error) {
+	if n.Valid {
+		return n.ProjectStatus.MarshalText()
+	}
+	return []byte{}, nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (n *NullProjectStatus) UnmarshalText(text []byte) error {
+	n.Set = true
+	if len(text) == 0 {
+		n.Valid = false
+		return nil
+	}
+	err := n.ProjectStatus.UnmarshalText(text)
+	n.Valid = (err == nil)
+	return err
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (n *NullProjectStatus) AppendText(b []byte) ([]byte, error) {
+	if n.Valid {
+		return n.ProjectStatus.AppendText(b)
+	}
+	return b, nil
+}
+
 type NullProjectStatusStr struct {
 	NullProjectStatus
 }
@@ -274,4 +305,35 @@ func (n *NullProjectStatusStr) UnmarshalJSON(b []byte) error {
 	}
 	err = n.Scan(x)
 	return err
+}
+
+// MarshalText implements the text marshaller method.
+func (n NullProjectStatusStr) MarshalText() ([]byte, error) {
+	if n.Valid {
+		return n.ProjectStatus.MarshalText()
+	}
+	return []byte{}, nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (n *NullProjectStatusStr) UnmarshalText(text []byte) error {
+	n.Set = true
+	if len(text) == 0 {
+		n.Valid = false
+		return nil
+	}
+	err := n.ProjectStatus.UnmarshalText(text)
+	n.Valid = (err == nil)
+	return err
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (n *NullProjectStatusStr) AppendText(b []byte) ([]byte, error) {
+	if n.Valid {
+		return n.ProjectStatus.AppendText(b)
+	}
+	return b, nil
 }

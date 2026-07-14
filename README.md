@@ -57,7 +57,7 @@ An enum generator for Go that creates type-safe enumerations with useful methods
 
    ```go
    package main
-   
+
    // ENUM(red, green, blue)
    type Color int
    ```
@@ -67,7 +67,7 @@ An enum generator for Go that creates type-safe enumerations with useful methods
    ```shell
    # Go 1.24+ (recommended)
    go tool go-enum -f your_file.go
-   
+
    # Or for older Go versions
    go-enum -f your_file.go
    ```
@@ -77,7 +77,7 @@ An enum generator for Go that creates type-safe enumerations with useful methods
    ```go
    color := ColorRed
    fmt.Println(color.String()) // prints "red"
-   
+
    parsed, err := ParseColor("green")
    if err == nil {
        fmt.Println(parsed) // prints "green"
@@ -147,7 +147,7 @@ const (
 ```
 
 If you would like to get integer values in sql, but strings elsewhere, you can assign an int value in the declaration
-like always, and specify the `--sqlint` flag.  Those values will be then used to convey the int value to sql, while allowing you to use only strings elsewhere.
+like always, and specify the `--sqlint` flag. Those values will be then used to convey the int value to sql, while allowing you to use only strings elsewhere.
 This might be helpful for things like swagger docs where you want the same type being used on the api layer, as you do in the
 sql layer, and not have swagger assume that your enumerations are integers, but are in fact strings!
 
@@ -181,6 +181,62 @@ Change the default `_enum.go` suffix to something else:
 
 ```shell
 go-enum --output-suffix="_generated" -f your_file.go  # Creates your_file_generated.go
+```
+
+### Inline Annotations (v0.10.0+)
+
+You can now specify configuration options directly in the enum declaration using inline annotations. This allows you to override global command-line options on a per-enum basis.
+
+Annotations are specified as comments starting with `@` before the `ENUM` declaration:
+
+```go
+// @marshal:true @sql:false @prefix:"My"
+// ENUM(pending, running, completed, failed)
+type AnnotationStatus string
+
+// @noprefix @nocase
+// ENUM(annotation_red, annotation_green, annotation_blue)
+type AnnotationColor string
+
+// @marshal @sql
+// ENUM(one, two, three)
+type AnnotationNumber int
+```
+
+**Available annotations:**
+
+| Annotation    | Values         | Description                                        |
+| ------------- | -------------- | -------------------------------------------------- |
+| `@prefix`     | `"string"`     | Custom prefix for constants (e.g., `@prefix:"My"`) |
+| `@marshal`    | `true`/`false` | Enables/disables JSON/text marshaling methods      |
+| `@sql`        | `true`/`false` | Enables/disables SQL Scan/Value methods            |
+| `@sqlint`     | `true`/`false` | Stores string enums as integers in SQL             |
+| `@noprefix`   | `true`/`false` | Disables prefixing constants with enum name        |
+| `@nocase`     | `true`/`false` | Enables case-insensitive parsing                   |
+| `@noparse`    | `true`/`false` | Disables Parse method generation                   |
+| `@mustparse`  | `true`/`false` | Adds MustParse method that panics on failure       |
+| `@flag`       | `true`/`false` | Adds flag.Value interface methods                  |
+| `@ptr`        | `true`/`false` | Adds Ptr() method                                  |
+| `@names`      | `true`/`false` | Adds Names() []string method                       |
+| `@values`     | `true`/`false` | Adds Values() []Enum method                        |
+| `@nocomments` | `true`/`false` | Disables auto-generated comments                   |
+| `@noiota`     | `true`/`false` | Disables iota usage                                |
+| `@forcelower` | `true`/`false` | Forces lowercase constant names                    |
+| `@forceupper` | `true`/`false` | Forces uppercase constant names                    |
+
+**Syntax notes:**
+
+- Boolean annotations can be specified as `@annotation` (defaults to `true`) or `@annotation:true`/`@annotation:false`
+- String annotations use quotes: `@prefix:"My"`
+- Multiple annotations can be specified on the same line or across multiple lines
+- Inline annotations override global command-line options
+
+**Example with mixed annotations:**
+
+```go
+// @marshal @sql:false @nocase @prefix:"App"
+// ENUM(draft, review, published, archived)
+type DocumentStatus string
 ```
 
 ## Goal
@@ -302,7 +358,7 @@ For older Go versions:
 
 ## Command options
 
-``` shell
+```shell
 go-enum --help
 
 NAME:
@@ -343,12 +399,13 @@ GLOBAL OPTIONS:
    --help, -h                                                 show help
    --version, -v                                              print the version
 ```
+**Note:** Many command-line options can also be specified as inline annotations directly in your enum declarations. See the [Inline Annotations](#inline-annotations-v0100) section for details.
 
 ### Syntax
 
 The parser looks for comments on your type defs and parse the enum declarations from it.
-The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`.  You can put values on the same line, or on multiple lines.\
-If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration.  Keep in mind, this resets the data for all following values.  So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
+The parser will look for `ENUM(` and continue to look for comma separated values until it finds a `)`. You can put values on the same line, or on multiple lines.\
+If you need to have a specific value jump in the enum, you can now specify that by adding `=numericValue` to the enum declaration. Keep in mind, this resets the data for all following values. So if you specify `50` in the middle of an enum, each value after that will be `51, 52, 53...`
 
 [Examples can be found in the example folder](./example/)
 
@@ -391,7 +448,7 @@ const (
 There are a few examples in the `example` [directory](./example/).
 I've included one here for easy access, but can't guarantee it's up to date.
 
-``` go
+```go
 // Color is an enumeration of colors that are allowed.
 /* ENUM(
 Black, White, Red
@@ -410,7 +467,7 @@ type Color int32
 
 The generated code will look something like:
 
-``` go
+```go
 // Code generated by go-enum DO NOT EDIT.
 // Version: example
 // Revision: example
