@@ -226,3 +226,34 @@ func (n *NullStrState) UnmarshalJSON(b []byte) error {
 	err = n.Scan(x)
 	return err
 }
+
+// MarshalText implements the text marshaller method.
+func (n NullStrState) MarshalText() ([]byte, error) {
+	if n.Valid {
+		return n.StrState.MarshalText()
+	}
+	return []byte{}, nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (n *NullStrState) UnmarshalText(text []byte) error {
+	n.Set = true
+	if len(text) == 0 {
+		n.Valid = false
+		return nil
+	}
+	err := n.StrState.UnmarshalText(text)
+	n.Valid = (err == nil)
+	return err
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (n *NullStrState) AppendText(b []byte) ([]byte, error) {
+	if n.Valid {
+		return n.StrState.AppendText(b)
+	}
+	return b, nil
+}
