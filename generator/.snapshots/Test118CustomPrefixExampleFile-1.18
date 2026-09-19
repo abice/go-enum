@@ -91,7 +91,7 @@
   (string) (len=74) "// (allocating a larger slice if necessary) and returns the updated slice.",
   (string) (len=2) "//",
   (string) (len=77) "// Implementations must not retain b, nor mutate any bytes within b[:len(b)].",
-  (string) (len=59) "func (x *ChangeType) AppendText(b []byte) ([]byte, error) {",
+  (string) (len=58) "func (x ChangeType) AppendText(b []byte) ([]byte, error) {",
   (string) (len=37) "\treturn append(b, x.String()...), nil",
   (string) (len=1) "}",
   (string) "",
