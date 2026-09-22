@@ -253,6 +253,24 @@ docker run -w /app -v $(pwd):/app abice/go-enum:latest
 docker run -w /app -v $(pwd):/app abice/go-enum:v0.9.0
 ```
 
+### Using Nixpkgs
+
+You can get `go-enum` from `nixpkgs` (currently only available in the `nixos-unstable` branch).
+
+```shell
+# nix2 nix-shell
+nix-shell -p go-enum
+
+# nix3 nix shell
+nix shell nixpkgs#go-enum
+
+```
+
+```nix
+# NixOS config
+environment.systemPackages = [ pkgs.go-enum ];
+```
+
 ## Adding it to your project
 
 ### Using go generate
