@@ -45,6 +45,7 @@ type Enum struct {
 	Type    string
 	Values  []EnumValue
 	Comment string
+	Config  *EnumConfig
 }
 
 // EnumValue holds the individual data for each enum value within the found enum.
@@ -194,39 +195,45 @@ func (g *Generator) Generate(f *ast.File) ([]byte, error) {
 
 		created++
 
+		// Use enum-specific config if available, otherwise fall back to global config
+		config := enum.Config
+		
 		// Determine parse method generation logic
-		parseNeeded := g.MustParse || g.Marshal || g.anySQLEnabled() || g.Flag
-		generateParse := !g.NoParse || parseNeeded
-		parseIsPublic := !g.NoParse
+		parseNeeded := config.MustParse.GetBool(g.MustParse) || config.Marshal.GetBool(g.Marshal) || 
+			(config.SQL.GetBool(g.SQL) || config.SQLInt.GetBool(g.SQLInt) || 
+			 config.SQLNullStr.GetBool(g.SQLNullStr) || config.SQLNullInt.GetBool(g.SQLNullInt)) || 
+			config.Flag.GetBool(g.Flag)
+		generateParse := !config.NoParse.GetBool(g.NoParse) || parseNeeded
+		parseIsPublic := !config.NoParse.GetBool(g.NoParse)
 		parseName := "Parse"
 		if !parseIsPublic && generateParse {
 			parseName = "parse"
 		}
 
 		// Determine if error variable is needed
-		generateError := generateParse || (enum.Type == "string" && g.SQLInt)
+		generateError := generateParse || (enum.Type == "string" && config.SQLInt.GetBool(g.SQLInt))
 
 		data := map[string]any{
 			"enum":          enum,
 			"name":          name,
-			"lowercase":     g.LowercaseLookup,
-			"nocase":        g.CaseInsensitive,
-			"nocomments":    g.NoComments,
-			"noIota":        g.NoIota,
-			"marshal":       g.Marshal,
-			"sql":           g.SQL,
-			"sqlint":        g.SQLInt,
-			"flag":          g.Flag,
-			"names":         g.Names,
-			"ptr":           g.Ptr,
-			"values":        g.Values,
-			"anySQLEnabled": g.anySQLEnabled(),
-			"sqlnullint":    g.SQLNullInt,
-			"sqlnullstr":    g.SQLNullStr,
-			"mustparse":     g.MustParse,
-			"forcelower":    g.ForceLower,
-			"forceupper":    g.ForceUpper,
-			"noparse":       g.NoParse,
+			"lowercase":     config.LowercaseLookup.GetBool(g.LowercaseLookup),
+			"nocase":        config.CaseInsensitive.GetBool(g.CaseInsensitive),
+			"nocomments":    config.NoComments.GetBool(g.NoComments),
+			"noIota":        config.NoIota.GetBool(g.NoIota),
+			"marshal":       config.Marshal.GetBool(g.Marshal),
+			"sql":           config.SQL.GetBool(g.SQL),
+			"sqlint":        config.SQLInt.GetBool(g.SQLInt),
+			"flag":          config.Flag.GetBool(g.Flag),
+			"names":         config.Names.GetBool(g.Names),
+			"ptr":           config.Ptr.GetBool(g.Ptr),
+			"values":        config.Values.GetBool(g.Values),
+			"anySQLEnabled": config.SQL.GetBool(g.SQL) || config.SQLInt.GetBool(g.SQLInt) || config.SQLNullStr.GetBool(g.SQLNullStr) || config.SQLNullInt.GetBool(g.SQLNullInt),
+			"sqlnullint":    config.SQLNullInt.GetBool(g.SQLNullInt),
+			"sqlnullstr":    config.SQLNullStr.GetBool(g.SQLNullStr),
+			"mustparse":     config.MustParse.GetBool(g.MustParse),
+			"forcelower":    config.ForceLower.GetBool(g.ForceLower),
+			"forceupper":    config.ForceUpper.GetBool(g.ForceUpper),
+			"noparse":       config.NoParse.GetBool(g.NoParse),
 			// Computed values for cleaner templates
 			"generateParse": generateParse,
 			"parseIsPublic": parseIsPublic,
@@ -284,21 +291,42 @@ func (g *Generator) parseEnum(ts *ast.TypeSpec) (*Enum, error) {
 		return nil, errors.New("no doc on enum")
 	}
 
-	enum := &Enum{}
+	enum := &Enum{
+		Config: NewEnumConfig(),
+	}
 
 	enum.Name = ts.Name.Name
 	enum.Type = fmt.Sprintf("%s", ts.Type)
-	if !g.NoPrefix {
+	
+	// Extract annotations and enum declaration
+	annotations, enumDecl := extractAnnotationsAndEnumDecl(ts.Doc.List)
+	
+	// Parse annotations
+	for _, annotation := range annotations {
+		if err := enum.Config.ParseAnnotation(annotation); err != nil {
+			fmt.Printf("Warning: failed to parse annotation %q: %v\n", annotation, err)
+		}
+	}
+	
+	// Determine prefix based on config (local overrides global)
+	noPrefix := enum.Config.NoPrefix.GetBool(g.NoPrefix)
+	if !noPrefix {
 		enum.Prefix = ts.Name.Name
 	}
+	
+	// Apply global prefix if set
 	if g.Prefix != "" {
 		enum.Prefix = g.Prefix + enum.Prefix
+	}
+	
+	// Apply annotation prefix if set (overrides everything)
+	if prefix := enum.Config.Prefix.GetString(""); prefix != "" {
+		enum.Prefix = prefix + ts.Name.Name
 	}
 
 	commentPreEnumDecl, _, _ := strings.Cut(ts.Doc.Text(), `ENUM(`)
 	enum.Comment = strings.TrimSpace(commentPreEnumDecl)
 
-	enumDecl := getEnumDeclFromComments(ts.Doc.List)
 	if enumDecl == "" {
 		return nil, errors.New("failed parsing enum")
 	}
@@ -663,4 +691,47 @@ func isTypeSpecEnum(ts *ast.TypeSpec) bool {
 	}
 
 	return isEnum
+}
+
+// extractAnnotationsAndEnumDecl extracts annotations (lines starting with @) and the ENUM declaration
+// from the comment list. Returns the annotations and the enum declaration string.
+func extractAnnotationsAndEnumDecl(comments []*ast.Comment) ([]string, string) {
+	var annotations []string
+	var enumDecl string
+	
+	for _, comment := range comments {
+		lines := breakCommentIntoLines(comment)
+		for _, line := range lines {
+			trimmedLine := strings.TrimSpace(line)
+			
+			// Skip empty lines
+			if trimmedLine == "" {
+				continue
+			}
+			
+			// Check if this line contains ENUM(
+			if strings.Contains(trimmedLine, "ENUM(") {
+				// Use the existing getEnumDeclFromComments function to get the full declaration
+				enumDecl = getEnumDeclFromComments(comments)
+				break
+			}
+			
+			// Check if this line contains annotations
+			if strings.Contains(trimmedLine, "@") {
+				// Split by whitespace to get individual annotations
+				// This handles cases like "@para1 @param2 @para3"
+				parts := strings.Fields(trimmedLine)
+				for _, part := range parts {
+					if strings.HasPrefix(part, "@") {
+						annotations = append(annotations, part)
+					}
+				}
+			}
+		}
+		if enumDecl != "" {
+			break
+		}
+	}
+	
+	return annotations, enumDecl
 }

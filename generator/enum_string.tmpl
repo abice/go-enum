@@ -353,6 +353,37 @@ func (n *Null{{.enum.Name}}) UnmarshalJSON(b []byte) error {
 	err = n.Scan(x)
 	return err
 }
+
+// MarshalText implements the text marshaller method.
+func (n Null{{.enum.Name}}) MarshalText() ([]byte, error) {
+	if n.Valid {
+		return n.{{.enum.Name}}.MarshalText()
+	}
+	return []byte{}, nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (n *Null{{.enum.Name}}) UnmarshalText(text []byte) error {
+	n.Set = true
+	if len(text) == 0 {
+		n.Valid = false
+		return nil
+	}
+	err := n.{{.enum.Name}}.UnmarshalText(text)
+	n.Valid = (err == nil)
+	return err
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (n *Null{{.enum.Name}}) AppendText(b []byte) ([]byte, error) {
+	if n.Valid {
+		return n.{{.enum.Name}}.AppendText(b)
+	}
+	return b, nil
+}
 {{ end }}
 
 {{ end }}
@@ -394,6 +425,37 @@ func (n *Null{{.enum.Name}}Str) UnmarshalJSON(b []byte) error {
 	}
 	err = n.Scan(x)
 	return err
+}
+
+// MarshalText implements the text marshaller method.
+func (n Null{{.enum.Name}}Str) MarshalText() ([]byte, error) {
+	if n.Valid {
+		return n.{{.enum.Name}}.MarshalText()
+	}
+	return []byte{}, nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (n *Null{{.enum.Name}}Str) UnmarshalText(text []byte) error {
+	n.Set = true
+	if len(text) == 0 {
+		n.Valid = false
+		return nil
+	}
+	err := n.{{.enum.Name}}.UnmarshalText(text)
+	n.Valid = (err == nil)
+	return err
+}
+
+// AppendText appends the textual representation of itself to the end of b
+// (allocating a larger slice if necessary) and returns the updated slice.
+//
+// Implementations must not retain b, nor mutate any bytes within b[:len(b)].
+func (n *Null{{.enum.Name}}Str) AppendText(b []byte) ([]byte, error) {
+	if n.Valid {
+		return n.{{.enum.Name}}.AppendText(b)
+	}
+	return b, nil
 }
 {{ end }}
 {{ end }}
