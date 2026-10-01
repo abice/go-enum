@@ -91,7 +91,7 @@ func NewGeneratorWithConfig(config GeneratorConfig) *Generator {
 		title := cases.Title(language.Und, cases.NoLower)
 		g.initialismReplacements = make(map[string]string, len(config.Initialisms))
 		for _, initialism := range config.Initialisms {
-			g.initialismReplacements[title.String(strings.ToLower(initialism))] = initialism
+			g.initialismReplacements[title.String(strings.ToLower(initialism))] = strings.ToUpper(initialism)
 		}
 	}
 

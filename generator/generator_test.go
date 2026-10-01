@@ -1134,18 +1134,46 @@ type Method int
 func TestInitialismsWithNoPrefix(t *testing.T) {
 	input := `package test
 
-// ENUM(http_url)
+// ENUM(http, http_url)
 type Method int
 `
-	g := NewGenerator(WithNoPrefix(), WithInitialisms("HTTP", "URL"))
-	f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
-	require.NoError(t, err)
+	constructors := map[string]func([]string) *Generator{
+		"options": func(initialisms []string) *Generator {
+			return NewGenerator(WithNoPrefix(), WithInitialisms(initialisms...))
+		},
+		"config": func(initialisms []string) *Generator {
+			return NewGeneratorWithConfig(GeneratorConfig{
+				NoPrefix:    true,
+				Initialisms: initialisms,
+			})
+		},
+	}
+	cases := map[string][]string{
+		"uppercase":  {"HTTP", "URL"},
+		"lowercase":  {"http", "url"},
+		"mixed case": {"hTtP", "uRl"},
+		"duplicates": {"HTTP", "http", "URL", "url"},
+	}
 
-	output, err := g.Generate(f)
-	require.NoError(t, err)
+	for constructorName, constructor := range constructors {
+		t.Run(constructorName, func(t *testing.T) {
+			for name, initialisms := range cases {
+				t.Run(name, func(t *testing.T) {
+					g := constructor(initialisms)
+					f, err := parser.ParseFile(g.fileSet, "test.go", input, parser.ParseComments)
+					require.NoError(t, err)
 
-	outputStr := string(output)
-	assert.Contains(t, outputStr, "HTTPURL")
+					output, err := g.Generate(f)
+					require.NoError(t, err)
+
+					outputStr := string(output)
+					assert.Regexp(t, `(?m)^\s*HTTP\s+Method = iota$`, outputStr)
+					assert.Regexp(t, `(?m)^\s*HTTPURL$`, outputStr)
+					assert.Contains(t, outputStr, `"httphttp_url"`)
+				})
+			}
+		})
+	}
 }
 
 func TestInitialismsWithStringEnum(t *testing.T) {
