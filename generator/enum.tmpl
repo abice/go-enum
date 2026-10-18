@@ -132,78 +132,102 @@ func (x *{{.enum.Name}}) Scan(value interface{}) (err error) {
 		return
 	}
 
+	// Parse integers using the enum's width before converting to avoid overflow.
+	scanInteger := func(value string) error {
+{{if has .enum.Type (list "int" "int8" "int16" "int32" "int64" "uint" "uint8" "uint16" "uint32" "uint64" "uintptr" "byte" "rune")}}		parsed, err := strconv.{{if or (hasPrefix "u" .enum.Type) (eq .enum.Type "byte")}}ParseUint{{else}}ParseInt{{end}}(value, 10, {{if or (eq .enum.Type "int") (eq .enum.Type "uint") (eq .enum.Type "uintptr")}}strconv.IntSize{{else if eq .enum.Type "byte"}}8{{else if eq .enum.Type "rune"}}32{{else}}{{trimPrefix "int" (trimPrefix "u" .enum.Type)}}{{end}}){{else}}
+		// Named integer types retain their underlying width and signedness.
+		if ^{{.enum.Name}}(0) > 0 {
+			parsed, err := strconv.ParseUint(value, 10, reflect.TypeOf(*x).Bits())
+			if err != nil {
+				return err
+			}
+			*x = {{.enum.Name}}(parsed)
+			return nil
+		}
+		parsed, err := strconv.ParseInt(value, 10, reflect.TypeOf(*x).Bits()){{end}}
+		if err != nil {
+			return err
+		}
+		*x = {{.enum.Name}}(parsed)
+		return nil
+	}
+	scanFloat := func(value float64) error {
+		truncated := math.Trunc(value)
+		if truncated == 0 {
+			return scanInteger("0")
+		}
+		return scanInteger(strconv.FormatFloat(truncated, 'f', 0, 64))
+	}
+{{if .sqlnullint }}
+	scanString := func(value string) error {
+		parsed, err := {{.parseName}}{{.enum.Name}}(value)
+		if err == nil {
+			*x = parsed
+			return nil
+		}
+		if intErr := scanInteger(value); intErr == nil {
+			return nil
+		} else if errors.Is(intErr, strconv.ErrRange) {
+			return intErr
+		}
+		return err
+	}
+{{end}}
+
 	// A wider range of scannable types.
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
 	case int64:
-		*x = {{.enum.Name}}(v)
+		return scanInteger(strconv.FormatInt(v, 10))
 	case string:
-		*x, err = {{.parseName}}{{.enum.Name}}(v){{if .sqlnullint }}
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(v); verr == nil {
-				*x, err = {{.enum.Name}}(val), nil
-			}
-		}{{end}}
+{{if .sqlnullint }}		return scanString(v){{else}}		*x, err = {{.parseName}}{{.enum.Name}}(v){{end}}
 	case []byte:
-		*x, err = {{.parseName}}{{.enum.Name}}(string(v)){{if .sqlnullint }}
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(string(v)); verr == nil {
-				*x, err = {{.enum.Name}}(val), nil
-			}
-		}{{end}}
+{{if .sqlnullint }}		return scanString(string(v)){{else}}		*x, err = {{.parseName}}{{.enum.Name}}(string(v)){{end}}
 	case {{.enum.Name}}:
 		*x = v
 	case int:
-		*x = {{.enum.Name}}(v)
+		return scanInteger(strconv.FormatInt(int64(v), 10))
 	case *{{.enum.Name}}:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
 		*x = *v
 	case uint:
-		*x = {{.enum.Name}}(v)
+		return scanInteger(strconv.FormatUint(uint64(v), 10))
 	case uint64:
-		*x = {{.enum.Name}}(v)
+		return scanInteger(strconv.FormatUint(v, 10))
 	case *int:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x = {{.enum.Name}}(*v)
+		return scanInteger(strconv.FormatInt(int64(*v), 10))
 	case *int64:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x = {{.enum.Name}}(*v)
+		return scanInteger(strconv.FormatInt(*v, 10))
 	case float64: // json marshals everything as a float64 if it's a number
-		*x = {{.enum.Name}}(v)
+		return scanFloat(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x = {{.enum.Name}}(*v)
+		return scanFloat(*v)
 	case *uint:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x = {{.enum.Name}}(*v)
+		return scanInteger(strconv.FormatUint(uint64(*v), 10))
 	case *uint64:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x = {{.enum.Name}}(*v)
+		return scanInteger(strconv.FormatUint(*v, 10))
 	case *string:
 		if v == nil{
 			return err{{.enum.Name}}NilPtr
 		}
-		*x, err = {{.parseName}}{{.enum.Name}}(*v){{if .sqlnullint }}
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(*v); verr == nil {
-				*x, err = {{.enum.Name}}(val), nil
-			}
-		}{{end}}
+{{if .sqlnullint }}		return scanString(*v){{else}}		*x, err = {{.parseName}}{{.enum.Name}}(*v){{end}}
 	}
 	
 	return 

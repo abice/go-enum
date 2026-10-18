@@ -13,6 +13,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 )
 
@@ -81,78 +82,91 @@ func (x *ImageType) Scan(value interface{}) (err error) {
 		return
 	}
 
+	// Parse integers using the enum's width before converting to avoid overflow.
+	scanInteger := func(value string) error {
+		parsed, err := strconv.ParseInt(value, 10, strconv.IntSize)
+		if err != nil {
+			return err
+		}
+		*x = ImageType(parsed)
+		return nil
+	}
+	scanFloat := func(value float64) error {
+		truncated := math.Trunc(value)
+		if truncated == 0 {
+			return scanInteger("0")
+		}
+		return scanInteger(strconv.FormatFloat(truncated, 'f', 0, 64))
+	}
+
+	scanString := func(value string) error {
+		parsed, err := ParseImageType(value)
+		if err == nil {
+			*x = parsed
+			return nil
+		}
+		if intErr := scanInteger(value); intErr == nil {
+			return nil
+		} else if errors.Is(intErr, strconv.ErrRange) {
+			return intErr
+		}
+		return err
+	}
+
 	// A wider range of scannable types.
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
 	case int64:
-		*x = ImageType(v)
+		return scanInteger(strconv.FormatInt(v, 10))
 	case string:
-		*x, err = ParseImageType(v)
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(v); verr == nil {
-				*x, err = ImageType(val), nil
-			}
-		}
+		return scanString(v)
 	case []byte:
-		*x, err = ParseImageType(string(v))
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(string(v)); verr == nil {
-				*x, err = ImageType(val), nil
-			}
-		}
+		return scanString(string(v))
 	case ImageType:
 		*x = v
 	case int:
-		*x = ImageType(v)
+		return scanInteger(strconv.FormatInt(int64(v), 10))
 	case *ImageType:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
 		*x = *v
 	case uint:
-		*x = ImageType(v)
+		return scanInteger(strconv.FormatUint(uint64(v), 10))
 	case uint64:
-		*x = ImageType(v)
+		return scanInteger(strconv.FormatUint(v, 10))
 	case *int:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x = ImageType(*v)
+		return scanInteger(strconv.FormatInt(int64(*v), 10))
 	case *int64:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x = ImageType(*v)
+		return scanInteger(strconv.FormatInt(*v, 10))
 	case float64: // json marshals everything as a float64 if it's a number
-		*x = ImageType(v)
+		return scanFloat(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x = ImageType(*v)
+		return scanFloat(*v)
 	case *uint:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x = ImageType(*v)
+		return scanInteger(strconv.FormatUint(uint64(*v), 10))
 	case *uint64:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x = ImageType(*v)
+		return scanInteger(strconv.FormatUint(*v, 10))
 	case *string:
 		if v == nil {
 			return errImageTypeNilPtr
 		}
-		*x, err = ParseImageType(*v)
-		if err != nil {
-			// try parsing the integer value as a string
-			if val, verr := strconv.Atoi(*v); verr == nil {
-				*x, err = ImageType(val), nil
-			}
-		}
+		return scanString(*v)
 	}
 
 	return

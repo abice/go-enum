@@ -13,6 +13,8 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"math"
+	"strconv"
 )
 
 const (
@@ -163,11 +165,28 @@ func (x *UnparsedSqlValues) Scan(value interface{}) (err error) {
 		return
 	}
 
+	// Parse integers using the enum's width before converting to avoid overflow.
+	scanInteger := func(value string) error {
+		parsed, err := strconv.ParseUint(value, 10, 8)
+		if err != nil {
+			return err
+		}
+		*x = UnparsedSqlValues(parsed)
+		return nil
+	}
+	scanFloat := func(value float64) error {
+		truncated := math.Trunc(value)
+		if truncated == 0 {
+			return scanInteger("0")
+		}
+		return scanInteger(strconv.FormatFloat(truncated, 'f', 0, 64))
+	}
+
 	// A wider range of scannable types.
 	// driver.Value values at the top of the list for expediency
 	switch v := value.(type) {
 	case int64:
-		*x = UnparsedSqlValues(v)
+		return scanInteger(strconv.FormatInt(v, 10))
 	case string:
 		*x, err = parseUnparsedSqlValues(v)
 	case []byte:
@@ -175,43 +194,43 @@ func (x *UnparsedSqlValues) Scan(value interface{}) (err error) {
 	case UnparsedSqlValues:
 		*x = v
 	case int:
-		*x = UnparsedSqlValues(v)
+		return scanInteger(strconv.FormatInt(int64(v), 10))
 	case *UnparsedSqlValues:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
 		*x = *v
 	case uint:
-		*x = UnparsedSqlValues(v)
+		return scanInteger(strconv.FormatUint(uint64(v), 10))
 	case uint64:
-		*x = UnparsedSqlValues(v)
+		return scanInteger(strconv.FormatUint(v, 10))
 	case *int:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
-		*x = UnparsedSqlValues(*v)
+		return scanInteger(strconv.FormatInt(int64(*v), 10))
 	case *int64:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
-		*x = UnparsedSqlValues(*v)
+		return scanInteger(strconv.FormatInt(*v, 10))
 	case float64: // json marshals everything as a float64 if it's a number
-		*x = UnparsedSqlValues(v)
+		return scanFloat(v)
 	case *float64: // json marshals everything as a float64 if it's a number
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
-		*x = UnparsedSqlValues(*v)
+		return scanFloat(*v)
 	case *uint:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
-		*x = UnparsedSqlValues(*v)
+		return scanInteger(strconv.FormatUint(uint64(*v), 10))
 	case *uint64:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
 		}
-		*x = UnparsedSqlValues(*v)
+		return scanInteger(strconv.FormatUint(*v, 10))
 	case *string:
 		if v == nil {
 			return errUnparsedSqlValuesNilPtr
