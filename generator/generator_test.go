@@ -718,6 +718,7 @@ type Number int
 	// Should not contain Parse method
 	assert.NotContains(t, outputStr, "func ParseNumber")
 	assert.NotContains(t, outputStr, "func parseNumber")
+	assert.NotContains(t, outputStr, "var _NumberValue")
 
 	// Should still contain other methods
 	assert.Contains(t, outputStr, "func (x Number) String()")
@@ -744,6 +745,8 @@ type Greek string
 	// Should not contain Parse method
 	assert.NotContains(t, outputStr, "func ParseGreek")
 	assert.NotContains(t, outputStr, "func parseGreek")
+	// String enum IsValid still needs its lookup map.
+	assert.Contains(t, outputStr, "var _GreekValue")
 
 	// Should still contain other methods
 	assert.Contains(t, outputStr, "func (x Greek) String()")
@@ -772,6 +775,7 @@ type Number int
 
 	// Should contain unexported parse method
 	assert.Contains(t, outputStr, "func parseNumber(")
+	assert.Contains(t, outputStr, "var _NumberValue")
 
 	// Should contain marshal methods that use the unexported parse
 	assert.Contains(t, outputStr, "func (x *Number) UnmarshalText(")

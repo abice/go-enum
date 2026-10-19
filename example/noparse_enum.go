@@ -83,11 +83,3 @@ func (x UnparsedValues) IsValid() bool {
 	_, ok := _UnparsedValuesMap[x]
 	return ok
 }
-
-var _UnparsedValuesValue = map[string]UnparsedValues{
-	_UnparsedValuesName[0:1]: UnparsedValuesA,
-	_UnparsedValuesName[1:2]: UnparsedValuesB,
-	_UnparsedValuesName[2:3]: UnparsedValuesC,
-	_UnparsedValuesName[3:4]: UnparsedValuesD,
-	_UnparsedValuesName[4:5]: UnparsedValuesE,
-}

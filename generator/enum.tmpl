@@ -63,9 +63,9 @@ func (x {{.enum.Name}}) IsValid() bool {
 	return ok
 }
 
+{{- if .generateParse }}
 var _{{.enum.Name}}Value = {{ unmapify .enum .lowercase }}
 
-{{- if .generateParse }}
 // {{.parseName}}{{.enum.Name}} attempts to convert a string to a {{.enum.Name}}.
 func {{.parseName}}{{.enum.Name}}(name string) ({{.enum.Name}}, error) {
 	if x, ok := _{{.enum.Name}}Value[name]; ok {
