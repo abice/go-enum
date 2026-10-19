@@ -24,6 +24,7 @@ An enum generator for Go that creates type-safe enumerations with useful methods
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
 - [How it works](#how-it-works)
+- [Custom templates](#custom-templates)
 - [String typed enums](#now-with-string-typed-enums)
 - [Recent Features](#recent-features)
 - [Goal](#goal)
@@ -125,6 +126,94 @@ func (x *ImageType) UnmarshalText(text []byte) error
 **Fear not the fact that the `MarshalText` and `UnmarshalText` are generated rather than JSON methods... they will still be utilized by the default JSON encoding methods.**
 
 If you find that the options given are not adequate for your use case, there is an option to add a custom template (`-t` flag) to the processing engine so that your custom code can be created!
+
+## Custom templates
+
+Pass one or more `--template` (`-t`) files to add methods to the generated enums.
+Each additional template runs once per enum, in alphabetical template-name order, after that enum's built-in template.
+Templates use Go's `text/template` syntax and the [Sprig text functions](https://masterminds.github.io/sprig/).
+
+### Template data
+
+The per-enum template data contains these keys:
+
+| Key | Value |
+| --- | --- |
+| `.enum` | The enum being generated; fields are listed below. |
+| `.name` | The enum's type name, also available as `.enum.Name`. |
+| `.lowercase`, `.nocase` | Lowercase lookup and case-insensitive parsing options. |
+| `.nocomments`, `.noIota` | Comment suppression and explicit numeric value options. |
+| `.marshal`, `.flag`, `.names`, `.ptr`, `.values` | Whether the corresponding generated features are enabled. |
+| `.sql`, `.sqlint`, `.sqlnullint`, `.sqlnullstr` | Individual SQL options. |
+| `.anySQLEnabled` | Whether any SQL option is enabled. |
+| `.mustparse`, `.noparse` | The requested parsing options. |
+| `.forcelower`, `.forceupper` | Whether enum string values are forced to lowercase or uppercase. |
+| `.generateParse` | Whether a public or private parse function is generated. |
+| `.parseIsPublic`, `.parseName` | Whether parsing is public, and its `Parse` or `parse` name prefix. |
+| `.generateError` | Whether the invalid-enum error variable is generated. |
+
+`.enum` is a `generator.Enum` with exported fields `Name`, `Prefix`, `Type`, `Comment`, and `Values`.
+`Values` is a slice of `generator.EnumValue`; each entry exposes `RawName`, `Name`, `PrefixedName`, `ValueStr`, `ValueInt`, and `Comment`.
+Use `PrefixedName` to refer to a generated constant and `ValueStr` for the parsed string value before case-conversion options are applied.
+Use `quote` or `printf "%q"` when emitting a Go string literal, so quotes and newlines are escaped.
+
+The `header` template runs once per file, before the enum templates.
+It has a separate data context: `.package`, `.version`, `.revision`, `.buildDate`, `.builtBy`, `.buildTags`, and `.jsonpkg`.
+These header keys are not part of the per-enum context.
+
+### Example: a Huma schema for string enums
+
+The following complete template adds a schema method for [Huma](https://github.com/danielgtaylor/huma) to string enums.
+It overrides `header` to declare the external import and uses `--values` to obtain the allowed values.
+The generator's import formatter removes unused imports and adds required standard-library imports.
+This short header omits the default build-information comments and build tags; copy the built-in `header` template if your project needs those as well.
+
+Save this as `huma.tmpl`:
+
+```gotemplate
+{{define "header"}}
+package {{.package}}
+
+import "github.com/danielgtaylor/huma/v2"
+{{end}}
+
+{{if eq .enum.Type "string"}}
+// Schema returns the Huma schema for {{.enum.Name}}.
+func (s {{.enum.Name}}) Schema(_ huma.Registry) *huma.Schema {
+    values := {{.enum.Name}}Values()
+    enumValues := make([]any, len(values))
+    for i, value := range values {
+        enumValues[i] = string(value)
+    }
+    return &huma.Schema{
+        Type: "string",
+        Enum: enumValues,
+        {{if .enum.Comment}}Description: {{printf "%q" .enum.Comment}},
+        {{else}}Description: {{printf "%q" .enum.Name}},{{end}}
+    }
+}
+{{end}}
+```
+
+For example, given `status.go`:
+
+```go
+package enums
+
+// Status describes the state of a request.
+// ENUM(pending, completed, failed)
+type Status string
+```
+
+Install Huma in your module and generate the enum with the template:
+
+```shell
+go get github.com/danielgtaylor/huma/v2
+go tool go-enum -f status.go --values --template huma.tmpl
+```
+
+`StatusPending.Schema(...)` then describes the three string values and uses the enum comment as its description.
+Without a comment, the template uses the type name as the description.
 
 ## Now with string typed enums
 
